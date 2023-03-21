@@ -16,3 +16,6 @@ env
 .env
 .env.test
 /env
+
+# build
+dist
