@@ -1,0 +1,18 @@
+# AWS EC2 key-pair
+teamnova.pem
+
+# Logs
+log
+*.log
+npm-debug.log*
+
+# Dependency directories
+node_modules/
+jspm_packages/
+.vscode
+
+# dotenv environment variables file
+env
+.env
+.env.test
+/env
