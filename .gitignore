@@ -19,3 +19,4 @@ env
 
 # build
 dist
+package-lock.json
