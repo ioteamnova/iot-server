@@ -24,7 +24,7 @@ AppModule = __decorate([
                 cache: true,
             }),
             typeorm_1.TypeOrmModule.forRoot({
-                type: 'mariadb',
+                type: 'mysql',
                 host: process.env.MYSQL_HOST,
                 port: Number(process.env.MYSQL_PORT),
                 username: process.env.MYSQL_USER,
