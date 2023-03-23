@@ -12,13 +12,13 @@ async function bootstrap() {
     `====================== MYSQL_HOST Start - ${process.env.MYSQL_HOST} !!======================`,
   );
 
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
 
   app.enableVersioning({
     type: VersioningType.URI,
   });
 
-  app.use(cors.default());
+  app.enableCors();
 
   await app.listen(3000);
 }
