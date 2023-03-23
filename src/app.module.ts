@@ -16,7 +16,7 @@ import { AppService } from './app.service';
     }),
     //todo: 설정파일 분리
     TypeOrmModule.forRoot({
-      type: 'mariadb',
+      type: 'mysql',
       host: process.env.MYSQL_HOST,
       port: Number(process.env.MYSQL_PORT),
       username: process.env.MYSQL_USER,
