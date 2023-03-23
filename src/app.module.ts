@@ -9,7 +9,7 @@ import { AppService } from './app.service';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath:
-        process.env.NODE_ENV === 'dev' ? './env/.env.dev' : './env/.env.test',
+        process.env.NODE_ENV === 'dev' ? '../env/.env.dev' : '../env/.env.test',
       ignoreEnvFile: process.env.NODE_ENV === 'prod', // production 환경일 때는 configModule이 환경변수 파일을 무시하도록.
       cache: true,
       // todo: 환경 변수 유효성 검사 joi
