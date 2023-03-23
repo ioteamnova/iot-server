@@ -18,5 +18,5 @@ env
 /env
 
 # build
-# dist # npm run build 오래 걸리는 문제 해결을 위해 dist까지 pull 받는 테스트
+dist
 package-lock.json
