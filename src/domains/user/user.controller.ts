@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   Res,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -30,11 +32,14 @@ export class UserController {
     description: '사용자가 회원가입을 한다.',
   })
   @ApiBody({ type: CreateUserDto })
-  @ApiCreatedResponse({ description: '유저를 생성한다.', type: User })
+  @ApiCreatedResponse({ description: '유저를 생성한다.' })
   @Post()
-  async createUser(@Res() res, @Body() createUserDto: CreateUserDto) {
-    const user = await this.userService.create(createUserDto);
-    return user;
+  @HttpCode(201)
+  async createUser(@Res() res: Response, @Body() dto: CreateUserDto) {
+    const user = await this.userService.create(dto);
+    console.log('컨트롤러 user:::', user);
+    // res.status(HttpStatus.OK).json(dto);
+    return `200 OK ${user.idx} `;
   }
 
   @Get()

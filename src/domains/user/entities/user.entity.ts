@@ -20,8 +20,8 @@ export class User extends BaseEntity {
   profilePath: string;
 
   @Column()
-  isPremium: string;
+  isPremium: boolean;
 
   @Column()
-  agreeWithEmail: string;
+  agreeWithEmail: boolean;
 }
