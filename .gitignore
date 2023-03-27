@@ -18,5 +18,5 @@ env
 /env
 
 # build
-dist
+dist/
 package-lock.json
