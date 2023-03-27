@@ -7,8 +7,6 @@ import {
   Param,
   Delete,
   Res,
-  HttpCode,
-  HttpStatus,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -20,7 +18,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { SwaggerTag } from 'src/core/swagger/api-tags';
-import { User } from './entities/user.entity';
 
 @ApiTags(SwaggerTag.User)
 @Controller('/users')
@@ -33,18 +30,21 @@ export class UserController {
   })
   @ApiBody({ type: CreateUserDto })
   @ApiCreatedResponse({ description: '유저를 생성한다.' })
+  // todo: ErrorResponse
   @Post()
-  @HttpCode(201)
-  async createUser(@Res() res: Response, @Body() dto: CreateUserDto) {
+  async createUser(@Res() res, @Body() dto: CreateUserDto) {
     const user = await this.userService.create(dto);
-    console.log('컨트롤러 user:::', user);
-    // res.status(HttpStatus.OK).json(dto);
-    return `200 OK ${user.idx} `;
+    return res.status(201).send(user);
   }
 
-  @Get()
+  @ApiOperation({
+    summary: '이메일 인증',
+    description: '회원가입시 이메일 인증을 한다.',
+  })
+  @ApiCreatedResponse({ description: '유저를 생성한다.' })
+  @Post('/email-verify')
   findAll() {
-    return this.userService.findAll();
+    return '이메일 인증';
   }
 
   @Get(':id')
