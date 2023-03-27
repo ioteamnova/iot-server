@@ -1,11 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { User } from './entities/user.entity';
+import { UserRepository } from './repositories/user.repository';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return createUserDto;
+  constructor(private userRepository: UserRepository) {}
+  /**
+   *  회원가입 API
+   * @param createUserDto 유저 dtos
+   */
+  async create(createUserDto: CreateUserDto) {
+    const {
+      email,
+      password,
+      nickname,
+      profilePath,
+      isPremium,
+      agreeWithEmail,
+    } = createUserDto;
+    const user = new User();
+    user.email = email;
+    user.password = password;
+    user.nickname = nickname;
+    user.profilePath = profilePath;
+    user.isPremium = isPremium;
+    user.agreeWithEmail = agreeWithEmail;
+
+    const saveUser = await this.userRepository.save(user);
+
+    return saveUser;
   }
 
   findAll() {

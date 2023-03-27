@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { User } from './domains/user/entities/user.entity';
 import { UserModule } from './domains/user/user.module';
 
 @Module({
@@ -20,9 +22,10 @@ import { UserModule } from './domains/user/user.module';
       username: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE_NAME,
-      entities: [],
+      entities: [User],
       synchronize: false,
       logging: true,
+      namingStrategy: new SnakeNamingStrategy(),
     }),
     UserModule,
   ],
