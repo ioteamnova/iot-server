@@ -2,7 +2,6 @@ import { VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { logger } from './utils/logger';
-import * as cors from 'cors';
 
 async function bootstrap() {
   logger.info(
