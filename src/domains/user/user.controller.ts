@@ -1,3 +1,4 @@
+import { EmailService } from './../email/email.service';
 import {
   Controller,
   Get,
@@ -9,7 +10,6 @@ import {
   Res,
   HttpCode,
   Query,
-  Catch,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -22,6 +22,7 @@ import {
 } from '@nestjs/swagger';
 import { SwaggerTag } from 'src/core/swagger/api-tags';
 import { logger } from 'src/utils/logger';
+import { VerifyEmailDto } from './dto/verify-email.dto';
 
 @ApiTags(SwaggerTag.User)
 @Controller('/users')
@@ -35,25 +36,27 @@ export class UserController {
   @ApiBody({ type: CreateUserDto })
   @ApiCreatedResponse({ description: '유저를 생성한다.' })
   // todo: ErrorResponse
-  @HttpCode(201)
+  // @HttpCode(201)
   @Post()
   async createUser(@Res() res, @Body() dto: CreateUserDto) {
     const user = await this.userService.createUser(dto);
-    return res.status(201).json(user);
+    return res.status(201).send(user);
   }
 
-  // @ApiOperation({
-  //   summary: '이메일 인증',
-  //   description: '회원가입시 이메일 인증을 한다.',
-  // })
-  // @ApiCreatedResponse({ description: '이메일 인증' })
-  // @Post('/email-verify')
-  // async verifyEmail(@Query() dto: VerifyEmailDto): Promise<string> {
-  //   const { signupVerifyToken } = dto;
-  //   logger.info('signupVerifyToken:::', signupVerifyToken);
-
-  //   return await this.userService.verifyEmail(signupVerifyToken);
-  // }
+  @ApiOperation({
+    summary: '가입 인증 이메일 전송',
+    description: '회원가입시 이메일 인증을 한다.',
+  })
+  @ApiBody({ type: VerifyEmailDto })
+  @ApiCreatedResponse({ description: '이메일 인증' })
+  @Post('/email-verify')
+  async verifyEmail(@Res() res, @Body() dto: VerifyEmailDto): Promise<string> {
+    const signupVerifyToken = await this.userService.sendMemberJoinEmail(
+      dto.email,
+    );
+    console.log('signupVerifyToken:::', signupVerifyToken);
+    return res.status(201).send(signupVerifyToken);
+  }
 
   @Get('/:id')
   async getUserInfo(@Param('id') idx: number) {

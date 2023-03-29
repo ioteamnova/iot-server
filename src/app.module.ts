@@ -1,4 +1,4 @@
-import { UserController } from './domains/user/user.controller';
+import { AuthModule } from './domains/auth/auth.module';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -31,6 +31,7 @@ import { LoggerMiddleware } from './core/middlewares/logger.middleware';
       namingStrategy: new SnakeNamingStrategy(),
     }),
     UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService, EmailService],
