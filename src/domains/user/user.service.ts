@@ -1,3 +1,4 @@
+// import { AuthService } from './../auth/auth.service';
 import {
   ConflictException,
   Injectable,
@@ -25,10 +26,6 @@ export class UserService {
   async createUser(createUserDto: CreateUserDto) {
     await this.checkExistEmail(createUserDto.email);
 
-    const signupVerifyToken = uuid.v1();
-
-    await this.sendMemberJoinEmail(createUserDto.email, signupVerifyToken);
-
     const user = User.from(createUserDto);
 
     return await this.userRepository.save(user);
@@ -54,32 +51,11 @@ export class UserService {
    * @param
    * @returns
    */
-  async sendMemberJoinEmail(email: string, signupVerifyToken: string) {
-    await this.emailService.sendMemberJoinVerification(
-      email,
-      signupVerifyToken,
-    );
+  async sendMemberJoinEmail(email: string) {
+    const signupVerifyToken = uuid.v1();
+    await this.emailService.sendVerificationEmail(email, signupVerifyToken);
+    return signupVerifyToken;
   }
-
-  /**
-   * 이메일 인증
-   * @param signupVerifyToken
-   * @returns
-   */
-  // async verifyEmail(signupVerifyToken: string): Promise<string> {
-  //   const user = await this.userRepository.findOne({
-  //     where: { signupVerifyToken },
-  //   });
-
-  //   if (!user) {
-  //     throw new NotFoundException(HttpErrorConstants.USER_NOT_FOUND);
-  //   }
-
-  //   return this.authService.login({
-  //     idx: user.idx,
-
-  //   })
-  // }
 
   findOne(id: number) {
     return `This action returns a #${id} user`;

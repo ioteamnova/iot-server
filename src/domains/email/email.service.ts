@@ -16,28 +16,19 @@ export class EmailService {
     this.transporter = nodemailer.createTransport({
       service: 'Gmail',
       auth: {
-        user: 'ioteamnova@gmail.com',
+        user: 'ioteamnova@gmail.com', //todo: env로 빼기
         pass: 'dfuy hfaq gloo zous',
       },
     });
   }
 
-  async sendMemberJoinVerification(
-    emailAddress: string,
-    signupVerifyToken: string,
-  ) {
-    const baseUrl = 'http://localhost:3000';
-
-    const url = `${baseUrl}/users/email-verify?signupVerifyToken=${signupVerifyToken}`;
-
+  async sendVerificationEmail(emailAddress: string, signupVerifyToken: string) {
     const mailOptions: EmailOptions = {
       to: emailAddress,
-      subject: '가입 인증 메일',
+      subject: 'Reptimate 회원가입 인증 메일',
       html: `
-        가입확인 버튼를 누르시면 가입 인증이 완료됩니다.<br/>
-        <form action="${url}" method="POST">
-          <button>가입확인</button>
-        </form>
+        아래 인증 코드를 앱에서 입력해주세요.<br/>
+        ${signupVerifyToken}
       `,
     };
     return await this.transporter.sendMail(mailOptions);

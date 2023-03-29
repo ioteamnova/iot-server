@@ -5,7 +5,9 @@ import {
   IsNotEmpty,
   IsString,
   Length,
+  Matches,
 } from 'class-validator';
+import { PasswordRegex } from 'src/utils/password.utils';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -27,13 +29,17 @@ ex) HakWon123#, hakwon123#
   })
   @IsNotEmpty()
   @IsString()
-  @Length(8, 64)
+  @Matches(PasswordRegex, {
+    message:
+      '비밀번호 형식이 적절하지 않습니다. 비밀번호는 영문, 숫자, 특수문자가 포함된 8자 이상으로만 가능합니다.',
+  })
   password: string;
 
   @ApiProperty({
     description: '닉네임',
     default: '김철수',
   })
+  @IsNotEmpty()
   @IsString()
   @Length(8, 32)
   nickname: string;
@@ -57,5 +63,6 @@ ex) HakWon123#, hakwon123#
     default: false,
   })
   @IsBoolean()
+  @IsNotEmpty()
   agreeWithMarketing: boolean;
 }
