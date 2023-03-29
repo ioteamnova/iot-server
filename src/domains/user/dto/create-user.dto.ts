@@ -3,6 +3,7 @@ import {
   IsBoolean,
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Length,
   Matches,
@@ -49,12 +50,14 @@ ex) HakWon123#, hakwon123#
     default: 'https://image.xxx.xx/xx...',
   })
   @IsString()
+  @IsOptional()
   profilePath: string;
 
   @ApiProperty({
     description: '구독 여부',
     default: false,
   })
+  @IsOptional()
   @IsBoolean()
   isPremium: boolean;
 
