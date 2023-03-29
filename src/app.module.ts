@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { UserController } from './domains/user/user.controller';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
@@ -7,6 +8,7 @@ import { AppService } from './app.service';
 import { User } from './domains/user/entities/user.entity';
 import { UserModule } from './domains/user/user.module';
 import { EmailService } from './domains/email/email.service';
+import { LoggerMiddleware } from './core/middlewares/logger.middleware';
 
 @Module({
   imports: [
@@ -33,4 +35,8 @@ import { EmailService } from './domains/email/email.service';
   controllers: [AppController],
   providers: [AppService, EmailService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): any {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
