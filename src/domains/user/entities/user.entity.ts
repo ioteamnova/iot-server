@@ -7,15 +7,19 @@ import { CreateUserDto } from '../dto/create-user.dto';
 export class User extends BaseEntity {
   @Column({
     nullable: false,
+    length: 60,
   })
   email: string;
 
   @Column({
     nullable: false,
+    length: 64,
   })
   password: string;
 
-  @Column()
+  @Column({
+    length: 32,
+  })
   nickname: string;
 
   @Column()
@@ -25,7 +29,7 @@ export class User extends BaseEntity {
   isPremium: boolean;
 
   @Column()
-  agreeWithEmail: boolean;
+  agreeWithMarketing: boolean;
 
   static from(dto: CreateUserDto) {
     const user = new User();
@@ -33,7 +37,7 @@ export class User extends BaseEntity {
     user.nickname = dto.nickname;
     user.profilePath = dto.profilePath;
     user.isPremium = dto.isPremium;
-    user.agreeWithEmail = dto.agreeWithEmail;
+    user.agreeWithMarketing = dto.agreeWithMarketing;
     user.password = hashPassword(dto.password);
     return user;
   }

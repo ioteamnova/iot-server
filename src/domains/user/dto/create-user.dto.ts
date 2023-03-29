@@ -1,10 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Length,
+} from 'class-validator';
 
 export class CreateUserDto {
   @ApiProperty({
     description: '이메일',
-    default: 'yjp9603@naver.com',
+    default: 'asd123@gmail.com',
   })
   @IsNotEmpty()
   @IsEmail()
@@ -21,6 +27,7 @@ ex) HakWon123#, hakwon123#
   })
   @IsNotEmpty()
   @IsString()
+  @Length(8, 64)
   password: string;
 
   @ApiProperty({
@@ -28,6 +35,7 @@ ex) HakWon123#, hakwon123#
     default: '김철수',
   })
   @IsString()
+  @Length(8, 32)
   nickname: string;
 
   @ApiProperty({
@@ -49,5 +57,5 @@ ex) HakWon123#, hakwon123#
     default: false,
   })
   @IsBoolean()
-  agreeWithEmail: boolean;
+  agreeWithMarketing: boolean;
 }
