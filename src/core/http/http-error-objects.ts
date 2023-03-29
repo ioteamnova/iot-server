@@ -1,6 +1,6 @@
 /**
  * HTTP error code 관련 상수
- * */
+ */
 
 export interface HttpErrorFormat {
   errorCode: string;
