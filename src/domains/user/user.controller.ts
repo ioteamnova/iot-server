@@ -12,8 +12,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 import {
   ApiBody,
   ApiCreatedResponse,
@@ -22,9 +22,9 @@ import {
 } from '@nestjs/swagger';
 import { SwaggerTag } from 'src/core/swagger/api-tags';
 import { logger } from 'src/utils/logger';
-import { VerifyEmailDto } from './dto/verify-email.dto';
+import { VerifyEmailDto } from './dtos/verify-email.dto';
 
-@ApiTags(SwaggerTag.User)
+@ApiTags(SwaggerTag.USER)
 @Controller('/users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
