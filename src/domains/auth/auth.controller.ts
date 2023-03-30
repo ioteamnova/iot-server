@@ -9,7 +9,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { logger } from 'src/utils/logger';
-import LoginUserDto from './dtos/login-user.dto';
+import { LoginUserDto } from './dtos/login-user.dto';
 
 @ApiTags(SwaggerTag.AUTH)
 @Controller('/auth')
@@ -27,7 +27,10 @@ export class AuthController {
   })
   @ApiCreatedResponse({ description: '로그인 성공, 토큰 값 발급' })
   @Post()
-  async login(@Res() res, @Body() dto: LoginUserDto) {
+  async login(
+    @Res() res,
+    @Body() dto: LoginUserDto,
+  ): Promise<{ accessToken: string }> {
     const token = await this.authService.login(dto);
     logger.info('token::', token);
     return res.status(201).send(token);
