@@ -5,8 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 import { User } from './entities/user.entity';
 import { UserRepository } from './repositories/user.repository';
 import * as uuid from 'uuid';
@@ -54,7 +54,7 @@ export class UserService {
   async sendMemberJoinEmail(email: string) {
     const signupVerifyToken = uuid.v1();
     await this.emailService.sendVerificationEmail(email, signupVerifyToken);
-    return signupVerifyToken;
+    return { signupVerifyToken: signupVerifyToken };
   }
 
   findOne(id: number) {

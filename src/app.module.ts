@@ -34,7 +34,7 @@ import { LoggerMiddleware } from './core/middlewares/logger.middleware';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, EmailService],
+  providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {

@@ -1,3 +1,4 @@
+import { EmailModule } from './../email/email.module';
 import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
@@ -6,9 +7,9 @@ import { UserRepository } from './repositories/user.repository';
 import { EmailService } from '../email/email.service';
 
 @Module({
-  imports: [TypeOrmExModule.forCustomRepository([UserRepository])],
+  imports: [TypeOrmExModule.forCustomRepository([UserRepository]), EmailModule],
   controllers: [UserController],
-  providers: [UserService, EmailService],
+  providers: [UserService],
   exports: [UserService, TypeOrmExModule],
 })
 export class UserModule {}

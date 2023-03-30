@@ -22,7 +22,7 @@ export const validatePassword = async (
 ): Promise<void> => {
   const equalsPassword = await comparePassword(password, hashedPassword);
 
-  // 비밀번호 틀릴 떄,
+  // 비밀번호 틀릴 때,
   if (!equalsPassword) {
     throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
   }
