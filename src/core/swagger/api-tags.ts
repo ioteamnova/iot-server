@@ -5,5 +5,5 @@ export enum SwaggerTag {
 
   // 시스템 관련 / 기타
   NOTIFICATION = 'Notification: 알림',
-  App = 'App: 기타 서버관련',
+  APP = 'App: 기타 서버관련',
 }

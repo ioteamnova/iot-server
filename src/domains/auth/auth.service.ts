@@ -1,18 +1,22 @@
-import { validatePassword } from './../../utils/password.utils';
+import { comparePassword } from './../../utils/password.utils';
 import { HttpErrorConstants } from './../../core/http/http-error-objects';
 import { UserRepository } from './../user/repositories/user.repository';
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import LoginUserDto from './dtos/login-user.dto';
+import { LoginUserDto } from './dtos/login-user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private jwtService: JwtService,
+  ) {}
 
   /**
    * 로그인
    */
-  async login(loginUserDto: LoginUserDto) {
+  async login(loginUserDto: LoginUserDto): Promise<{ accessToken: string }> {
     const { email, password } = loginUserDto;
     const user = await this.userRepository.findOne({
       where: {
@@ -25,12 +29,18 @@ export class AuthService {
       throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
     }
 
-    await validatePassword(password, user.password);
+    const isPasswordValidated: boolean = await comparePassword(
+      password,
+      user.password,
+    );
 
-    const payload = { userIdx: user.idx, userEmail: user.email };
-    const accessToken = 'a123sadkjlzgkl6.asdasdasd';
-    // this.jwtService.sign(payload);
+    if (!isPasswordValidated) {
+      throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
+    }
 
+    const payload = { userIdx: user.idx };
+    // const accessToken = 'a123sadkjlzgkl6.asdasdasd';
+    const accessToken = await this.jwtService.sign(payload);
     return {
       accessToken: accessToken,
     };
