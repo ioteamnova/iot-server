@@ -19,11 +19,11 @@ export class UserService {
     private emailService: EmailService,
   ) {}
   /**
-   *  회원가입 API
+   *  회원가입
    * @param createUserDto 유저 dto
    * @returns user
    */
-  async createUser(createUserDto: CreateUserDto) {
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
     await this.checkExistEmail(createUserDto.email);
 
     const user = User.from(createUserDto);
@@ -48,8 +48,8 @@ export class UserService {
 
   /**
    * 이메일 전송
-   * @param
-   * @returns
+   * @param email
+   * @returns signupVerifyToken
    */
   async sendMemberJoinEmail(email: string) {
     const signupVerifyToken = uuid.v1();
@@ -57,8 +57,28 @@ export class UserService {
     return { signupVerifyToken: signupVerifyToken };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  /**
+   * 내 정보 조회
+   * @param user 유저
+   * @returns 유저 정보
+   */
+  async getUserInfo(user: User) {
+    const userInfo = await this.userRepository.findOne({
+      where: { idx: user.idx },
+    });
+    console.log('userInfo:::', userInfo);
+    if (!userInfo) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
+    }
+    return {
+      idx: userInfo.idx,
+      email: userInfo.email,
+      nickname: userInfo.nickname,
+      profilePath: userInfo.profilePath,
+      isPremium: userInfo.isPremium,
+      agreeWithMarketing: userInfo.agreeWithMarketing,
+      createdAt: userInfo.createdAt,
+    };
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

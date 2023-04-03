@@ -1,3 +1,4 @@
+import { AuthGuard } from '@nestjs/passport';
 import { EmailService } from './../email/email.service';
 import {
   Controller,
@@ -10,11 +11,14 @@ import {
   Res,
   HttpCode,
   Query,
+  Headers,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiOperation,
@@ -23,11 +27,18 @@ import {
 import { SwaggerTag } from 'src/core/swagger/api-tags';
 import { logger } from 'src/utils/logger';
 import { VerifyEmailDto } from './dtos/verify-email.dto';
+import { User } from './entities/user.entity';
+import { AuthService } from '../auth/auth.service';
+import { JwtAuthGuard } from '../auth/auth-guards/jwt.auth.guard';
+import { AuthUser } from 'src/core/decorators/user.decorator';
 
 @ApiTags(SwaggerTag.USER)
 @Controller('/users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private authService: AuthService,
+  ) {}
 
   @ApiOperation({
     summary: '회원가입',
@@ -38,7 +49,7 @@ export class UserController {
   // todo: ErrorResponse
   // @HttpCode(201)
   @Post()
-  async createUser(@Res() res, @Body() dto: CreateUserDto) {
+  async createUser(@Res() res, @Body() dto: CreateUserDto): Promise<User> {
     const user = await this.userService.createUser(dto);
     return res.status(201).send(user);
   }
@@ -50,7 +61,10 @@ export class UserController {
   @ApiBody({ type: VerifyEmailDto })
   @ApiCreatedResponse({ description: '이메일 인증' })
   @Post('/email-verify')
-  async verifyEmail(@Res() res, @Body() dto: VerifyEmailDto): Promise<string> {
+  async verifyEmail(
+    @Res() res,
+    @Body() dto: VerifyEmailDto,
+  ): Promise<{ signupVerifyToken: string }> {
     const signupVerifyToken = await this.userService.sendMemberJoinEmail(
       dto.email,
     );
@@ -58,9 +72,17 @@ export class UserController {
     return res.status(201).send(signupVerifyToken);
   }
 
-  @Get('/:id')
-  async getUserInfo(@Param('id') idx: number) {
-    return this.userService.findOne(idx);
+  @ApiOperation({
+    summary: '회원 정보 조회',
+    description: '회원 정보를 조회한다.',
+  })
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/me')
+  async getUserInfo(@Res() res, @AuthUser() user: User) {
+    console.log('user:::', user);
+    const userInfo = await this.userService.getUserInfo(user);
+    return res.status(200).send(userInfo);
   }
 
   @Patch(':id')
