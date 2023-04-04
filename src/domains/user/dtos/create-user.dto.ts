@@ -7,6 +7,7 @@ import {
   IsString,
   Length,
   Matches,
+  MaxLength,
 } from 'class-validator';
 import { PasswordRegex } from 'src/utils/password.utils';
 
@@ -42,7 +43,7 @@ ex) HakWon123#, hakwon123#
   })
   @IsNotEmpty()
   @IsString()
-  @Length(8, 32)
+  @MaxLength(32)
   nickname: string;
 
   @ApiProperty({

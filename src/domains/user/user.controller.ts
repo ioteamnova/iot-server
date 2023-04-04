@@ -71,7 +71,6 @@ export class UserController {
   @UseAuthGuards()
   @Get('/me')
   async getUserInfo(@Res() res, @AuthUser() user: User) {
-    console.log('user:::', user);
     const userInfo = await this.userService.getUserInfo(user.idx);
     return res.status(200).send(userInfo);
   }

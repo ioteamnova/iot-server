@@ -70,7 +70,14 @@ export class UserService {
     if (!userInfo) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
     }
-    return userInfo;
+    return {
+      idx: userInfo.idx,
+      email: userInfo.email,
+      nickname: userInfo.nickname,
+      isPremium: userInfo.isPremium,
+      agreeWithMarketing: userInfo.agreeWithMarketing,
+      createdAt: userInfo.createdAt,
+    };
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

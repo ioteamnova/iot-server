@@ -1,6 +1,6 @@
 import { AuthService } from './auth.service';
 import { SwaggerTag } from './../../core/swagger/api-tags';
-import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
@@ -9,9 +9,6 @@ import {
 } from '@nestjs/swagger';
 import { logger } from 'src/utils/logger';
 import { LoginUserDto } from './dtos/login-user.dto';
-import { AuthGuard } from '@nestjs/passport';
-import { User } from '../user/entities/user.entity';
-import AuthUser from 'src/core/decorators/auth-user.decorator';
 
 @ApiTags(SwaggerTag.AUTH)
 @Controller('/auth')
@@ -31,13 +28,6 @@ export class AuthController {
   @Post()
   async login(@Res() res, @Body() dto: LoginUserDto) {
     const result = await this.authService.login(dto);
-    logger.info('result %o', result);
     return res.status(201).send(result);
-  }
-
-  @Post('/test')
-  @UseGuards(AuthGuard('jwt'))
-  async test(@Req() req, @AuthUser() user: User) {
-    console.log('user::', user);
   }
 }

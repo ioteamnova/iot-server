@@ -31,15 +31,6 @@ export class AuthService {
     }
     await validatePassword(password, user.password);
 
-    // const isPasswordValidated: boolean = await comparePassword(
-    //   password,
-    //   user.password,
-    // );
-
-    // if (!isPasswordValidated) {
-    //   throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
-    // }
-
     const payload = { userIdx: user.idx };
     const accessToken = this.jwtService.sign(payload);
     return {
@@ -47,23 +38,4 @@ export class AuthService {
       accessToken: accessToken,
     };
   }
-
-  // async verify(jwtString: string) {
-  //   try {
-  //     const payload = jwt.verify(jwtString, this.config.jwtSecret) as (
-  //       | jwt.JwtPayload
-  //       | string
-  //     ) &
-  //       User;
-
-  //     const { id, email } = payload;
-
-  //     return {
-  //       userId: id,
-  //       email,
-  //     };
-  //   } catch (e) {
-  //     throw new UnauthorizedException();
-  //   }
-  // }
 }
