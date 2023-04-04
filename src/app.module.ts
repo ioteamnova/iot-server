@@ -37,13 +37,7 @@ import { UserGuard } from './domains/auth/auth-guards/auth.gurad';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_GUARD,
-      useClass: UserGuard,
-    },
-  ],
+  providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): any {
