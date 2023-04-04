@@ -1,11 +1,9 @@
-import { AuthUser } from './../../core/decorators/user.decorator';
 import { AuthService } from './auth.service';
 import { SwaggerTag } from './../../core/swagger/api-tags';
 import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
-  ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
@@ -13,6 +11,7 @@ import { logger } from 'src/utils/logger';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from '../user/entities/user.entity';
+import AuthUser from 'src/core/decorators/auth-user.decorator';
 
 @ApiTags(SwaggerTag.AUTH)
 @Controller('/auth')
@@ -31,8 +30,9 @@ export class AuthController {
   @ApiCreatedResponse({ description: '로그인 성공, 토큰 값 발급' })
   @Post()
   async login(@Res() res, @Body() dto: LoginUserDto) {
-    const token = await this.authService.login(dto);
-    return res.status(201).send(token);
+    const result = await this.authService.login(dto);
+    logger.info('result %o', result);
+    return res.status(201).send(result);
   }
 
   @Post('/test')
