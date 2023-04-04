@@ -23,6 +23,7 @@ import { User } from './entities/user.entity';
 import { AuthService } from '../auth/auth.service';
 import UseAuthGuards from '../auth/auth-guards/use-auth';
 import AuthUser from 'src/core/decorators/auth-user.decorator';
+import HttpResponse from 'src/core/http/http-response';
 
 @ApiTags(SwaggerTag.USER)
 @Controller('/users')
@@ -39,11 +40,11 @@ export class UserController {
   @ApiBody({ type: CreateUserDto })
   @ApiCreatedResponse({ description: '유저를 생성한다.' })
   // todo: ErrorResponse
-  // @HttpCode(201)
   @Post()
-  async createUser(@Res() res, @Body() dto: CreateUserDto): Promise<User> {
+  async createUser(@Res() res, @Body() dto: CreateUserDto) {
     const user = await this.userService.createUser(dto);
-    return res.status(201).send(user);
+    return HttpResponse.created(res, { body: { idx: user.idx } });
+    // return res.status(201).send(user);
   }
 
   @ApiOperation({
@@ -53,15 +54,13 @@ export class UserController {
   @ApiBody({ type: VerifyEmailDto })
   @ApiCreatedResponse({ description: '이메일 인증' })
   @Post('/email-verify')
-  async verifyEmail(
-    @Res() res,
-    @Body() dto: VerifyEmailDto,
-  ): Promise<{ signupVerifyToken: string }> {
+  async verifyEmail(@Res() res, @Body() dto: VerifyEmailDto) {
     const signupVerifyToken = await this.userService.sendMemberJoinEmail(
       dto.email,
     );
     console.log('signupVerifyToken:::', signupVerifyToken);
-    return res.status(201).send(signupVerifyToken);
+    return HttpResponse.ok(res, signupVerifyToken);
+    // return res.status(201).send(signupVerifyToken);
   }
 
   @ApiOperation({
@@ -72,7 +71,8 @@ export class UserController {
   @Get('/me')
   async getUserInfo(@Res() res, @AuthUser() user: User) {
     const userInfo = await this.userService.getUserInfo(user.idx);
-    return res.status(200).send(userInfo);
+    return HttpResponse.ok(res, userInfo);
+    // return res.status(200).send(userInfo);
   }
 
   @Patch(':id')

@@ -1,3 +1,4 @@
+import HttpResponse from 'src/core/http/http-response';
 import { AuthService } from './auth.service';
 import { SwaggerTag } from './../../core/swagger/api-tags';
 import { Body, Controller, Post, Req, Res } from '@nestjs/common';
@@ -28,6 +29,7 @@ export class AuthController {
   @Post()
   async login(@Res() res, @Body() dto: LoginUserDto) {
     const result = await this.authService.login(dto);
-    return res.status(201).send(result);
+    return HttpResponse.ok(res, result);
+    // return res.status(201).send(result);
   }
 }
