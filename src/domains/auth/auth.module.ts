@@ -1,4 +1,3 @@
-import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthService } from './auth.service';
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
@@ -7,17 +6,20 @@ import { TypeOrmExModule } from 'src/core/typeorm-ex.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { jwtConstants } from './auth-guards/jwt.constants';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: {
-        expiresIn: 60 * 60,
+        expiresIn: '365 days',
+        issuer: 'reptimate.store',
+        subject: 'userInfo',
       },
     }),
     TypeOrmExModule.forCustomRepository([UserRepository]),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    PassportModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy],

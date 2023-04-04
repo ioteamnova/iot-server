@@ -59,26 +59,18 @@ export class UserService {
 
   /**
    * 내 정보 조회
-   * @param user 유저
-   * @returns 유저 정보
+   * @param userIdx 유저 인덱스
+   * @returns 조회한 유저 정보
    */
-  async getUserInfo(user: User) {
+  async getUserInfo(userIdx: number) {
     const userInfo = await this.userRepository.findOne({
-      where: { idx: user.idx },
+      where: { idx: userIdx },
     });
-    console.log('userInfo:::', userInfo);
+
     if (!userInfo) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
     }
-    return {
-      idx: userInfo.idx,
-      email: userInfo.email,
-      nickname: userInfo.nickname,
-      profilePath: userInfo.profilePath,
-      isPremium: userInfo.isPremium,
-      agreeWithMarketing: userInfo.agreeWithMarketing,
-      createdAt: userInfo.createdAt,
-    };
+    return userInfo;
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

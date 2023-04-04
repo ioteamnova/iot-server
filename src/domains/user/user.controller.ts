@@ -1,5 +1,3 @@
-import { AuthGuard } from '@nestjs/passport';
-import { EmailService } from './../email/email.service';
 import {
   Controller,
   Get,
@@ -9,28 +7,22 @@ import {
   Param,
   Delete,
   Res,
-  HttpCode,
-  Query,
-  Headers,
-  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiCreatedResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
 import { SwaggerTag } from 'src/core/swagger/api-tags';
-import { logger } from 'src/utils/logger';
 import { VerifyEmailDto } from './dtos/verify-email.dto';
 import { User } from './entities/user.entity';
 import { AuthService } from '../auth/auth.service';
-import { JwtAuthGuard } from '../auth/auth-guards/jwt.auth.guard';
-import { AuthUser } from 'src/core/decorators/user.decorator';
+import UseAuthGuards from '../auth/auth-guards/use-auth';
+import AuthUser from 'src/core/decorators/auth-user.decorator';
 
 @ApiTags(SwaggerTag.USER)
 @Controller('/users')
@@ -74,14 +66,13 @@ export class UserController {
 
   @ApiOperation({
     summary: '회원 정보 조회',
-    description: '회원 정보를 조회한다.',
+    description: '현재 로그인 중인 회원의 정보를 조회한다.',
   })
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
+  @UseAuthGuards()
   @Get('/me')
   async getUserInfo(@Res() res, @AuthUser() user: User) {
     console.log('user:::', user);
-    const userInfo = await this.userService.getUserInfo(user);
+    const userInfo = await this.userService.getUserInfo(user.idx);
     return res.status(200).send(userInfo);
   }
 
