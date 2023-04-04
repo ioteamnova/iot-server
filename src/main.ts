@@ -1,7 +1,7 @@
-import { VersioningType } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { setNestApp } from './core/http/interceptors';
+// import { setNestApp } from './core/http/interceptors';
 import { initSwagger } from './core/swagger/swagger-config';
 import { logger } from './utils/logger';
 
@@ -23,10 +23,11 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
 
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
   // cors 설정
   app.enableCors();
 
-  setNestApp(app);
+  // setNestApp(app);
 
   await app.listen(3000);
 }

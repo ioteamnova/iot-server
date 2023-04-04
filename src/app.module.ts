@@ -8,16 +8,12 @@ import { AppService } from './app.service';
 import { User } from './domains/user/entities/user.entity';
 import { UserModule } from './domains/user/user.module';
 import { LoggerMiddleware } from './core/middlewares/logger.middleware';
-import authConfig from './config/auth-config';
-import { APP_GUARD } from '@nestjs/core';
-import { UserGuard } from './domains/auth/auth-guards/auth.gurad';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.prod',
-      load: [authConfig],
       // todo: 환경 변수 유효성 검사 joi
     }),
     //todo: 설정파일 분리
