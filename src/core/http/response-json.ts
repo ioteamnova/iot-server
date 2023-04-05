@@ -25,7 +25,7 @@ export function statusMessage(httpStatus: number): string {
       return 'Success';
     // 201:CREATED
     case status.CREATED:
-      return 'CREATED';
+      return 'Created';
     // 400:BAD_REQUEST - 잘못된 요청
     case status.BAD_REQUEST:
       return 'Bad Request';

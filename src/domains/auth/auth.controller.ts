@@ -1,14 +1,13 @@
 import HttpResponse from 'src/core/http/http-response';
 import { AuthService } from './auth.service';
 import { SwaggerTag } from './../../core/swagger/api-tags';
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Post, Res } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { logger } from 'src/utils/logger';
 import { LoginUserDto } from './dtos/login-user.dto';
 
 @ApiTags(SwaggerTag.AUTH)
