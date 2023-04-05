@@ -75,9 +75,20 @@ export class UserController {
     // return res.status(200).send(userInfo);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  @ApiOperation({
+    summary: '회원 정보 수정',
+    description: '현재 로그인 중인 회원의 정보를 수정한다.',
+  })
+  @UseAuthGuards()
+  @ApiBody({ type: UpdateUserDto })
+  @Patch()
+  async update(
+    @Res() res,
+    @Body() updateUserDto: UpdateUserDto,
+    @AuthUser() user: User,
+  ) {
+    await this.userService.update(user.idx, updateUserDto);
+    return HttpResponse.ok(res, {});
   }
 
   @Delete(':id')

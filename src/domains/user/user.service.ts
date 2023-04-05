@@ -1,4 +1,3 @@
-// import { AuthService } from './../auth/auth.service';
 import {
   ConflictException,
   Injectable,
@@ -26,14 +25,14 @@ export class UserService {
   async createUser(createUserDto: CreateUserDto): Promise<User> {
     await this.checkExistEmail(createUserDto.email);
 
-    const user = User.from(createUserDto);
+    const user = User.fromDto(createUserDto);
 
     return await this.userRepository.save(user);
   }
 
   /**
    * 이메일 중복검사
-   * @param email
+   * @param email 이메일
    * @returns boolean
    */
   async checkExistEmail(email: string): Promise<boolean> {
@@ -48,8 +47,8 @@ export class UserService {
 
   /**
    * 이메일 전송
-   * @param email
-   * @returns signupVerifyToken
+   * @param email 이메일
+   * @returns 이메일 인증 토큰
    */
   async sendMemberJoinEmail(email: string) {
     const signupVerifyToken = uuid.v1();
@@ -80,8 +79,25 @@ export class UserService {
     };
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  /**
+   * 유저 정보 수정
+   * @param userIdx 유저 인덱스
+   * @param updateUserDto 업데이트 dto
+   * @returns 업데이트한 유저 정보
+   */
+  async update(userIdx: number, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.findOne({
+      where: {
+        idx: userIdx,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
+    }
+
+    user.updateFromDto(updateUserDto);
+    return await this.userRepository.save(user);
   }
 
   remove(id: number) {
