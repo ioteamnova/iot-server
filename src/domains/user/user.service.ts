@@ -10,6 +10,8 @@ import { User } from './entities/user.entity';
 import { UserRepository } from './repositories/user.repository';
 import * as uuid from 'uuid';
 import { EmailService } from '../email/email.service';
+import DeleteUserDto from './dtos/delete-user.dto';
+import { validatePassword } from 'src/utils/password.utils';
 
 @Injectable()
 export class UserService {
@@ -119,7 +121,26 @@ export class UserService {
     return isExistNickname;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  /**
+   * 회원 탈퇴
+   * @param DeleteUserDto
+   * @returns
+   */
+  async removeByPassword(deleteUserDto: DeleteUserDto, userIdx: number) {
+    const { password } = deleteUserDto;
+
+    const user = await this.userRepository.findOne({
+      where: {
+        idx: userIdx,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
+    }
+
+    await validatePassword(password, user.password);
+
+    await this.userRepository.softDelete(userIdx);
   }
 }

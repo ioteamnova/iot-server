@@ -24,6 +24,7 @@ import { AuthService } from '../auth/auth.service';
 import UseAuthGuards from '../auth/auth-guards/use-auth';
 import AuthUser from 'src/core/decorators/auth-user.decorator';
 import HttpResponse from 'src/core/http/http-response';
+import DeleteUserDto from './dtos/delete-user.dto';
 
 @ApiTags(SwaggerTag.USER)
 @Controller('/users')
@@ -105,8 +106,13 @@ export class UserController {
     return HttpResponse.ok(res, isExist);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  @Delete()
+  async remove(
+    @Res() res,
+    @Body() deleteUserDto: DeleteUserDto,
+    @AuthUser() user: User,
+  ) {
+    await this.userService.removeByPassword(deleteUserDto, user.idx);
+    return HttpResponse.ok(res);
   }
 }
