@@ -21,13 +21,13 @@ export class UserService {
   ) {}
   /**
    *  회원가입
-   * @param createUserDto 유저 dto
+   * @param dto 유저 dto
    * @returns user
    */
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
-    await this.checkExistEmail(createUserDto.email);
+  async createUser(dto: CreateUserDto): Promise<User> {
+    await this.checkExistEmail(dto.email);
 
-    const user = User.fromDto(createUserDto);
+    const user = User.fromDto(dto);
 
     return await this.userRepository.save(user);
   }
@@ -84,10 +84,10 @@ export class UserService {
   /**
    * 유저 정보 수정
    * @param userIdx 유저 인덱스
-   * @param updateUserDto 업데이트 dto
+   * @param dto 업데이트 dto
    * @returns 업데이트한 유저 정보
    */
-  async update(userIdx: number, updateUserDto: UpdateUserDto) {
+  async update(userIdx: number, dto: UpdateUserDto) {
     const user = await this.userRepository.findOne({
       where: {
         idx: userIdx,
@@ -98,13 +98,13 @@ export class UserService {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
     }
 
-    user.updateFromDto(updateUserDto);
+    user.updateFromDto(dto);
     return await this.userRepository.save(user);
   }
 
   /**
    * 닉네임 중복 검사
-   * @param updateUserDto.nickname 변경할 닉네임
+   * @param dto.nickname 변경할 닉네임
    * @returns boolean
    */
   async checkExistNickname(nickname: string) {
@@ -126,8 +126,8 @@ export class UserService {
    * @param DeleteUserDto
    * @returns
    */
-  async removeByPassword(deleteUserDto: DeleteUserDto, userIdx: number) {
-    const { password } = deleteUserDto;
+  async removeByPassword(dto: DeleteUserDto, userIdx: number) {
+    const { password } = dto;
 
     const user = await this.userRepository.findOne({
       where: {
