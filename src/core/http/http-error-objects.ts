@@ -34,11 +34,6 @@ export const HttpErrorConstants = {
     message: '이미 사용중인 닉네임입니다.',
   } as HttpErrorFormat,
 
-  USER_NOT_FOUND: {
-    errorCode: 'USER_NOT_FOUND',
-    message: '회원정보를 찾을 수 없습니다.',
-  } as HttpErrorFormat,
-
   INVALID_AUTH: {
     errorCode: 'UNAUTHORIZED',
     message: '이메일 또는 비밀번호가 올바르지 않습니다.',
