@@ -87,8 +87,22 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
     @AuthUser() user: User,
   ) {
-    await this.userService.update(user.idx, updateUserDto);
-    return HttpResponse.ok(res, {});
+    const userInfo = await this.userService.update(user.idx, updateUserDto);
+    return HttpResponse.ok(res, userInfo);
+  }
+
+  @ApiOperation({
+    summary: '닉네임 중복 확인',
+    description: '회원 정보 수정 화면에서 닉네임 중복 확인을한다.',
+  })
+  @UseAuthGuards()
+  @ApiBody({ type: UpdateUserDto })
+  @Patch()
+  async existNickname(@Res() res, @Body() updateUserDto: UpdateUserDto) {
+    const isExist = await this.userService.checkExistNickname(
+      updateUserDto.nickname,
+    );
+    return HttpResponse.ok(res, isExist);
   }
 
   @Delete(':id')

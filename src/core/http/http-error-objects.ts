@@ -29,6 +29,11 @@ export const HttpErrorConstants = {
     message: '이미 가입된 이메일입니다.',
   } as HttpErrorFormat,
 
+  EXIST_NICKNAME: {
+    errorCode: 'EXIST_EXIST_NICKNAME',
+    message: '이미 사용중인 닉네임입니다.',
+  } as HttpErrorFormat,
+
   USER_NOT_FOUND: {
     errorCode: 'USER_NOT_FOUND',
     message: '회원정보를 찾을 수 없습니다.',

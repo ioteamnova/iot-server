@@ -100,6 +100,25 @@ export class UserService {
     return await this.userRepository.save(user);
   }
 
+  /**
+   * 닉네임 중복 검사
+   * @param updateUserDto.nickname 변경할 닉네임
+   * @returns boolean
+   */
+  async checkExistNickname(nickname: string) {
+    const isExistNickname = await this.userRepository.exist({
+      where: {
+        nickname: nickname,
+      },
+    });
+
+    if (isExistNickname) {
+      throw new ConflictException(HttpErrorConstants.EXIST_NICKNAME);
+    }
+
+    return isExistNickname;
+  }
+
   remove(id: number) {
     return `This action removes a #${id} user`;
   }
