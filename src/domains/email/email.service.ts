@@ -27,10 +27,12 @@ export class EmailService {
       to: emailAddress,
       subject: 'Reptimate 회원가입 인증 메일',
       html: `
-        아래 인증 코드를 앱에서 입력해주세요.<br/>
-        ${signupVerifyToken}
+        아래 이메일 인증 코드를 앱에서 입력해주세요.<br/>
+        <br/>
+        인증코드:  <strong>${signupVerifyToken}</strong>
       `,
     };
-    return await this.transporter.sendMail(mailOptions);
+    await this.transporter.sendMail(mailOptions);
+    this.transporter.close();
   }
 }

@@ -25,6 +25,7 @@ import UseAuthGuards from '../auth/auth-guards/use-auth';
 import AuthUser from 'src/core/decorators/auth-user.decorator';
 import HttpResponse from 'src/core/http/http-response';
 import DeleteUserDto from './dtos/delete-user.dto';
+import { CheckNicknameDto } from './dtos/check-nickname.dto';
 
 @ApiTags(SwaggerTag.USER)
 @Controller('/users')
@@ -83,12 +84,8 @@ export class UserController {
   @UseAuthGuards()
   @ApiBody({ type: UpdateUserDto })
   @Patch()
-  async update(
-    @Res() res,
-    @Body() updateUserDto: UpdateUserDto,
-    @AuthUser() user: User,
-  ) {
-    const userInfo = await this.userService.update(user.idx, updateUserDto);
+  async update(@Res() res, @Body() dto: UpdateUserDto, @AuthUser() user: User) {
+    const userInfo = await this.userService.update(user.idx, dto);
     return HttpResponse.ok(res, userInfo);
   }
 
@@ -97,22 +94,22 @@ export class UserController {
     description: '회원 정보 수정 화면에서 닉네임 중복 확인을한다.',
   })
   @UseAuthGuards()
-  @ApiBody({ type: UpdateUserDto })
-  @Patch()
-  async existNickname(@Res() res, @Body() updateUserDto: UpdateUserDto) {
-    const isExist = await this.userService.checkExistNickname(
-      updateUserDto.nickname,
-    );
+  @ApiBody({ type: CheckNicknameDto })
+  @Patch('/nickname')
+  async existNickname(@Res() res, @Body() dto: CheckNicknameDto) {
+    const isExist = await this.userService.checkExistNickname(dto.nickname);
     return HttpResponse.ok(res, isExist);
   }
 
+  @ApiOperation({
+    summary: '회원 탈퇴',
+    description: '비밀번호를 입력하여 회원 탈퇴한다. ',
+  })
+  @UseAuthGuards()
+  @ApiBody({ type: DeleteUserDto })
   @Delete()
-  async remove(
-    @Res() res,
-    @Body() deleteUserDto: DeleteUserDto,
-    @AuthUser() user: User,
-  ) {
-    await this.userService.removeByPassword(deleteUserDto, user.idx);
+  async remove(@Res() res, @Body() dto: DeleteUserDto, @AuthUser() user: User) {
+    await this.userService.removeByPassword(dto, user.idx);
     return HttpResponse.ok(res);
   }
 }
