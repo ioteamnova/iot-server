@@ -1,3 +1,4 @@
+import { UpdatePasswordDto } from './dtos/update-password.dto';
 import {
   ConflictException,
   Injectable,
@@ -11,7 +12,7 @@ import { UserRepository } from './repositories/user.repository';
 import * as uuid from 'uuid';
 import { EmailService } from '../email/email.service';
 import DeleteUserDto from './dtos/delete-user.dto';
-import { validatePassword } from 'src/utils/password.utils';
+import { hashPassword, validatePassword } from 'src/utils/password.utils';
 
 @Injectable()
 export class UserService {
@@ -75,6 +76,7 @@ export class UserService {
       idx: userInfo.idx,
       email: userInfo.email,
       nickname: userInfo.nickname,
+      profilePath: userInfo.profilePath,
       isPremium: userInfo.isPremium,
       agreeWithMarketing: userInfo.agreeWithMarketing,
       createdAt: userInfo.createdAt,
@@ -119,6 +121,28 @@ export class UserService {
     }
 
     return isExistNickname;
+  }
+
+  /**
+   * 비밀번호 변경
+   * @param userIdx 유저인덱스
+   * @param dto 비밀번호 변경 dto
+   */
+  async updatePassword(userIdx: number, dto: UpdatePasswordDto) {
+    const user = await this.userRepository.findOne({
+      where: {
+        idx: userIdx,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
+    }
+    // 유저가 입력한 현재 비밀번호와 db에 저장되어있는 비밀번호를 비교
+    await validatePassword(dto.currentPassword, user.password);
+
+    user.password = hashPassword(dto.newPassword);
+    await this.userRepository.save(user);
   }
 
   /**
