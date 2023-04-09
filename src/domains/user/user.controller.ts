@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   Res,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dtos/create-user.dto';
@@ -27,6 +29,7 @@ import HttpResponse from 'src/core/http/http-response';
 import DeleteUserDto from './dtos/delete-user.dto';
 import { CheckNicknameDto } from './dtos/check-nickname.dto';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags(SwaggerTag.USER)
 @Controller('/users')
@@ -83,12 +86,31 @@ export class UserController {
     description: '현재 로그인 중인 회원의 정보를 수정한다.',
   })
   @UseAuthGuards()
+  @UseInterceptors(FileInterceptor('file'))
   @ApiBody({ type: UpdateUserDto })
   @Patch()
-  async update(@Res() res, @Body() dto: UpdateUserDto, @AuthUser() user: User) {
-    const userInfo = await this.userService.update(user.idx, dto);
+  async update(
+    @Res() res,
+    @Body() dto: UpdateUserDto,
+    @AuthUser() user: User,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const userInfo = await this.userService.update(file, dto, user.idx);
     return HttpResponse.ok(res, userInfo);
   }
+
+  // @Patch('upload')
+  // @UseAuthGuards()
+  // @UseInterceptors(FileInterceptor('file'))
+  // async upload(
+  //   @Res() res,
+  //   @Body() dto: UpdateUserDto,
+  //   @AuthUser() user: User,
+  //   @UploadedFile() file: Express.Multer.File,
+  // ) {
+  //   const result = await this.userService.upload(file, dto, user.idx);
+  //   return HttpResponse.ok(res, result);
+  // }
 
   @ApiOperation({
     summary: '닉네임 중복 확인',

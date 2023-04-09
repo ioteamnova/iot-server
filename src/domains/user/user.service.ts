@@ -1,3 +1,4 @@
+import { logger } from './../../utils/logger';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
 import {
   ConflictException,
@@ -13,6 +14,9 @@ import * as uuid from 'uuid';
 import { EmailService } from '../email/email.service';
 import DeleteUserDto from './dtos/delete-user.dto';
 import { hashPassword, validatePassword } from 'src/utils/password.utils';
+import { S3 } from 'aws-sdk';
+import { asyncUploadToS3 } from 'src/utils/s3-utils';
+import DateUtils from 'src/utils/date-utils';
 
 @Injectable()
 export class UserService {
@@ -89,7 +93,7 @@ export class UserService {
    * @param dto 업데이트 dto
    * @returns 업데이트한 유저 정보
    */
-  async update(userIdx: number, dto: UpdateUserDto) {
+  async update(file: Express.Multer.File, dto: UpdateUserDto, userIdx: number) {
     const user = await this.userRepository.findOne({
       where: {
         idx: userIdx,
@@ -100,9 +104,47 @@ export class UserService {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
     }
 
-    user.updateFromDto(dto);
-    return await this.userRepository.save(user);
+    if (file) {
+      const folder = 'profile';
+      const fileName = `${userIdx}-${DateUtils.momentFile()}-${uuid.v4()}-${
+        file.originalname
+      }`;
+      const fileKey = `${folder}/${fileName}`;
+      const result = await asyncUploadToS3(fileKey, file.buffer);
+
+      dto.profilePath = result.Location;
+    }
+
+    const result = user.updateFromDto(dto);
+    await this.userRepository.save(user);
+    return result;
   }
+
+  // async upload(file: Express.Multer.File, dto: UpdateUserDto, userIdx: number) {
+  //   const user = await this.userRepository.findOne({
+  //     where: {
+  //       idx: userIdx,
+  //     },
+  //   });
+
+  //   if (!user) {
+  //     throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
+  //   }
+
+  //   if (file) {
+  //     const folder = 'profile';
+  //     const fileName = `${userIdx}-${Date.now()}-${uuid.v1()}-${
+  //       file.originalname
+  //     }`;
+  //     const fileKey = `${folder}/${fileName}`;
+  //     const result = await asyncUploadToS3(fileKey, file.buffer);
+
+  //     dto.profilePath = result.Location;
+  //   }
+  //   const result = user.updateFromDto(dto);
+  //   await this.userRepository.save(user);
+  //   return result;
+  // }
 
   /**
    * 닉네임 중복 검사
