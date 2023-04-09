@@ -26,6 +26,7 @@ import AuthUser from 'src/core/decorators/auth-user.decorator';
 import HttpResponse from 'src/core/http/http-response';
 import DeleteUserDto from './dtos/delete-user.dto';
 import { CheckNicknameDto } from './dtos/check-nickname.dto';
+import { UpdatePasswordDto } from './dtos/update-password.dto';
 
 @ApiTags(SwaggerTag.USER)
 @Controller('/users')
@@ -99,6 +100,22 @@ export class UserController {
   async existNickname(@Res() res, @Body() dto: CheckNicknameDto) {
     const isExist = await this.userService.checkExistNickname(dto.nickname);
     return HttpResponse.ok(res, isExist);
+  }
+
+  @ApiOperation({
+    summary: '비밀번호 수정',
+    description: '현재 비밀번호 입력 후 비밀번호를 변경한다.',
+  })
+  @UseAuthGuards()
+  @ApiBody({ type: UpdatePasswordDto })
+  @Patch('/password')
+  async updatePassword(
+    @Res() res,
+    @Body() dto: UpdatePasswordDto,
+    @AuthUser() user: User,
+  ) {
+    const result = await this.userService.updatePassword(user.idx, dto);
+    return HttpResponse.ok(res);
   }
 
   @ApiOperation({

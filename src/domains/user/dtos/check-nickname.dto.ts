@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 export class CheckNicknameDto {
   @ApiProperty({
@@ -8,5 +8,6 @@ export class CheckNicknameDto {
   })
   @IsString()
   @MaxLength(32)
+  @IsNotEmpty()
   nickname: string;
 }

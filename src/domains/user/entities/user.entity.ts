@@ -71,7 +71,6 @@ export class User extends BaseEntity {
 
   updateFromDto(dto: UpdateUserDto) {
     this.email = dto.email;
-    this.password = hashPassword(dto.password);
     this.nickname = dto.nickname;
     this.profilePath = dto.profilePath;
   }
