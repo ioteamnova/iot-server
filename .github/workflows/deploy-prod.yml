@@ -62,7 +62,7 @@ jobs:
         run: |
           aws s3 cp --region ap-northeast-2 ./reptimate_server.zip s3://reptimate/deploy
 
-      - name: Deploy
+      - name: Deploy with aws code-deploy
         run: aws deploy create-deployment
           --application-name reptimate-server-deploy
           --deployment-config-name CodeDeployDefault.AllAtOnce
