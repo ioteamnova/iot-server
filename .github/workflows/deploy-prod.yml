@@ -67,4 +67,4 @@ jobs:
           --application-name reptimate-server-deploy
           --deployment-config-name CodeDeployDefault.AllAtOnce
           --deployment-group-name reptimate-server-group
-          --s3-location bucket=reptimate,key=deploy/reptimate_server.zip,bundleType=zip
+          --s3-location bucket=reptimate,bundleType=zip,key=deploy/reptimate_server.zip
