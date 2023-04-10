@@ -9,6 +9,9 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build:
+    permissions:
+      id-token: write
+      contents: read
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -20,6 +23,14 @@ jobs:
       # Runs a single command using the runners shell
       - name: Check Node
         run: node -v
+
+      # with에 secrets에서 설정한 key를 설정한다.
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_KEY }}
+          aws-region: ap-northeast-2
 
       # 의존파일 설치
       - name: Install Dependencies
@@ -33,15 +44,6 @@ jobs:
       - name: zip create
         run: zip -qq -r "reptimate_server.zip" .
         shell: bash
-
-      # with에 secrets에서 설정한 key를 설정한다.
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@master
-        with:
-          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_KEY }}
-          aws-region: ap-northeast-2
 
       - name: Upload to S3
         env:
