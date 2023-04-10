@@ -2,11 +2,14 @@ name: Deploy to EC2
 
 on:
   push:
-    branches: [master]
+    branches: ['master']
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -17,7 +20,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v2
         with:
-          node-version: '19.x'
+          node-version: '16.x'
 
       # with에 secrets에서 설정한 key를 설정한다.
       - name: Configure AWS credentials
@@ -25,31 +28,31 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_KEY }}
-          aws-region: ap-northeast-2
+          aws-region: ${{ secrets.PROD_AWS_BUCKET_REGION }}
 
-      # # 의존성 설치
-      # - name: Install Dependencies
-      #   run: npm install
+      # 의존성 설치
+      - name: Install Dependencies
+        run: npm install
 
-      # # Build
-      # - name: Build
-      #   run: npm run build
+      # Build
+      - name: Build
+        run: npm run build
 
-      # # zip 파일 생성
-      # - name: create a zip file
-      #   run: zip -qq -r "reptimate_server.zip" .
-      #   shell: bash
+      # zip 파일 생성
+      - name: create a zip file
+        run: zip -qq -r "reptimate_server.zip" .
+        shell: bash
 
-      # - name: Upload to S3
-      #   env:
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_ACECSS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_AWS_SECRET_KEY }}
-      #   run: |
-      #     aws s3 cp --region ap-northeast-2 reptimate_server.zip s3://reptimate
+      - name: Upload to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_AWS_SECRET_KEY }}
+        run: |
+          aws s3 cp --region ap-northeast-2 reptimate_server.zip s3://reptimate/deploy
 
-      # - name: Deploy
-      #   run: aws deploy create-deployment
-      #     --application-name reptimate-server-deploy
-      #     --deployment-config-name CodeDeployDefault.AllAtOnce
-      #     --deployment-group-name reptimate-server-group
-      #     --s3-location bucket=reptimate,key=reptimate_server.zip,bundleType=zip
+      - name: Deploy
+        run: 'aws deploy create-deployment
+          --application-name reptimate-server-deploy
+          --deployment-config-name CodeDeployDefault.AllAtOnce
+          --deployment-group-name reptimate-server-group
+          --s3-location bucket=reptimate,key=reptimate_server.zip,bundleType=zip'
