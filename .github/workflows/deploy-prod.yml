@@ -1,0 +1,58 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - master
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Runs a single command using the runners shell
+      - name: Check Node
+        run: node -v
+
+      # 의존파일 설치
+      - name: Install Dependencies
+        run: npm install
+
+      # Build
+      - name: Build
+        run: npm run build
+
+      # zip 파일 생성
+      - name: zip create
+        run: zip -qq -r "reptimate_server.zip" .
+        shell: bash
+
+      # with에 secrets에서 설정한 key를 설정한다.
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_KEY }}
+          aws-region: ${{ secrets.PROD_AWS_BUCKET_REGION }}
+
+      - name: Upload to S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_ACECSS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_AWS_SECRET_KEY }}
+        run: |
+          aws s3 cp --region ap-northeast-2 reptimate_server.zip s3://reptimate
+
+      - name: Deploy
+        run: aws deploy create-deployment
+          --application-name reptimate-server-deploy
+          --deployment-config-name CodeDeployDefault.AllAtOnce
+          --deployment-group-name reptimate-server-group
+          --s3-location bucket=reptimate,key=reptimate_server.zip,bundleType=zip
