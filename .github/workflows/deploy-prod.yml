@@ -17,15 +17,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v2
         with:
-          node-version: '19.x'
-
-      # with에 secrets에서 설정한 key를 설정한다.
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_KEY }}
-          aws-region: ${{ secrets.PROD_AWS_BUCKET_REGION }}
+          node-version: '16.x'
 
       # 의존성 설치
       - name: Install Dependencies
@@ -54,6 +46,14 @@ jobs:
       - name: create a zip file
         run: zip -qq -r ./reptimate_server.zip . -x "node_modules/*" "coverage/*" "src/*" "test/*" "README.md" "*.git*"
         shell: bash
+
+      # with에 secrets에서 설정한 key를 설정한다.
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_KEY }}
+          aws-region: ${{ secrets.PROD_AWS_BUCKET_REGION }}
 
       - name: Upload to S3
         env:
