@@ -60,11 +60,11 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_AWS_SECRET_KEY }}
         run: |
-          aws s3 cp --region ap-northeast-2 ./reptimate_server.zip s3://reptimate/deploy
+          aws s3 cp --region ap-northeast-2 ./reptimate_server.zip s3://reptimate
 
       - name: Deploy with aws code-deploy
         run: aws deploy create-deployment
           --application-name reptimate-server-deploy
           --deployment-config-name CodeDeployDefault.AllAtOnce
           --deployment-group-name reptimate-server-group
-          --s3-location bucket=reptimate,bundleType=zip,key=deploy/reptimate_server.zip
+          --s3-location bucket=reptimate,bundleType=zip,key=reptimate_server.zip
