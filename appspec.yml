@@ -3,3 +3,8 @@ os: linux
 files:
   - source: /
     destination: /home/ubuntu/iot-server/build/
+permissions:
+  - object: /home/ubuntu/iot-server/build/
+    owner: ubuntu
+    group: ubuntu
+    mode: 755
