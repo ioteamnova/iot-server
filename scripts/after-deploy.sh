@@ -1,5 +1,5 @@
 #!/bin/bash
-REPOSITORY=/home/ubuntu/iot-server
+REPOSITORY=/home/ubuntu/iot-server/build
 
 cd $REPOSITORY
 
