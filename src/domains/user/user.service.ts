@@ -17,6 +17,8 @@ import { hashPassword, validatePassword } from 'src/utils/password.utils';
 import { S3 } from 'aws-sdk';
 import { asyncUploadToS3 } from 'src/utils/s3-utils';
 import DateUtils from 'src/utils/date-utils';
+import { SocialLoginUserDto } from '../auth/dtos/social-login-user.dto';
+import { SocialCreateUserDto } from './dtos/social-create-user.dto';
 
 @Injectable()
 export class UserService {
@@ -42,11 +44,11 @@ export class UserService {
    * @param dto 유저 dto
    * @returns user
    */
-  async createSocialUser(dto: CreateUserDto): Promise<string> {
-    await this.checkExistEmail(dto.email);
-    const user = User.fromDto(dto);
-    await this.userRepository.save(user);
-    return user.email;
+  async createSocialUser(dto) {
+    console.log('소셜로그인 유저 회원가입::');
+    // await this.checkExistEmail(dto.email);
+    // const user = User.fromDto(dto);
+    // return await this.userRepository.save(user);
   }
 
   /**

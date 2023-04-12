@@ -3,6 +3,7 @@ import BaseEntity from 'src/core/entity/base.entity';
 import { hashPassword } from 'src/utils/password.utils';
 import { Column, Entity } from 'typeorm';
 import { CreateUserDto } from '../dtos/create-user.dto';
+import { SocialMethodType } from 'src/domains/auth/helpers/constants';
 
 @Entity()
 export class User extends BaseEntity {
@@ -31,6 +32,9 @@ export class User extends BaseEntity {
 
   @Column()
   agreeWithMarketing: boolean;
+
+  @Column()
+  loginMethod: SocialMethodType;
 
   static from({
     email,
