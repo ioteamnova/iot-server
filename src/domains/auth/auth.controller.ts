@@ -1,7 +1,7 @@
 import HttpResponse from 'src/core/http/http-response';
 import { AuthService } from './auth.service';
 import { SwaggerTag } from './../../core/swagger/api-tags';
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
@@ -9,6 +9,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { LoginUserDto } from './dtos/login-user.dto';
+import UseAuthGuards from './auth-guards/use-auth';
+import { SocialLoginUserDto } from './dtos/social-login-user.dto';
 
 @ApiTags(SwaggerTag.AUTH)
 @Controller('/auth')
@@ -30,5 +32,19 @@ export class AuthController {
     const result = await this.authService.login(dto);
     return HttpResponse.ok(res, result);
     // return res.status(201).send(result);
+  }
+
+  @ApiOperation({
+    summary: '소셜 로그인',
+    description: `소셜 로그인을 한다. 응답은 token값을 반환한다.`,
+  })
+  @ApiBody({
+    type: SocialLoginUserDto,
+  })
+  @ApiCreatedResponse({ description: '로그인 성공, 토큰 값 발급' })
+  @Post('/social')
+  async socialLogin(@Res() res, @Body() dto: SocialLoginUserDto) {
+    const result = await this.authService.socialLogin(dto);
+    return HttpResponse.ok(res, result);
   }
 }

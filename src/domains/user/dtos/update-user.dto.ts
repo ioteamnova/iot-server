@@ -5,6 +5,7 @@ export class UpdateUserDto {
   @ApiProperty({
     description: '이메일',
     default: 'asd123qwe@gmail.com',
+    required: false,
   })
   @IsEmail()
   @IsOptional()
@@ -13,6 +14,7 @@ export class UpdateUserDto {
   @ApiProperty({
     description: '닉네임',
     default: '김수정',
+    required: false,
   })
   @IsString()
   @IsOptional()
