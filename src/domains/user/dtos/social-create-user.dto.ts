@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import { PasswordRegex } from 'src/utils/password.utils';
 
-export class CreateUserDto {
+export class SocialCreateUserDto {
   @ApiProperty({
     description: '이메일',
     default: 'asd123@gmail.com',

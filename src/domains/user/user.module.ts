@@ -1,6 +1,6 @@
 import { AuthModule } from './../auth/auth.module';
 import { EmailModule } from './../email/email.module';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { TypeOrmExModule } from 'src/core/typeorm-ex.module';
@@ -11,7 +11,7 @@ import { EmailService } from '../email/email.service';
   imports: [
     TypeOrmExModule.forCustomRepository([UserRepository]),
     EmailModule,
-    AuthModule,
+    forwardRef(() => AuthModule),
   ],
   controllers: [UserController],
   providers: [UserService],

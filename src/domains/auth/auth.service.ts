@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
 import { SocialLoginUserDto } from './dtos/social-login-user.dto';
 import { SocialMethodType } from './helpers/constants';
+import { User } from '../user/entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -68,22 +69,26 @@ export class AuthService {
     };
   }
 
-  async getUserByKakaoAccessToken(accessToken: string): Promise<string> {
+  async getUserByKakaoAccessToken(accessToken: string): Promise<User> {
     // KAKAO LOGIN 회원조회 REST-API
-    const user = await axios.get('https://kapi.kakao.com/v2/user/me', {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    if (!user) throw new Error('kakao 에러'); //카카오 로그인 실패 예외처리
-
-    const email = await this.userRepository.findOne({
-      where: user.data.id,
+    const userInfoFromKakao = await axios.get(
+      'https://kapi.kakao.com/v2/user/me',
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    );
+    if (!userInfoFromKakao) throw new Error('kakao 아이디가 없는 유저임.'); //카카오 로그인 실패 예외처리
+    console.log('userInfoFromKakao::', userInfoFromKakao);
+    const user = await this.userRepository.findOne({
+      where: userInfoFromKakao.data.email,
     });
     // 회원 이메일이 없으면 회원가입 후 아이디 반환
-    if (!email) {
-      return this.userService.createSocialUser(user);
+    if (!user) {
+      console.log('회원가입해야하는유저임');
+      // return this.userService.createSocialUser(user);
     }
 
-    return email; // 회원이 이미 있다면 있는 유저의 아이디 반환
+    return user; // 회원이 이미 있다면 있는 유저 정보 반환
   }
 
   async generateAccessToken(email: string): Promise<string> {

@@ -1,10 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, IsOptional } from 'class-validator';
+import { SocialMethodType } from '../helpers/constants';
 
 export class LoginUserDto {
   @ApiProperty({
     description: '이메일',
     default: 'asd123@gmail.com',
+    required: true,
   })
   @IsNotEmpty()
   @IsEmail()
@@ -13,23 +15,25 @@ export class LoginUserDto {
   @ApiProperty({
     description: '비밀번호',
     default: 'qwer1234#',
+    required: true,
   })
   @IsNotEmpty()
   readonly password: string;
 
   // @ApiProperty({
-  //   description: '엑세스 토큰',
-  //   default:
-  //     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2V4YW1#',
+  //   description: '인가코드',
+  //   default: 'asdf1234#',
+  //   required: false,
   // })
-  // @IsNotEmpty()
+  // @IsOptional()
   // @IsString()
   // readonly accessToken: string;
 
   // @ApiProperty({
   //   description: '소셜 로그인 타입',
-  //   default: 'kakao',
+  //   default: null,
+  //   required: false,
   // })
-  // @IsNotEmpty()
-  // readonly socialType: string;
+  // @IsOptional()
+  // readonly socialType: SocialMethodType;
 }
