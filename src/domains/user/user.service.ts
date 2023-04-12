@@ -38,6 +38,18 @@ export class UserService {
   }
 
   /**
+   *  소셜 회원가입
+   * @param dto 유저 dto
+   * @returns user
+   */
+  async createSocialUser(dto: CreateUserDto): Promise<string> {
+    await this.checkExistEmail(dto.email);
+    const user = User.fromDto(dto);
+    await this.userRepository.save(user);
+    return user.email;
+  }
+
+  /**
    * 이메일 중복검사
    * @param email 이메일
    * @returns boolean
