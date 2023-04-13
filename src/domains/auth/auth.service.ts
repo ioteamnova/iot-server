@@ -85,7 +85,6 @@ export class AuthService {
     });
     // 회원 이메일이 없으면 회원가입 후 아이디 반환
     if (!user) {
-      console.log('회원가입해야하는유저임');
       const nickname = userInfoFromKakao.data.properties.nickname;
       console.log('kakaoNickname::', nickname);
       const email = userInfoFromKakao.data.kakao_account.email;
