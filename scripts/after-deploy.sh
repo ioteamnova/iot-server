@@ -1,9 +1,9 @@
 #!/bin/bash
-REPOSITORY=/home/ubuntu/iot-server/build
+cd /home/ubuntu/iot-server/build
 
-cd $REPOSITORY
-
+git pull
 npm i
+npm run build
 pm2 kill
 pm2 start dist/main.js
 
