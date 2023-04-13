@@ -58,7 +58,7 @@ export class AuthService {
    * @returns JwtToken
    */
   async socialLogin(dto: SocialLoginUserDto) {
-    let user;
+    let user: User;
     switch (dto.socialType) {
       case SocialMethodType.KAKAO: {
         user = await this.getUserByKakaoAccessToken(
@@ -118,17 +118,26 @@ export class AuthService {
     socialType: SocialMethodType.GOOGLE,
   ): Promise<User> {
     const accessTokenInfo = await this.oauthClient.getTokenInfo(accessToken);
-
     const email = accessTokenInfo.email;
+    console.log('google email:::', email);
+
+    // todo: email 안될 경우 이걸로 교체
+    // const idToken = await this.oauthClient.verifyIdToken({
+    //   idToken: accessToken,
+    //   audience: '',
+    // });
+    // const email = idToken.getPayload().email;
+
     const userInfoFromGoogle = await this.getUserDataFromGoogle(accessToken);
+    console.log('userInfoFromGoogle:::', userInfoFromGoogle);
     const user = await this.userRepository.findUserByEmail(email);
 
     if (!user) {
       const nickname = userInfoFromGoogle.name;
+      console.log('google nickname:::', nickname);
       await this.userService.createSocialUser(email, nickname, socialType);
       return user;
     }
-
     return user;
   }
 
