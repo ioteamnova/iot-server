@@ -79,7 +79,9 @@ export class AuthService {
     );
     if (!userInfoFromKakao) throw new Error('kakao 아이디가 없는 유저임.'); //카카오 로그인 실패 예외처리
     const user = await this.userRepository.findOne({
-      where: userInfoFromKakao.data.kakao_account.email,
+      where: {
+        email: userInfoFromKakao.data.kakao_account.email,
+      },
     });
     // 회원 이메일이 없으면 회원가입 후 아이디 반환
     if (!user) {
