@@ -43,7 +43,11 @@ export class UserService {
    * @param dto 유저 dto
    * @returns user
    */
-  async createSocialUser(email: string, nickname: string) {
+  async createSocialUser(
+    email: string,
+    nickname: string,
+    socialType: SocialMethodType,
+  ) {
     console.log('소셜로그인 유저 회원가입::');
     // await this.checkExistEmail(dto.email);
     const password = hashPassword(uuid.v1());
@@ -51,7 +55,8 @@ export class UserService {
     user.email = email;
     user.password = password;
     user.nickname = nickname;
-    user.loginMethod = SocialMethodType.KAKAO;
+    user.loginMethod =
+      socialType === 'KAKAO' ? SocialMethodType.KAKAO : SocialMethodType.GOOGLE;
     return await this.userRepository.save(user);
   }
 
@@ -137,32 +142,6 @@ export class UserService {
     await this.userRepository.save(user);
     return result;
   }
-
-  // async upload(file: Express.Multer.File, dto: UpdateUserDto, userIdx: number) {
-  //   const user = await this.userRepository.findOne({
-  //     where: {
-  //       idx: userIdx,
-  //     },
-  //   });
-
-  //   if (!user) {
-  //     throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
-  //   }
-
-  //   if (file) {
-  //     const folder = 'profile';
-  //     const fileName = `${userIdx}-${Date.now()}-${uuid.v1()}-${
-  //       file.originalname
-  //     }`;
-  //     const fileKey = `${folder}/${fileName}`;
-  //     const result = await asyncUploadToS3(fileKey, file.buffer);
-
-  //     dto.profilePath = result.Location;
-  //   }
-  //   const result = user.updateFromDto(dto);
-  //   await this.userRepository.save(user);
-  //   return result;
-  // }
 
   /**
    * 닉네임 중복 검사

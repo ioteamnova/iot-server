@@ -9,14 +9,21 @@ import axios from 'axios';
 import { SocialLoginUserDto } from './dtos/social-login-user.dto';
 import { SocialMethodType } from './helpers/constants';
 import { User } from '../user/entities/user.entity';
+import { google, Auth } from 'googleapis';
 
 @Injectable()
 export class AuthService {
+  oauthClient: Auth.OAuth2Client;
   constructor(
     private readonly userRepository: UserRepository,
     private jwtService: JwtService,
     private readonly userService: UserService,
-  ) {}
+  ) {
+    const clientId = process.env.GOOGLE_AUTH_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_AUTH_CLIENT_SECRET;
+
+    this.oauthClient = new google.auth.OAuth2(clientId, clientSecret);
+  }
 
   /**
    * 로그인
@@ -54,11 +61,21 @@ export class AuthService {
     let user;
     switch (dto.socialType) {
       case SocialMethodType.KAKAO: {
-        user = await this.getUserByKakaoAccessToken(dto.accessToken);
+        user = await this.getUserByKakaoAccessToken(
+          dto.accessToken,
+          dto.socialType,
+        );
+        break;
+      }
+      case SocialMethodType.GOOGLE: {
+        user = await this.getUserByGoogleAccessToken(
+          dto.accessToken,
+          dto.socialType,
+        );
         break;
       }
       default: {
-        throw new Error('default 에러'); //소셜로그인 선택 실패 예외처리
+        throw new Error('social login select error'); //소셜로그인 선택 실패 예외처리
       }
     }
     const accessToken = await this.generateAccessToken(user.idx);
@@ -69,8 +86,10 @@ export class AuthService {
     };
   }
 
-  async getUserByKakaoAccessToken(accessToken: string): Promise<User> {
-    // KAKAO LOGIN 회원조회 REST-API
+  async getUserByKakaoAccessToken(
+    accessToken: string,
+    socialType: SocialMethodType.KAKAO,
+  ): Promise<User> {
     const userInfoFromKakao = await axios.get(
       'https://kapi.kakao.com/v2/user/me',
       {
@@ -83,20 +102,51 @@ export class AuthService {
         email: userInfoFromKakao.data.kakao_account.email,
       },
     });
-    // 회원 이메일이 없으면 회원가입 후 아이디 반환
+
     if (!user) {
-      console.log('회원가입해야하는유저임');
       const nickname = userInfoFromKakao.data.properties.nickname;
-      console.log('kakaoNickname::', nickname);
       const email = userInfoFromKakao.data.kakao_account.email;
-      console.log('kakaoEmail::', email);
-      await this.userService.createSocialUser(email, nickname);
+      await this.userService.createSocialUser(email, nickname, socialType);
       return user;
     }
 
     return user;
   }
 
+  async getUserByGoogleAccessToken(
+    accessToken: string,
+    socialType: SocialMethodType.GOOGLE,
+  ): Promise<User> {
+    const accessTokenInfo = await this.oauthClient.getTokenInfo(accessToken);
+
+    const email = accessTokenInfo.email;
+    const userInfoFromGoogle = await this.getUserDataFromGoogle(accessToken);
+    const user = await this.userRepository.findUserByEmail(email);
+
+    if (!user) {
+      const nickname = userInfoFromGoogle.name;
+      await this.userService.createSocialUser(email, nickname, socialType);
+      return user;
+    }
+
+    return user;
+  }
+
+  async getUserDataFromGoogle(accessToken: string) {
+    const userInfoClient = google.oauth2('v2').userinfo;
+
+    this.oauthClient.setCredentials({
+      access_token: accessToken,
+    });
+
+    const userInfoResponse = await userInfoClient.get({
+      auth: this.oauthClient,
+    });
+
+    return userInfoResponse.data;
+  }
+
+  // 우리 서버 전용 JWT 토큰 발행
   async generateAccessToken(userIdx: number): Promise<string> {
     const payload = { userIdx: userIdx };
     return this.jwtService.sign(payload);
