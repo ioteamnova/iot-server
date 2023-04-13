@@ -51,17 +51,17 @@ export class AuthService {
    * @returns JwtToken
    */
   async socialLogin(dto: SocialLoginUserDto) {
-    let email;
+    let user;
     switch (dto.socialType) {
       case SocialMethodType.KAKAO: {
-        email = await this.getUserByKakaoAccessToken(dto.accessToken);
+        user = await this.getUserByKakaoAccessToken(dto.accessToken);
         break;
       }
       default: {
         throw new Error('default 에러'); //소셜로그인 선택 실패 예외처리
       }
     }
-    const accessToken = await this.generateAccessToken(email);
+    const accessToken = await this.generateAccessToken(user.idx);
 
     return {
       // idx: user.idx,
@@ -78,17 +78,21 @@ export class AuthService {
       },
     );
     if (!userInfoFromKakao) throw new Error('kakao 아이디가 없는 유저임.'); //카카오 로그인 실패 예외처리
-    console.log('userInfoFromKakao::', userInfoFromKakao);
     const user = await this.userRepository.findOne({
-      where: userInfoFromKakao.data.email,
+      where: userInfoFromKakao.data.kakao_account.email,
     });
     // 회원 이메일이 없으면 회원가입 후 아이디 반환
     if (!user) {
       console.log('회원가입해야하는유저임');
-      // return this.userService.createSocialUser(user);
+      const nickname = userInfoFromKakao.data.properties.nickname;
+      console.log('kakaoNickname::', nickname);
+      const email = userInfoFromKakao.data.kakao_account.email;
+      console.log('kakaoEmail::', email);
+      await this.userService.createSocialUser(nickname, email);
+      return user;
     }
 
-    return user; // 회원이 이미 있다면 있는 유저 정보 반환
+    return user;
   }
 
   async generateAccessToken(email: string): Promise<string> {

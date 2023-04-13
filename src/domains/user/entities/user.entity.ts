@@ -43,6 +43,7 @@ export class User extends BaseEntity {
     profilePath,
     isPremium,
     agreeWithMarketing,
+    loginMethod,
   }: {
     email: string;
     password: string;
@@ -50,6 +51,7 @@ export class User extends BaseEntity {
     profilePath: string;
     isPremium: boolean;
     agreeWithMarketing: boolean;
+    loginMethod: SocialMethodType;
   }) {
     const user = new User();
     user.email = email;
@@ -58,6 +60,7 @@ export class User extends BaseEntity {
     user.profilePath = profilePath;
     user.isPremium = isPremium;
     user.agreeWithMarketing = agreeWithMarketing;
+    user.loginMethod = loginMethod;
 
     return user;
   }
