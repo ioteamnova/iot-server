@@ -12,4 +12,13 @@ export class UserRepository extends Repository<User> {
     });
     return existEmail;
   }
+
+  async findUserByEmail(email: string): Promise<User> {
+    const user = await this.findOne({
+      where: {
+        email,
+      },
+    });
+    return user;
+  }
 }
