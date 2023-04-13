@@ -64,7 +64,7 @@ export class AuthService {
     const accessToken = await this.generateAccessToken(user.idx);
 
     return {
-      // idx: user.idx,
+      idx: user.idx,
       accessToken: accessToken,
     };
   }
@@ -90,15 +90,15 @@ export class AuthService {
       console.log('kakaoNickname::', nickname);
       const email = userInfoFromKakao.data.kakao_account.email;
       console.log('kakaoEmail::', email);
-      await this.userService.createSocialUser(nickname, email);
+      await this.userService.createSocialUser(email, nickname);
       return user;
     }
 
     return user;
   }
 
-  async generateAccessToken(email: string): Promise<string> {
-    const payload = { socialEmail: email };
+  async generateAccessToken(userIdx: number): Promise<string> {
+    const payload = { userIdx: userIdx };
     return this.jwtService.sign(payload);
   }
 }
