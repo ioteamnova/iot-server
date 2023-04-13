@@ -1,7 +1,15 @@
 import HttpResponse from 'src/core/http/http-response';
 import { AuthService } from './auth.service';
 import { SwaggerTag } from './../../core/swagger/api-tags';
-import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
@@ -11,6 +19,7 @@ import {
 import { LoginUserDto } from './dtos/login-user.dto';
 import UseAuthGuards from './auth-guards/use-auth';
 import { SocialLoginUserDto } from './dtos/social-login-user.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags(SwaggerTag.AUTH)
 @Controller('/auth')
