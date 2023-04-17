@@ -20,3 +20,6 @@ env
 # build
 dist/
 package-lock.json
+
+# test code file
+*.spec.ts

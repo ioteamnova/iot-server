@@ -2,6 +2,7 @@
 export enum SocialMethodType {
   GOOGLE = 'GOOGLE',
   KAKAO = 'KAKAO',
+  APPLE = 'APPLE',
 }
 
 // 유저 권한

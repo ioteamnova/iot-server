@@ -1,6 +1,6 @@
 import HttpResponse from 'src/core/http/http-response';
 import { AuthService } from './auth.service';
-import { SwaggerTag } from './../../core/swagger/api-tags';
+import { SwaggerTag } from '../../core/swagger/swagger-tags';
 import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import {
   ApiBody,

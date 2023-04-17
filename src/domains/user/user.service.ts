@@ -104,6 +104,7 @@ export class UserService {
       isPremium: userInfo.isPremium,
       agreeWithMarketing: userInfo.agreeWithMarketing,
       createdAt: userInfo.createdAt,
+      loginMethod: userInfo.loginMethod,
     };
   }
 
