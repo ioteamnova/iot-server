@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { User } from './domains/user/entities/user.entity';
 import { UserModule } from './domains/user/user.module';
 import { LoggerMiddleware } from './core/middlewares/logger.middleware';
+import { DiaryModule } from './domains/diary/diary.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { LoggerMiddleware } from './core/middlewares/logger.middleware';
     }),
     UserModule,
     AuthModule,
+    DiaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
