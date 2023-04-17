@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { Gender } from '../helpers/constants';
 
-export class PetDetailDto {
+export class UpdatePetDto {
   @ApiProperty({
     description: '반려동물 인덱스',
     default: 1,
@@ -18,12 +19,16 @@ export class PetDetailDto {
     description: '반려동물 이름',
     default: '무근이',
   })
+  @IsString()
+  @IsOptional()
   name: string;
 
   @ApiProperty({
     description: '반려동물 종류',
     default: '크레스티드 게코',
   })
+  @IsString()
+  @IsOptional()
   type: string;
 
   @ApiProperty({
@@ -34,29 +39,29 @@ export class PetDetailDto {
     enum: Gender,
     default: Gender.MALE,
   })
+  @IsOptional()
   gender: Gender;
 
   @ApiProperty({
     description: '출생일',
     default: '2023-04-18',
   })
+  @IsOptional()
   birthDate: string;
 
   @ApiProperty({
     description: '입양일',
     default: '2023-04-18',
   })
+  @IsOptional()
   adoptionDate: string;
 
   @ApiProperty({
     description: '체중(g)',
     default: 100.25,
   })
+  @IsOptional()
   weight: number;
 
-  @ApiProperty({
-    description: '생성일',
-    default: new Date(),
-  })
-  createdAt: Date;
+  imagePath: string;
 }

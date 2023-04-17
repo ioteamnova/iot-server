@@ -1,3 +1,4 @@
+import { UpdatePetDto } from '../dto/pet-update.dto';
 import BaseEntity from 'src/core/entity/base.entity';
 import { User } from 'src/domains/user/entities/user.entity';
 import { Column, ManyToOne, Entity } from 'typeorm';
@@ -26,6 +27,9 @@ export class Pet extends BaseEntity {
   @Column()
   weight: number;
 
+  @Column()
+  imagePath: string;
+
   @ManyToOne(() => User, (user) => user.pets)
   user: User;
 
@@ -36,6 +40,7 @@ export class Pet extends BaseEntity {
     birthDate,
     adoptionDate,
     weight,
+    imagePath,
   }: {
     name: string;
     type: string;
@@ -43,6 +48,7 @@ export class Pet extends BaseEntity {
     birthDate: string;
     adoptionDate: string;
     weight: number;
+    imagePath: string;
   }) {
     const pet = new Pet();
     pet.name = name;
@@ -51,7 +57,18 @@ export class Pet extends BaseEntity {
     pet.birthDate = birthDate;
     pet.adoptionDate = adoptionDate;
     pet.weight = weight;
+    pet.imagePath = imagePath;
 
     return pet;
+  }
+
+  updateFromDto(dto: UpdatePetDto) {
+    this.name = dto.name;
+    this.type = dto.type;
+    this.gender = dto.gender;
+    this.birthDate = dto.birthDate;
+    this.adoptionDate = dto.adoptionDate;
+    this.weight = dto.weight;
+    this.imagePath = dto.imagePath;
   }
 }

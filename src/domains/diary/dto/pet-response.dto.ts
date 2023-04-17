@@ -1,10 +1,10 @@
-import { PetDetailDto } from './pet-detail.dto';
+import { UpdatePetDto } from './pet-update.dto';
 import { PickType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { Gender } from '../helpers/constants';
 import { Pet } from '../entities/pet.entity';
 
-export class PetListDto extends PickType(PetDetailDto, [
+export class PetListDto extends PickType(UpdatePetDto, [
   'idx',
   'name',
   'type',
