@@ -32,6 +32,7 @@ export class UserService {
    */
   async createUser(dto: CreateUserDto): Promise<User> {
     await this.checkExistEmail(dto.email);
+    await this.checkExistNickname(dto.nickname);
 
     const user = User.fromDto(dto);
 
@@ -139,43 +140,13 @@ export class UserService {
     return result;
   }
 
-  // async upload(file: Express.Multer.File, dto: UpdateUserDto, userIdx: number) {
-  //   const user = await this.userRepository.findOne({
-  //     where: {
-  //       idx: userIdx,
-  //     },
-  //   });
-
-  //   if (!user) {
-  //     throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
-  //   }
-
-  //   if (file) {
-  //     const folder = 'profile';
-  //     const fileName = `${userIdx}-${Date.now()}-${uuid.v1()}-${
-  //       file.originalname
-  //     }`;
-  //     const fileKey = `${folder}/${fileName}`;
-  //     const result = await asyncUploadToS3(fileKey, file.buffer);
-
-  //     dto.profilePath = result.Location;
-  //   }
-  //   const result = user.updateFromDto(dto);
-  //   await this.userRepository.save(user);
-  //   return result;
-  // }
-
   /**
    * 닉네임 중복 검사
-   * @param dto.nickname 변경할 닉네임
+   * @param dto.nickname 설정할 닉네임
    * @returns boolean
    */
   async checkExistNickname(nickname: string) {
-    const isExistNickname = await this.userRepository.exist({
-      where: {
-        nickname: nickname,
-      },
-    });
+    const isExistNickname = await this.userRepository.existByNcikname(nickname);
 
     if (isExistNickname) {
       throw new ConflictException(HttpErrorConstants.EXIST_NICKNAME);
