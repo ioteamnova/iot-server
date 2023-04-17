@@ -52,7 +52,8 @@ export class UserService {
     user.password = password;
     user.nickname = nickname;
     user.loginMethod = SocialMethodType.KAKAO;
-    return await this.userRepository.save(user);
+    const newUser = await this.userRepository.save(user);
+    return newUser;
   }
 
   /**

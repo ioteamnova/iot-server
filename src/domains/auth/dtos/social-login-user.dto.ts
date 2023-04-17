@@ -16,6 +16,7 @@ export class SocialLoginUserDto {
     description: '소셜 로그인 타입',
     default: SocialMethodType.KAKAO,
     required: true,
+    enum: SocialMethodType,
   })
   @IsNotEmpty()
   readonly socialType: SocialMethodType;
