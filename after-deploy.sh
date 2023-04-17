@@ -2,6 +2,6 @@
 cd /home/ubuntu/iot-server/build
 
 
-pm2 kill
-pm2 start dist/main.js
+/user/bin/pm2 kill
+/user/bin/pm2 start dist/main.js
 
