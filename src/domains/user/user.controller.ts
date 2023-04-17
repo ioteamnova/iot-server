@@ -1,3 +1,4 @@
+import { ApiOkResponseTemplate } from './../../core/swagger/api-ok-response-template';
 import {
   Controller,
   Get,
@@ -73,6 +74,7 @@ export class UserController {
     summary: '회원 정보 조회',
     description: '현재 로그인 중인 회원의 정보를 조회한다.',
   })
+  @ApiOkResponseTemplate({})
   @UseAuthGuards()
   @Get('/me')
   async getUserInfo(@Res() res, @AuthUser() user: User) {
@@ -98,19 +100,6 @@ export class UserController {
     const userInfo = await this.userService.update(file, dto, user.idx);
     return HttpResponse.ok(res, userInfo);
   }
-
-  // @Patch('upload')
-  // @UseAuthGuards()
-  // @UseInterceptors(FileInterceptor('file'))
-  // async upload(
-  //   @Res() res,
-  //   @Body() dto: UpdateUserDto,
-  //   @AuthUser() user: User,
-  //   @UploadedFile() file: Express.Multer.File,
-  // ) {
-  //   const result = await this.userService.upload(file, dto, user.idx);
-  //   return HttpResponse.ok(res, result);
-  // }
 
   @ApiOperation({
     summary: '닉네임 중복 확인',

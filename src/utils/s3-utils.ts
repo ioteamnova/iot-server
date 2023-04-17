@@ -30,3 +30,8 @@ export const asyncUploadToS3 = async (
     )
     .promise();
 };
+
+export enum S3FolderName {
+  PROFILE = 'profile',
+  PET = 'pet',
+}

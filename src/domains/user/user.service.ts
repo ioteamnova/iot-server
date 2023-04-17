@@ -15,7 +15,7 @@ import { EmailService } from '../email/email.service';
 import DeleteUserDto from './dtos/delete-user.dto';
 import { hashPassword, validatePassword } from 'src/utils/password.utils';
 import { S3 } from 'aws-sdk';
-import { asyncUploadToS3 } from 'src/utils/s3-utils';
+import { asyncUploadToS3, S3FolderName } from 'src/utils/s3-utils';
 import DateUtils from 'src/utils/date-utils';
 import { SocialMethodType } from '../auth/helpers/constants';
 
@@ -126,7 +126,7 @@ export class UserService {
     }
 
     if (file) {
-      const folder = 'profile';
+      const folder = S3FolderName.PROFILE;
       const fileName = `${userIdx}-${DateUtils.momentFile()}-${uuid.v4()}-${
         file.originalname
       }`;

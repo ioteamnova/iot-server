@@ -50,4 +50,6 @@ export class CreatePetDto {
     required: false,
   })
   weight: number;
+
+  imagePath: string;
 }

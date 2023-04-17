@@ -21,11 +21,5 @@ export class UpdateUserDto {
   @MaxLength(32)
   nickname: string;
 
-  @ApiProperty({
-    description: '프로필 이미지 url',
-    default: 'https://image.xxx.xx/xx...',
-  })
-  @IsString()
-  @IsOptional()
   profilePath: string;
 }
