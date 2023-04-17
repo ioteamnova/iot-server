@@ -12,4 +12,13 @@ export class UserRepository extends Repository<User> {
     });
     return existEmail;
   }
+
+  async existByNcikname(nickname: string): Promise<boolean> {
+    const existNickname = await this.exist({
+      where: {
+        nickname,
+      },
+    });
+    return existNickname;
+  }
 }

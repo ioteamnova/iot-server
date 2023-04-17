@@ -4,7 +4,7 @@ import { UpdateDiaryDto } from './dto/update-diary.dto';
 
 @Injectable()
 export class DiaryService {
-  create(createDiaryDto: CreateDiaryDto) {
+  createPet(createDiaryDto: CreateDiaryDto) {
     return 'This action adds a new diary';
   }
 
