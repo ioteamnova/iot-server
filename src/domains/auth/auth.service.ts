@@ -55,6 +55,7 @@ export class AuthService {
     switch (dto.socialType) {
       case SocialMethodType.KAKAO: {
         user = await this.getUserByKakaoAccessToken(dto.accessToken);
+        console.log('user:::', user);
         break;
       }
       default: {
@@ -62,7 +63,7 @@ export class AuthService {
       }
     }
     const accessToken = await this.generateAccessToken(user.idx);
-
+    console.log('accessToken:::', accessToken);
     return {
       idx: user.idx,
       accessToken: accessToken,
@@ -89,8 +90,12 @@ export class AuthService {
       console.log('kakaoNickname::', nickname);
       const email = userInfoFromKakao.data.kakao_account.email;
       console.log('kakaoEmail::', email);
-      await this.userService.createSocialUser(email, nickname);
-      return user;
+      const kakaoUser = await this.userService.createSocialUser(
+        email,
+        nickname,
+      );
+      console.log('kakaoUser:::', kakaoUser);
+      return kakaoUser;
     }
 
     return user;
