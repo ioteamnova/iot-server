@@ -1,9 +1,10 @@
 import { UpdateUserDto } from './../dtos/update-user.dto';
 import BaseEntity from 'src/core/entity/base.entity';
 import { hashPassword } from 'src/utils/password.utils';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { SocialMethodType } from 'src/domains/auth/helpers/constants';
+import { Pet } from 'src/domains/diary/entities/pet.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -35,6 +36,9 @@ export class User extends BaseEntity {
 
   @Column()
   loginMethod: SocialMethodType;
+
+  @OneToMany(() => Pet, (pet) => pet.user)
+  pets: Pet[];
 
   static from({
     email,

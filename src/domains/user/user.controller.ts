@@ -19,7 +19,6 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { SwaggerTag } from 'src/core/swagger/api-tags';
 import { VerifyEmailDto } from './dtos/verify-email.dto';
 import { User } from './entities/user.entity';
 import { AuthService } from '../auth/auth.service';
@@ -30,6 +29,7 @@ import DeleteUserDto from './dtos/delete-user.dto';
 import { CheckNicknameDto } from './dtos/check-nickname.dto';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { SwaggerTag } from 'src/core/swagger/swagger-tags';
 
 @ApiTags(SwaggerTag.USER)
 @Controller('/users')

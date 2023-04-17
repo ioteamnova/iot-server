@@ -1,7 +1,13 @@
 import BaseEntity from 'src/core/entity/base.entity';
-import { Column } from 'typeorm';
+import { User } from 'src/domains/user/entities/user.entity';
+import { Column, ManyToOne, Entity } from 'typeorm';
+import { Gender } from '../helpers/constants';
 
+@Entity()
 export class Pet extends BaseEntity {
+  @Column()
+  userIdx: number;
+
   @Column()
   name: string;
 
@@ -9,14 +15,43 @@ export class Pet extends BaseEntity {
   type: string;
 
   @Column()
-  gender: string;
+  gender: Gender;
 
   @Column()
-  birth_date: string;
+  birthDate: string;
 
   @Column()
-  adoption_date: boolean;
+  adoptionDate: string;
 
   @Column()
-  weight: boolean;
+  weight: number;
+
+  @ManyToOne(() => User, (user) => user.pets)
+  user: User;
+
+  static from({
+    name,
+    type,
+    gender,
+    birthDate,
+    adoptionDate,
+    weight,
+  }: {
+    name: string;
+    type: string;
+    gender: Gender;
+    birthDate: string;
+    adoptionDate: string;
+    weight: number;
+  }) {
+    const pet = new Pet();
+    pet.name = name;
+    pet.type = type;
+    pet.gender = gender;
+    pet.birthDate = birthDate;
+    pet.adoptionDate = adoptionDate;
+    pet.weight = weight;
+
+    return pet;
+  }
 }
