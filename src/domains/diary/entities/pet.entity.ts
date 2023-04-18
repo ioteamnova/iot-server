@@ -1,7 +1,8 @@
+import { Diary } from './diary.entity';
 import { UpdatePetDto } from '../dto/pet-update.dto';
 import BaseEntity from 'src/core/entity/base.entity';
 import { User } from 'src/domains/user/entities/user.entity';
-import { Column, ManyToOne, Entity } from 'typeorm';
+import { Column, ManyToOne, Entity, OneToMany } from 'typeorm';
 import { Gender } from '../helpers/constants';
 
 @Entity()
@@ -32,6 +33,9 @@ export class Pet extends BaseEntity {
 
   @ManyToOne(() => User, (user) => user.pets)
   user: User;
+
+  @OneToMany(() => Diary, (diary) => diary.pet)
+  diaries: Diary[];
 
   static from({
     name,

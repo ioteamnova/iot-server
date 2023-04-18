@@ -22,11 +22,12 @@ import { DiaryService } from './diary.service';
 import { CreateDiaryDto } from './dto/create-diary.dto';
 import { CreatePetDto } from './dto/create-pet.dto';
 import { UpdateDiaryDto } from './dto/update-diary.dto';
-import { PetListDto } from './dto/pet-response.dto';
+import { PetListDto } from './dto/pet-list.dto';
 import { SwaggerTag } from 'src/core/swagger/swagger-tags';
 import { Page, PageRequest } from 'src/core/page';
 import { ApiOkResponseTemplate } from 'src/core/swagger/api-ok-response-template';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { DiaryListDto } from './dto/diary-list.dto';
 
 @ApiTags(SwaggerTag.DIARY)
 @Controller('diaries')
@@ -48,7 +49,7 @@ export class DiaryController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     const pet = await this.diaryService.createPet(dto, user.idx, file);
-    return HttpResponse.created(res, { body: { idx: pet } });
+    return HttpResponse.created(res, { body: pet });
   }
 
   @ApiOperation({
@@ -58,7 +59,7 @@ export class DiaryController {
   @ApiOkResponseTemplate({ type: PetListDto, isArray: true })
   @UseAuthGuards()
   @Get('/pet')
-  async findAll(
+  async findAllPets(
     @Res() res,
     @AuthUser() user: User,
     @Query() pageRequest: PageRequest,
@@ -80,7 +81,7 @@ export class DiaryController {
   @UseInterceptors(FileInterceptor('file'))
   @UseAuthGuards()
   @Patch('/pet/:petIdx')
-  async update(
+  async updatePet(
     @Res() res,
     @Param('petIdx') petIdx: number,
     @Body() dto: UpdatePetDto,
@@ -96,8 +97,40 @@ export class DiaryController {
   })
   @UseAuthGuards()
   @Delete('/pet/:petIdx')
-  async remove(@Res() res, @Param('petIdx') petIdx: number) {
+  async removePet(@Res() res, @Param('petIdx') petIdx: number) {
     await this.diaryService.removePet(petIdx);
     return HttpResponse.ok(res);
+  }
+
+  @ApiOperation({
+    summary: '반려동물의 다이어리 등록',
+    description: '선택한 반려동물의 다이어리를 등록한다.',
+  })
+  @ApiBody({ type: CreateDiaryDto })
+  @UseAuthGuards()
+  @Post('/:petIdx')
+  async createDiary(
+    @Res() res,
+    @Param('petIdx') petIdx: number,
+    @Body() dto: CreateDiaryDto,
+  ) {
+    const diary = await this.diaryService.createDiary(petIdx, dto);
+    return HttpResponse.created(res, { body: diary });
+  }
+
+  @ApiOperation({
+    summary: '반려동물의 다이어리 목록 조회',
+    description: '선택한 반려동물의 다이어리 목록을 조회한다.',
+  })
+  @ApiOkResponseTemplate({ type: DiaryListDto, isArray: true })
+  @UseAuthGuards()
+  @Get('/:petIdx')
+  async findAllDiaries(
+    @Res() res,
+    @Param('petIdx') petIdx: number,
+    @Query() pageRequest: PageRequest,
+  ) {
+    const diaries = await this.diaryService.findAllDiaries(petIdx, pageRequest);
+    return HttpResponse.ok(res, diaries);
   }
 }
