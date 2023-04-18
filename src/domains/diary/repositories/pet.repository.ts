@@ -12,4 +12,12 @@ export class PetRepository extends Repository<Pet> {
       .skip(pageRequest.offset)
       .getManyAndCount();
   }
+
+  findByPetIdx(petIdx: number): Promise<Pet> {
+    return this.findOne({
+      where: {
+        idx: petIdx,
+      },
+    });
+  }
 }

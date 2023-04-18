@@ -1,20 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 import { Gender } from '../helpers/constants';
 
 export class UpdatePetDto {
-  @ApiProperty({
-    description: '반려동물 인덱스',
-    default: 1,
-  })
-  idx: number;
-
-  @ApiProperty({
-    description: '유저 인덱스',
-    default: 1,
-  })
-  userIdx: number;
-
   @ApiProperty({
     description: '반려동물 이름',
     default: '무근이',
