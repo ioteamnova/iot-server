@@ -14,6 +14,7 @@ import { asyncUploadToS3, S3FolderName } from 'src/utils/s3-utils';
 import DateUtils from 'src/utils/date-utils';
 import * as uuid from 'uuid';
 import { Diary } from './entities/diary.entity';
+import { DiaryDetailDto } from './dtos/diary-detail-dto';
 
 @Injectable()
 export class DiaryService {
@@ -122,7 +123,10 @@ export class DiaryService {
    * @param dto CreateDiaryDto
    * @returns 등록한 다이어리
    */
-  async createDiary(petIdx: number, dto: CreateDiaryDto) {
+  async createDiary(
+    petIdx: number,
+    dto: CreateDiaryDto,
+  ): Promise<DiaryDetailDto> {
     const pet = await this.petRepository.findByPetIdx(petIdx);
     if (!pet) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_PET);
@@ -152,16 +156,27 @@ export class DiaryService {
     return new Page(totalCount, items, pageRequest);
   }
 
-  async updateDiary(diaryIdx: number, dto: UpdateDiaryDto) {
+  /**
+   *  다이어리 수정
+   * @param diaryIdx 다이어리 인덱스
+   * @param dto UpdateDiaryDto
+   * @returns
+   */
+  async updateDiary(
+    diaryIdx: number,
+    dto: UpdateDiaryDto,
+  ): Promise<DiaryDetailDto> {
     const diary = await this.diaryRepository.findOne({
       where: {
         idx: diaryIdx,
       },
     });
+
     if (!diary) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_DIARY);
     }
-    const result = diary.updateFromDto(dto);
-    return await this.diaryRepository.save(result);
+
+    diary.updateFromDto(dto);
+    return await this.diaryRepository.save(diary);
   }
 }
