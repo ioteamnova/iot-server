@@ -185,4 +185,22 @@ export class DiaryController {
     const diary = await this.diaryService.updateDiary(diaryIdx, dto);
     return HttpResponse.ok(res, diary);
   }
+
+  @ApiOperation({
+    summary: '다이어리 삭제',
+    description: '다이어리를 삭제한다. ',
+  })
+  @ApiOkResponseTemplate()
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_DIARY],
+    },
+  ])
+  @UseAuthGuards()
+  @Delete('/:diaryIdx')
+  async removeDiary(@Res() res, @Param('diaryIdx') diaryIdx: number) {
+    await this.diaryService.removeDiary(diaryIdx);
+    return HttpResponse.ok(res);
+  }
 }
