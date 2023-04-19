@@ -179,4 +179,22 @@ export class DiaryService {
     diary.updateFromDto(dto);
     return await this.diaryRepository.save(diary);
   }
+
+  /**
+   * 다이어리 삭제
+   * @param diaryIdx 다이어리 인덱스
+   */
+  async removeDiary(diaryIdx: number) {
+    const diary = await this.diaryRepository.findOne({
+      where: {
+        idx: diaryIdx,
+      },
+    });
+
+    if (!diary) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_DIARY);
+    }
+
+    await this.diaryRepository.softDelete(diaryIdx);
+  }
 }
