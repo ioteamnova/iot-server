@@ -1,3 +1,4 @@
+import { UpdateDiaryDto } from './dto/update-diary.dto';
 import { UpdatePetDto } from './dtos/pet-update.dto';
 import { Pet } from 'src/domains/diary/entities/pet.entity';
 import { User } from 'src/domains/user/entities/user.entity';
@@ -167,5 +168,30 @@ export class DiaryController {
   ) {
     const diaries = await this.diaryService.findAllDiaries(petIdx, pageRequest);
     return HttpResponse.ok(res, diaries);
+  }
+
+  @ApiOperation({
+    summary: '다이어리 수정',
+    description: '다이어리를 수정한다.',
+  })
+  @ApiOkResponseTemplate({ type: DiaryListDto })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [
+        HttpErrorConstants.CANNOT_FIND_PET,
+        HttpErrorConstants.CANNOT_FIND_DIARY,
+      ],
+    },
+  ])
+  @UseAuthGuards()
+  @Patch('/:petIdx')
+  async updateDiary(
+    @Res() res,
+    @Param('petIdx') petIdx: number,
+    @Body() dto: UpdateDiaryDto,
+  ) {
+    const pet = await this.diaryService.updateDiary(petIdx, dto);
+    return HttpResponse.ok(res, pet);
   }
 }
