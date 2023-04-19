@@ -45,14 +45,14 @@ ex) HakWon123#, hakwon123#
   @MaxLength(32)
   nickname: string;
 
-  @ApiProperty({
-    description: '프로필 이미지 url',
-    default: null,
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  profilePath: string;
+  // @ApiProperty({
+  //   description: '프로필 이미지 url',
+  //   default: null,
+  //   required: false,
+  // })
+  // @IsString()
+  // @IsOptional()
+  // profilePath: string;
 
   @ApiProperty({
     description: '구독 여부',

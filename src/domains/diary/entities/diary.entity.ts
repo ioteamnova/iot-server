@@ -1,8 +1,8 @@
-import { CreateDiaryDto } from './../dto/create-diary.dto';
+import { CreateDiaryDto } from '../dtos/create-diary.dto';
 import BaseEntity from 'src/core/entity/base.entity';
-import { Column, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import { Pet } from './pet.entity';
-
+@Entity()
 export class Diary extends BaseEntity {
   @Column()
   title: string;

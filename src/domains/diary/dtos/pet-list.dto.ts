@@ -58,6 +58,11 @@ export class PetListDto {
   @IsOptional()
   weight: number;
 
+  @ApiProperty({
+    description: '이미지 url',
+    default: null,
+  })
+  @IsOptional()
   imagePath: string;
 
   constructor(pet: Pet) {
@@ -65,5 +70,6 @@ export class PetListDto {
     this.name = pet.name;
     this.type = pet.type;
     this.gender = pet.gender;
+    this.imagePath = pet.imagePath;
   }
 }

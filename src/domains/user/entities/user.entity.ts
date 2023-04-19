@@ -73,7 +73,6 @@ export class User extends BaseEntity {
     const user = new User();
     user.email = dto.email;
     user.nickname = dto.nickname;
-    user.profilePath = dto.profilePath;
     user.isPremium = dto.isPremium;
     user.agreeWithMarketing = dto.agreeWithMarketing;
     user.password = hashPassword(dto.password);
