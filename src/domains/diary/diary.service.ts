@@ -151,4 +151,17 @@ export class DiaryService {
     const items = diaries.map((diary: Diary) => new DiaryListDto(diary));
     return new Page(totalCount, items, pageRequest);
   }
+
+  async updateDiary(diaryIdx: number, dto: UpdateDiaryDto) {
+    const diary = await this.diaryRepository.findOne({
+      where: {
+        idx: diaryIdx,
+      },
+    });
+    if (!diary) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_DIARY);
+    }
+    const result = diary.updateFromDto(dto);
+    return await this.diaryRepository.save(result);
+  }
 }

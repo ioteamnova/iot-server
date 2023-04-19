@@ -178,20 +178,17 @@ export class DiaryController {
   @ApiErrorResponseTemplate([
     {
       status: StatusCodes.NOT_FOUND,
-      errorFormatList: [
-        HttpErrorConstants.CANNOT_FIND_PET,
-        HttpErrorConstants.CANNOT_FIND_DIARY,
-      ],
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_DIARY],
     },
   ])
   @UseAuthGuards()
-  @Patch('/:petIdx')
+  @Patch('/:diaryIdx')
   async updateDiary(
     @Res() res,
-    @Param('petIdx') petIdx: number,
+    @Param('diaryIdx') diaryIdx: number,
     @Body() dto: UpdateDiaryDto,
   ) {
-    const pet = await this.diaryService.updateDiary(petIdx, dto);
+    const pet = await this.diaryService.updateDiary(diaryIdx, dto);
     return HttpResponse.ok(res, pet);
   }
 }
