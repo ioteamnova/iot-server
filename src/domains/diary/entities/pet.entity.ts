@@ -1,5 +1,5 @@
 import { Diary } from './diary.entity';
-import { UpdatePetDto } from '../dto/pet-update.dto';
+import { UpdatePetDto } from '../dtos/pet-update.dto';
 import BaseEntity from 'src/core/entity/base.entity';
 import { User } from 'src/domains/user/entities/user.entity';
 import { Column, ManyToOne, Entity, OneToMany } from 'typeorm';

@@ -1,18 +1,19 @@
+import { ApiCreatedResponseTemplate } from './../../core/swagger/api-created-response';
 import HttpResponse from 'src/core/http/http-response';
 import { AuthService } from './auth.service';
 import { SwaggerTag } from '../../core/swagger/swagger-tags';
-import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
-import {
-  ApiBody,
-  ApiCreatedResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Body, Controller, Post, Res } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginUserDto } from './dtos/login-user.dto';
-import UseAuthGuards from './auth-guards/use-auth';
 import { SocialLoginUserDto } from './dtos/social-login-user.dto';
+import { ApiCommonErrorResponseTemplate } from 'src/core/swagger/api-error-common-response';
+import { LoginResponseDto } from './dtos/login-response.dto';
+import { ApiErrorResponseTemplate } from 'src/core/swagger/apt-error-response';
+import { StatusCodes } from 'http-status-codes';
+import { HttpErrorConstants } from 'src/core/http/http-error-objects';
 
 @ApiTags(SwaggerTag.AUTH)
+@ApiCommonErrorResponseTemplate()
 @Controller('/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -26,7 +27,7 @@ export class AuthController {
   @ApiBody({
     type: LoginUserDto,
   })
-  @ApiCreatedResponse({ description: '로그인 성공, 토큰 값 발급' })
+  @ApiCreatedResponseTemplate({ type: LoginResponseDto })
   @Post()
   async login(@Res() res, @Body() dto: LoginUserDto) {
     const result = await this.authService.login(dto);
@@ -41,7 +42,7 @@ export class AuthController {
   @ApiBody({
     type: SocialLoginUserDto,
   })
-  @ApiCreatedResponse({ description: '로그인 성공, 토큰 값 발급' })
+  @ApiCreatedResponseTemplate({ type: LoginResponseDto })
   @Post('/social')
   async socialLogin(@Res() res, @Body() dto: SocialLoginUserDto) {
     const result = await this.authService.socialLogin(dto);

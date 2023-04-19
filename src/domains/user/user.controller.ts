@@ -1,11 +1,11 @@
-import { ApiOkResponseTemplate } from './../../core/swagger/api-ok-response-template';
+import { ApiCreatedResponseTemplate } from 'src/core/swagger/api-created-response';
+import { ApiOkResponseTemplate } from '../../core/swagger/api-ok-response';
 import {
   Controller,
   Get,
   Post,
   Body,
   Patch,
-  Param,
   Delete,
   Res,
   UseInterceptors,
@@ -14,12 +14,7 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UpdateUserDto } from './dtos/update-user.dto';
-import {
-  ApiBody,
-  ApiCreatedResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { VerifyEmailDto } from './dtos/verify-email.dto';
 import { User } from './entities/user.entity';
 import { AuthService } from '../auth/auth.service';
@@ -31,8 +26,16 @@ import { CheckNicknameDto } from './dtos/check-nickname.dto';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SwaggerTag } from 'src/core/swagger/swagger-tags';
+import { ApiCommonErrorResponseTemplate } from 'src/core/swagger/api-error-common-response';
+import { UserInfoResponseDto } from './dtos/user-info-response.dto';
+import { StatusCodes } from 'http-status-codes';
+import { HttpErrorConstants } from 'src/core/http/http-error-objects';
+import { ApiErrorResponseTemplate } from 'src/core/swagger/apt-error-response';
+import { VerifyEmailResponseDto } from './dtos/verify-email-response.dto';
+import { FindPasswordDto } from './dtos/find-password.dto';
 
 @ApiTags(SwaggerTag.USER)
+@ApiCommonErrorResponseTemplate()
 @Controller('/users')
 export class UserController {
   constructor(
@@ -45,13 +48,20 @@ export class UserController {
     description: '회원가입은 유저를 생성하는 것이므로 POST 응답인 201 리턴함.',
   })
   @ApiBody({ type: CreateUserDto })
-  @ApiCreatedResponse({ description: '유저를 생성한다.' })
-  // todo: ErrorResponse
+  @ApiCreatedResponseTemplate({ description: '생성한 유저 인덱스 리턴' })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.CONFLICT,
+      errorFormatList: [
+        HttpErrorConstants.EXIST_EMAIL,
+        HttpErrorConstants.EXIST_NICKNAME,
+      ],
+    },
+  ])
   @Post()
   async createUser(@Res() res, @Body() dto: CreateUserDto) {
     const user = await this.userService.createUser(dto);
-    return HttpResponse.created(res, { body: { idx: user.idx } });
-    // return res.status(201).send(user);
+    return HttpResponse.created(res, { body: user.idx });
   }
 
   @ApiOperation({
@@ -59,7 +69,7 @@ export class UserController {
     description: '회원가입시 이메일 인증을 한다.',
   })
   @ApiBody({ type: VerifyEmailDto })
-  @ApiCreatedResponse({ description: '이메일 인증' })
+  @ApiCreatedResponseTemplate({ type: VerifyEmailResponseDto })
   @Post('/email-verify')
   async verifyEmail(@Res() res, @Body() dto: VerifyEmailDto) {
     const signupVerifyToken = await this.userService.sendMemberJoinEmail(
@@ -67,14 +77,19 @@ export class UserController {
     );
     console.log('signupVerifyToken:::', signupVerifyToken);
     return HttpResponse.ok(res, signupVerifyToken);
-    // return res.status(201).send(signupVerifyToken);
   }
 
   @ApiOperation({
     summary: '회원 정보 조회',
     description: '현재 로그인 중인 회원의 정보를 조회한다.',
   })
-  @ApiOkResponseTemplate({})
+  @ApiOkResponseTemplate({ type: UserInfoResponseDto })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_USER],
+    },
+  ])
   @UseAuthGuards()
   @Get('/me')
   async getUserInfo(@Res() res, @AuthUser() user: User) {
@@ -87,6 +102,13 @@ export class UserController {
     summary: '회원 정보 수정',
     description: '현재 로그인 중인 회원의 정보를 수정한다.',
   })
+  @ApiOkResponseTemplate({ type: UserInfoResponseDto })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_USER],
+    },
+  ])
   @UseAuthGuards()
   @UseInterceptors(FileInterceptor('file'))
   @ApiBody({ type: UpdateUserDto })
@@ -105,6 +127,13 @@ export class UserController {
     summary: '닉네임 중복 확인',
     description: '회원 정보 수정 화면에서 닉네임 중복 확인을한다.',
   })
+  @ApiOkResponseTemplate({ description: '중복이면 true, 아니면 false 리턴' })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.CONFLICT,
+      errorFormatList: [HttpErrorConstants.EXIST_NICKNAME],
+    },
+  ])
   @UseAuthGuards()
   @ApiBody({ type: CheckNicknameDto })
   @Patch('/nickname')
@@ -117,6 +146,16 @@ export class UserController {
     summary: '비밀번호 수정',
     description: '현재 비밀번호 입력 후 비밀번호를 변경한다.',
   })
+  @ApiOkResponseTemplate()
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [
+        HttpErrorConstants.CANNOT_FIND_USER,
+        HttpErrorConstants.INVALID_AUTH,
+      ],
+    },
+  ])
   @UseAuthGuards()
   @ApiBody({ type: UpdatePasswordDto })
   @Patch('/password')
@@ -125,7 +164,19 @@ export class UserController {
     @Body() dto: UpdatePasswordDto,
     @AuthUser() user: User,
   ) {
-    const result = await this.userService.updatePassword(user.idx, dto);
+    await this.userService.updatePassword(user.idx, dto);
+    return HttpResponse.ok(res);
+  }
+
+  @ApiOperation({
+    summary: '비밀번호 찾기',
+    description: '이메일 인증 후 새로운 비밀번호를 설정한다.',
+  })
+  @ApiOkResponseTemplate()
+  @ApiBody({ type: FindPasswordDto })
+  @Post('/find-password')
+  async findPassword(@Res() res, @Body() dto: FindPasswordDto) {
+    await this.userService.findPassword(dto);
     return HttpResponse.ok(res);
   }
 
@@ -133,6 +184,16 @@ export class UserController {
     summary: '회원 탈퇴',
     description: '비밀번호를 입력하여 회원 탈퇴한다. ',
   })
+  @ApiOkResponseTemplate()
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [
+        HttpErrorConstants.CANNOT_FIND_USER,
+        HttpErrorConstants.INVALID_AUTH,
+      ],
+    },
+  ])
   @UseAuthGuards()
   @ApiBody({ type: DeleteUserDto })
   @Delete()

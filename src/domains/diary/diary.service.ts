@@ -1,14 +1,14 @@
-import { DiaryListDto } from './dto/diary-list.dto';
+import { DiaryListDto } from './dtos/diary-list.dto';
 import { DiaryRepository } from './repositories/diary.repository';
-import { UpdatePetDto } from './dto/pet-update.dto';
+import { UpdatePetDto } from './dtos/pet-update.dto';
 import { PetRepository } from './repositories/pet.repository';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateDiaryDto } from './dto/create-diary.dto';
-import { CreatePetDto } from './dto/create-pet.dto';
-import { UpdateDiaryDto } from './dto/update-diary.dto';
+import { CreateDiaryDto } from './dtos/create-diary.dto';
+import { CreatePetDto } from './dtos/create-pet.dto';
+import { UpdateDiaryDto } from './dtos/update-diary.dto';
 import { Pet } from './entities/pet.entity';
 import { Page, PageRequest } from 'src/core/page';
-import { PetListDto } from './dto/pet-list.dto';
+import { PetListDto } from './dtos/pet-list.dto';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
 import { asyncUploadToS3, S3FolderName } from 'src/utils/s3-utils';
 import DateUtils from 'src/utils/date-utils';
@@ -120,7 +120,7 @@ export class DiaryService {
    * 반려동물의 다이어리 등록
    * @param petIdx 반려동물 인덱스
    * @param dto CreateDiaryDto
-   * @returns
+   * @returns 등록한 다이어리
    */
   async createDiary(petIdx: number, dto: CreateDiaryDto) {
     const pet = await this.petRepository.findByPetIdx(petIdx);
@@ -132,10 +132,20 @@ export class DiaryService {
     return await this.diaryRepository.save(diary);
   }
 
+  /**
+   * 반려동물의 다이어리 목록
+   * @param petIdx 반려동물 인덱스
+   * @param pageRequest 페이징 객체
+   * @returns 다이어리 목록
+   */
   async findAllDiaries(
     petIdx: number,
     pageRequest: PageRequest,
   ): Promise<Page<DiaryListDto>> {
+    const pet = await this.petRepository.findByPetIdx(petIdx);
+    if (!pet) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_PET);
+    }
     const [diaries, totalCount] =
       await this.diaryRepository.findAndCountByPetIdx(petIdx, pageRequest);
     const items = diaries.map((diary: Diary) => new DiaryListDto(diary));

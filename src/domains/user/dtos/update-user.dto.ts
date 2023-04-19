@@ -1,25 +1,14 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, MaxLength } from 'class-validator';
+import { CreateUserDto } from './create-user.dto';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { IsOptional, IsString } from 'class-validator';
 
-export class UpdateUserDto {
+export class UpdateUserDto extends PartialType(CreateUserDto) {
   @ApiProperty({
-    description: '이메일',
-    default: 'asd123qwe@gmail.com',
-    required: false,
-  })
-  @IsEmail()
-  @IsOptional()
-  email: string;
-
-  @ApiProperty({
-    description: '닉네임',
-    default: '김수정',
+    description: '프로필 이미지 url',
+    default: null,
     required: false,
   })
   @IsString()
   @IsOptional()
-  @MaxLength(32)
-  nickname: string;
-
   profilePath: string;
 }
