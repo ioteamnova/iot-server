@@ -1,4 +1,4 @@
-import { UpdateDiaryDto } from './dto/update-diary.dto';
+import { DiaryDetailDto } from './dtos/diary-detail-dto';
 import { UpdatePetDto } from './dtos/pet-update.dto';
 import { Pet } from 'src/domains/diary/entities/pet.entity';
 import { User } from 'src/domains/user/entities/user.entity';
@@ -15,13 +15,7 @@ import {
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
-import {
-  ApiBody,
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import AuthUser from 'src/core/decorators/auth-user.decorator';
 import HttpResponse from 'src/core/http/http-response';
 import UseAuthGuards from '../auth/auth-guards/use-auth';
@@ -174,7 +168,7 @@ export class DiaryController {
     summary: '다이어리 수정',
     description: '다이어리를 수정한다.',
   })
-  @ApiOkResponseTemplate({ type: DiaryListDto })
+  @ApiOkResponseTemplate({ type: DiaryDetailDto })
   @ApiErrorResponseTemplate([
     {
       status: StatusCodes.NOT_FOUND,
@@ -188,7 +182,7 @@ export class DiaryController {
     @Param('diaryIdx') diaryIdx: number,
     @Body() dto: UpdateDiaryDto,
   ) {
-    const pet = await this.diaryService.updateDiary(diaryIdx, dto);
-    return HttpResponse.ok(res, pet);
+    const diary = await this.diaryService.updateDiary(diaryIdx, dto);
+    return HttpResponse.ok(res, diary);
   }
 }
