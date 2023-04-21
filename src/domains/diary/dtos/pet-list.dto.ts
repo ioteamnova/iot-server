@@ -70,6 +70,9 @@ export class PetListDto {
     this.name = pet.name;
     this.type = pet.type;
     this.gender = pet.gender;
+    this.birthDate = pet.birthDate;
+    this.adoptionDate = pet.adoptionDate;
+    this.weight = pet.weight;
     this.imagePath = pet.imagePath;
   }
 }

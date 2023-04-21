@@ -3,9 +3,10 @@ import AWS, { S3 } from 'aws-sdk';
 import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
 import { logger } from './logger';
 
+const bucket = process.env.AWS_BUCKET_NAME;
 export const s3 = new S3({
   accessKeyId: process.env.AWS_ACECSS_KEY_ID,
-  secretAccessKey: process.env.AWS_SEECRET_KEY,
+  secretAccessKey: process.env.AWS_SECRET_KEY,
   region: process.env.AWS_BUCKET_REGION,
 });
 
@@ -13,7 +14,6 @@ export const asyncUploadToS3 = async (
   fileKey: string,
   file: Buffer,
 ): Promise<ManagedUpload.SendData> => {
-  const bucket = process.env.AWS_BUCKET_NAME;
   return await s3
     .upload(
       {
@@ -34,4 +34,5 @@ export const asyncUploadToS3 = async (
 export enum S3FolderName {
   PROFILE = 'profile',
   PET = 'pet',
+  DIARY = 'diary',
 }
