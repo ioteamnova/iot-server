@@ -2,7 +2,11 @@ import { DiaryListDto } from './dtos/diary-list.dto';
 import { DiaryRepository } from './repositories/diary.repository';
 import { UpdatePetDto } from './dtos/pet-update.dto';
 import { PetRepository } from './repositories/pet.repository';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { CreateDiaryDto } from './dtos/create-diary.dto';
 import { CreatePetDto } from './dtos/create-pet.dto';
 import { UpdateDiaryDto } from './dtos/update-diary.dto';
@@ -10,17 +14,25 @@ import { Pet } from './entities/pet.entity';
 import { Page, PageRequest } from 'src/core/page';
 import { PetListDto } from './dtos/pet-list.dto';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
-import { asyncUploadToS3, S3FolderName } from 'src/utils/s3-utils';
+import {
+  asyncUploadToS3,
+  imageUploadToS3,
+  S3FolderName,
+} from 'src/utils/s3-utils';
 import DateUtils from 'src/utils/date-utils';
 import * as uuid from 'uuid';
 import { Diary } from './entities/diary.entity';
 import { DiaryDetailDto } from './dtos/diary-detail-dto';
+import { DiaryImage } from './entities/diary-image.entity';
+import { DiaryImageRepository } from './repositories/diary-image.repository';
+import { ManagedUpload } from 'aws-sdk/clients/s3';
 
 @Injectable()
 export class DiaryService {
   constructor(
     private petRepository: PetRepository,
     private diaryRepository: DiaryRepository,
+    private diaryImageRepository: DiaryImageRepository,
   ) {}
   /**
    * 반려동물 정보 등록
@@ -126,14 +138,62 @@ export class DiaryService {
   async createDiary(
     petIdx: number,
     dto: CreateDiaryDto,
-  ): Promise<DiaryDetailDto> {
+    files?: Express.Multer.File[],
+  ) {
     const pet = await this.petRepository.findByPetIdx(petIdx);
     if (!pet) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_PET);
     }
+
     const diary = Diary.from(dto);
     diary.petIdx = petIdx;
-    return await this.diaryRepository.save(diary);
+    await this.diaryRepository.save(diary);
+
+    if (!files) return;
+
+    const urls = [];
+    for (const file of files) {
+      const folder = S3FolderName.DIARY;
+      const fileName = `${petIdx}-${DateUtils.momentFile()}-${uuid.v4()}-${
+        file.originalname
+      }`;
+      const fileKey = `${folder}/${fileName}`;
+      const result = await asyncUploadToS3(fileKey, file.buffer);
+      const image = new DiaryImage();
+      image.diaryIdx = diary.idx;
+      image.imagePath = result.Location;
+      console.log('imageURL:::', image);
+      await this.diaryImageRepository.save(image);
+      urls.push(image.imagePath);
+    }
+    return {
+      diary: diary,
+      image: urls,
+    };
+  }
+
+  // 다중 업로드 테스트
+  async fileUpload(files?: Array<Express.Multer.File>) {
+    if (!files) {
+      return;
+    }
+
+    // const images = [];
+
+    files.forEach(async (file) => {
+      const folder = S3FolderName.DIARY;
+      const fileName = `${DateUtils.momentFile()}-${uuid.v4()}-${
+        file.originalname
+      }`;
+      const fileKey = `${folder}/${fileName}`;
+      const result = await asyncUploadToS3(fileKey, file.buffer);
+      const image = new DiaryImage();
+      image.diaryIdx = 1;
+      image.imagePath = result.Location;
+      console.log('imageURL:::', image);
+      await this.diaryImageRepository.save(image);
+      // images.push(result);
+    });
   }
 
   /**

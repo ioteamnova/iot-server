@@ -4,10 +4,15 @@ import { TypeOrmExModule } from 'src/core/typeorm-ex.module';
 import { Module } from '@nestjs/common';
 import { DiaryService } from './diary.service';
 import { DiaryController } from './diary.controller';
+import { DiaryImageRepository } from './repositories/diary-image.repository';
 
 @Module({
   imports: [
-    TypeOrmExModule.forCustomRepository([PetRepository, DiaryRepository]),
+    TypeOrmExModule.forCustomRepository([
+      PetRepository,
+      DiaryRepository,
+      DiaryImageRepository,
+    ]),
   ],
   controllers: [DiaryController],
   providers: [DiaryService],
