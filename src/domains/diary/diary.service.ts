@@ -14,11 +14,7 @@ import { Pet } from './entities/pet.entity';
 import { Page, PageRequest } from 'src/core/page';
 import { PetListDto } from './dtos/pet-list.dto';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
-import {
-  asyncUploadToS3,
-  imageUploadToS3,
-  S3FolderName,
-} from 'src/utils/s3-utils';
+import { asyncUploadToS3, S3FolderName } from 'src/utils/s3-utils';
 import DateUtils from 'src/utils/date-utils';
 import * as uuid from 'uuid';
 import { Diary } from './entities/diary.entity';
