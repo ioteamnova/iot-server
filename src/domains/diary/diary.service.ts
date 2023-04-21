@@ -40,7 +40,7 @@ export class DiaryService {
   async createPet(
     dto: CreatePetDto,
     userIdx: number,
-    file?: Express.Multer.File,
+    file: Express.Multer.File,
   ) {
     const imagePath = await this.uploadPetImage(file, userIdx);
 
@@ -83,13 +83,11 @@ export class DiaryService {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_PET);
     }
 
-    if (file) {
-      const result = await this.uploadPetImage(file, petIdx);
-      dto.imagePath = result;
-    }
+    const imagePath = await this.uploadPetImage(file, petIdx);
+    dto.imagePath = imagePath;
 
-    const result = pet.updateFromDto(dto);
-    await this.petRepository.save(pet);
+    pet.updateFromDto(dto);
+    const result = await this.petRepository.save(pet);
     return result;
   }
 
@@ -113,7 +111,7 @@ export class DiaryService {
    * @param idx 반려동물 인덱스
    * @returns 이미지 s3 url
    */
-  async uploadPetImage(file: Express.Multer.File | undefined, idx: number) {
+  async uploadPetImage(file: Express.Multer.File, idx: number) {
     if (!file) return;
 
     const folder = S3FolderName.PET;
@@ -134,7 +132,7 @@ export class DiaryService {
   async createDiary(
     petIdx: number,
     dto: CreateDiaryDto,
-    files?: Express.Multer.File[],
+    files: Array<Express.Multer.File>,
   ) {
     const pet = await this.petRepository.findByPetIdx(petIdx);
     if (!pet) {
@@ -145,7 +143,9 @@ export class DiaryService {
     diary.petIdx = petIdx;
     await this.diaryRepository.save(diary);
 
-    if (!files) return;
+    if (!files) {
+      return diary;
+    }
 
     const urls = [];
     for (const file of files) {
@@ -158,7 +158,6 @@ export class DiaryService {
       const image = new DiaryImage();
       image.diaryIdx = diary.idx;
       image.imagePath = result.Location;
-      console.log('imageURL:::', image);
       await this.diaryImageRepository.save(image);
       urls.push(image.imagePath);
     }

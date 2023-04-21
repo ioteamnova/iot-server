@@ -28,7 +28,7 @@ import { PetListDto } from './dtos/pet-list.dto';
 import { SwaggerTag } from 'src/core/swagger/swagger-tags';
 import { Page, PageRequest } from 'src/core/page';
 import { ApiOkResponseTemplate } from 'src/core/swagger/api-ok-response';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { DiaryListDto } from './dtos/diary-list.dto';
 import { ApiCreatedResponseTemplate } from 'src/core/swagger/api-created-response';
 import { ApiCommonErrorResponseTemplate } from 'src/core/swagger/api-error-common-response';
@@ -124,7 +124,7 @@ export class DiaryController {
     summary: '다이어리 등록',
     description: '선택한 반려동물의 다이어리를 등록한다.',
   })
-  @ApiCreatedResponseTemplate({ type: CreateDiaryDto })
+  @ApiCreatedResponseTemplate({})
   @ApiErrorResponseTemplate([
     {
       status: StatusCodes.NOT_FOUND,
@@ -133,26 +133,16 @@ export class DiaryController {
   ])
   @ApiBody({ type: CreateDiaryDto })
   @UseAuthGuards()
-  @UseInterceptors(FileInterceptor('files'))
+  @UseInterceptors(FilesInterceptor('files', 5))
   @Post('/:petIdx')
   async createDiary(
     @Res() res,
     @Param('petIdx') petIdx: number,
     @Body() dto: CreateDiaryDto,
-    @UploadedFiles() files: Express.Multer.File[],
+    @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     const diary = await this.diaryService.createDiary(petIdx, dto, files);
     return HttpResponse.created(res, { body: diary });
-  }
-
-  @UseAuthGuards()
-  @UseInterceptors(FileInterceptor('files'))
-  @Post()
-  async upload(
-    @Res() res,
-    @UploadedFiles() files?: Array<Express.Multer.File>,
-  ) {
-    return this.diaryService.fileUpload(files);
   }
 
   @ApiOperation({
