@@ -1,6 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { CreateDiaryDto } from './create-diary.dto';
 
-export class DiaryDetailDto {
+export class DiaryDetailDto extends PartialType(CreateDiaryDto) {
   @ApiProperty({
     description: '다이어리 인덱스',
     default: 1,
@@ -8,14 +9,8 @@ export class DiaryDetailDto {
   idx: number;
 
   @ApiProperty({
-    description: '다이어리 제목',
-    default: '다이어리 제목',
+    description: '다이어리 이미지 url',
+    default: ['https://image1', 'https://image2', 'https://image3'],
   })
-  title: string;
-
-  @ApiProperty({
-    description: '다이어리 내용',
-    default: '다이어리 내용입니다.',
-  })
-  content: string;
+  imagePaths: string[];
 }

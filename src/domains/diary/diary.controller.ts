@@ -16,7 +16,12 @@ import {
   UploadedFile,
   UploadedFiles,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiExtraModels,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import AuthUser from 'src/core/decorators/auth-user.decorator';
 import HttpResponse from 'src/core/http/http-response';
 import UseAuthGuards from '../auth/auth-guards/use-auth';
@@ -124,7 +129,7 @@ export class DiaryController {
     summary: '다이어리 등록',
     description: '선택한 반려동물의 다이어리를 등록한다.',
   })
-  @ApiCreatedResponseTemplate({})
+  @ApiCreatedResponseTemplate({ type: DiaryDetailDto })
   @ApiErrorResponseTemplate([
     {
       status: StatusCodes.NOT_FOUND,
@@ -142,6 +147,7 @@ export class DiaryController {
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     const diary = await this.diaryService.createDiary(petIdx, dto, files);
+    console.log('diary:::', diary);
     return HttpResponse.created(res, { body: diary });
   }
 
@@ -165,6 +171,31 @@ export class DiaryController {
   ) {
     const diaries = await this.diaryService.findAllDiaries(petIdx, pageRequest);
     return HttpResponse.ok(res, diaries);
+  }
+
+  @ApiOperation({
+    summary: '다이어리 상세조회',
+    description: '다이어리를 조회한다.',
+  })
+  @ApiOkResponseTemplate({ type: DiaryDetailDto })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [
+        HttpErrorConstants.CANNOT_FIND_PET,
+        HttpErrorConstants.CANNOT_FIND_DIARY,
+      ],
+    },
+  ])
+  @UseAuthGuards()
+  @Get('/:petIdx/:diaryIdx')
+  async findDiary(
+    @Res() res,
+    @Param('petIdx') petIdx: number,
+    @Param('diaryIdx') diaryIdx: number,
+  ) {
+    const diary = await this.diaryService.findDiary(petIdx, diaryIdx);
+    return HttpResponse.ok(res, diary);
   }
 
   @ApiOperation({

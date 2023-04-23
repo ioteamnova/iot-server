@@ -20,9 +20,16 @@ export class DiaryListDto {
   })
   content: string;
 
+  @ApiProperty({
+    description: '다이어리 이미지 url',
+    default: ['https://image1'],
+  })
+  imagePaths: string[];
+
   constructor(diary: Diary) {
     this.idx = diary.idx;
     this.title = diary.title;
     this.content = diary.content;
+    this.imagePaths = diary.images.map((image) => image.imagePath);
   }
 }
