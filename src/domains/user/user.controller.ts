@@ -136,7 +136,7 @@ export class UserController {
   ])
   @UseAuthGuards()
   @ApiBody({ type: CheckNicknameDto })
-  @Patch('/nickname')
+  @Post('/nickname')
   async existNickname(@Res() res, @Body() dto: CheckNicknameDto) {
     const isExist = await this.userService.checkExistNickname(dto.nickname);
     return HttpResponse.ok(res, isExist);
