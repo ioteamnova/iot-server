@@ -216,21 +216,53 @@ export class DiaryService {
    * @param dto UpdateDiaryDto
    * @returns
    */
-  async updateDiary(diaryIdx: number, dto: UpdateDiaryDto) {
+  async updateDiary(
+    diaryIdx: number,
+    dto: UpdateDiaryDto,
+    files: Array<Express.Multer.File>,
+  ) {
     const diary = await this.diaryRepository.findOne({
       where: {
         idx: diaryIdx,
       },
-      relations: ['diaryImage'],
+      relations: ['images'],
     });
 
     if (!diary) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_DIARY);
     }
 
+    if (!files) {
+      return diary;
+    }
+
+    // 기존 이미지 삭제
+    const images = diary.images;
+    await this.diaryImageRepository.softRemove(images);
+
+    // 새로운 이미지 저장
+    for (const file of files) {
+      const folder = S3FolderName.DIARY;
+      const fileName = `${diaryIdx}-${DateUtils.momentFile()}-${uuid.v4()}-${
+        file.originalname
+      }`;
+      const fileKey = `${folder}/${fileName}`;
+      const result = await asyncUploadToS3(fileKey, file.buffer);
+      const image = new DiaryImage();
+      image.diaryIdx = diary.idx;
+      image.imagePath = result.Location;
+
+      images.push(image);
+    }
+    await this.diaryImageRepository.save(images);
+
     diary.updateFromDto(dto);
     await this.diaryRepository.save(diary);
-    return diary;
+
+    return {
+      ...diary,
+      images: images.filter((image) => !image.deletedAt),
+    };
   }
 
   /**

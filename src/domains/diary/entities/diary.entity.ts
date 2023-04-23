@@ -31,5 +31,11 @@ export class Diary extends BaseEntity {
   updateFromDto(dto: UpdateDiaryDto) {
     this.title = dto.title;
     this.content = dto.content;
+    // this.images = dto.imagePaths.map((imagePath) => {
+    //   const image = new DiaryImage();
+    //   image.imagePath = imagePath;
+    //   image.diary = this;
+    //   return image;
+    // });
   }
 }

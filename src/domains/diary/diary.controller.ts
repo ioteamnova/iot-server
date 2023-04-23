@@ -16,12 +16,7 @@ import {
   UploadedFile,
   UploadedFiles,
 } from '@nestjs/common';
-import {
-  ApiBody,
-  ApiExtraModels,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import AuthUser from 'src/core/decorators/auth-user.decorator';
 import HttpResponse from 'src/core/http/http-response';
 import UseAuthGuards from '../auth/auth-guards/use-auth';
@@ -210,13 +205,15 @@ export class DiaryController {
     },
   ])
   @UseAuthGuards()
+  @UseInterceptors(FilesInterceptor('files', 5))
   @Patch('/:diaryIdx')
   async updateDiary(
     @Res() res,
     @Param('diaryIdx') diaryIdx: number,
     @Body() dto: UpdateDiaryDto,
+    @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    const diary = await this.diaryService.updateDiary(diaryIdx, dto);
+    const diary = await this.diaryService.updateDiary(diaryIdx, dto, files);
     return HttpResponse.ok(res, diary);
   }
 
