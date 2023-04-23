@@ -10,7 +10,9 @@ export class DiaryRepository extends Repository<Diary> {
     pageRequest: PageRequest,
   ): Promise<[Diary[], number]> {
     return this.createQueryBuilder('diary')
+      .leftJoinAndSelect('diary.images', 'image')
       .where('diary.petIdx = :petIdx', { petIdx })
+      .orderBy('diary.idx', 'DESC')
       .take(pageRequest.limit)
       .skip(pageRequest.offset)
       .getManyAndCount();

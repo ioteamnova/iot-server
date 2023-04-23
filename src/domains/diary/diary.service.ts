@@ -162,33 +162,9 @@ export class DiaryService {
       urls.push(image.imagePath);
     }
     return {
-      diary: diary,
-      image: urls,
+      ...diary,
+      images: urls,
     };
-  }
-
-  // 다중 업로드 테스트
-  async fileUpload(files?: Array<Express.Multer.File>) {
-    if (!files) {
-      return;
-    }
-
-    // const images = [];
-
-    files.forEach(async (file) => {
-      const folder = S3FolderName.DIARY;
-      const fileName = `${DateUtils.momentFile()}-${uuid.v4()}-${
-        file.originalname
-      }`;
-      const fileKey = `${folder}/${fileName}`;
-      const result = await asyncUploadToS3(fileKey, file.buffer);
-      const image = new DiaryImage();
-      image.diaryIdx = 1;
-      image.imagePath = result.Location;
-      console.log('imageURL:::', image);
-      await this.diaryImageRepository.save(image);
-      // images.push(result);
-    });
   }
 
   /**
@@ -207,24 +183,45 @@ export class DiaryService {
     }
     const [diaries, totalCount] =
       await this.diaryRepository.findAndCountByPetIdx(petIdx, pageRequest);
-    const items = diaries.map((diary: Diary) => new DiaryListDto(diary));
-    return new Page(totalCount, items, pageRequest);
+    const items = diaries.map((diary) => new DiaryListDto(diary));
+    return new Page<DiaryListDto>(totalCount, items, pageRequest);
   }
-
   /**
-   *  다이어리 수정
+   * 다이어리 상세 조회
    * @param diaryIdx 다이어리 인덱스
-   * @param dto UpdateDiaryDto
-   * @returns
+   * @returns 다이어리
    */
-  async updateDiary(
-    diaryIdx: number,
-    dto: UpdateDiaryDto,
-  ): Promise<DiaryDetailDto> {
+  async findDiary(petIdx: number, diaryIdx: number) {
+    const pet = await this.petRepository.findByPetIdx(petIdx);
+    if (!pet) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_PET);
+    }
+
     const diary = await this.diaryRepository.findOne({
       where: {
         idx: diaryIdx,
       },
+      relations: ['images'],
+    });
+    if (!diary) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_DIARY);
+    }
+
+    return diary;
+  }
+
+  /**
+   * 다이어리 수정
+   * @param diaryIdx 다이어리 인덱스
+   * @param dto UpdateDiaryDto
+   * @returns
+   */
+  async updateDiary(diaryIdx: number, dto: UpdateDiaryDto) {
+    const diary = await this.diaryRepository.findOne({
+      where: {
+        idx: diaryIdx,
+      },
+      relations: ['diaryImage'],
     });
 
     if (!diary) {
@@ -232,7 +229,8 @@ export class DiaryService {
     }
 
     diary.updateFromDto(dto);
-    return await this.diaryRepository.save(diary);
+    await this.diaryRepository.save(diary);
+    return diary;
   }
 
   /**
