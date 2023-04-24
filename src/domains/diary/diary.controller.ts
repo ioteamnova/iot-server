@@ -142,7 +142,6 @@ export class DiaryController {
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     const diary = await this.diaryService.createDiary(petIdx, dto, files);
-    console.log('diary:::', diary);
     return HttpResponse.created(res, { body: diary });
   }
 
