@@ -1,3 +1,3 @@
 #!/bin/bash
-pm2 reload main /home/ubuntu/iot-server/build
-
+source ~/.bashrc
+pm2 reload main
