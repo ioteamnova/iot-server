@@ -35,7 +35,7 @@ export class CreatePetDto {
     required: false,
   })
   @IsOptional()
-  birthDate: string;
+  birthDate: Date;
 
   @ApiProperty({
     description: '입양일',
@@ -44,7 +44,7 @@ export class CreatePetDto {
     required: false,
   })
   @IsOptional()
-  adoptionDate: string;
+  adoptionDate: Date;
 
   @ApiProperty({
     description: '무게 (g)',

@@ -28,7 +28,7 @@ import { DiaryModule } from './domains/diary/diary.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: false,
       logging: true,
-      timezone: '+09:00',
+      timezone: 'Asia/Seoul',
       namingStrategy: new SnakeNamingStrategy(),
     }),
     UserModule,

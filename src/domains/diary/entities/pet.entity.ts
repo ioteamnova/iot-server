@@ -20,10 +20,10 @@ export class Pet extends BaseEntity {
   gender: Gender;
 
   @Column()
-  birthDate: string;
+  birthDate: Date;
 
   @Column()
-  adoptionDate: string;
+  adoptionDate: Date;
 
   @Column()
   weight: number;
@@ -49,8 +49,8 @@ export class Pet extends BaseEntity {
     name: string;
     type: string;
     gender: Gender;
-    birthDate: string;
-    adoptionDate: string;
+    birthDate: Date;
+    adoptionDate: Date;
     weight: number;
     imagePath: string;
   }) {

@@ -42,14 +42,14 @@ export class PetListDto {
     default: '2023-04-18',
   })
   @IsOptional()
-  birthDate: string;
+  birthDate: Date;
 
   @ApiProperty({
     description: '입양일',
     default: '2023-04-18',
   })
   @IsOptional()
-  adoptionDate: string;
+  adoptionDate: Date;
 
   @ApiProperty({
     description: '체중(g)',
