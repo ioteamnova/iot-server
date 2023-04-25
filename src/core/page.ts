@@ -36,6 +36,15 @@ export abstract class PageRequest {
   @Type(() => Number)
   size?: number = 20;
 
+  @ApiProperty({
+    description: '정렬',
+    nullable: true,
+    default: 'DESC',
+    required: false,
+    enum: ['DESC', 'ASC'],
+  })
+  order: 'DESC' | 'ASC';
+
   get offset(): number {
     return ((this.page || 1) - 1) * (this.size || 20);
   }
