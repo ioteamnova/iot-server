@@ -116,8 +116,9 @@ export class UserService {
    * @returns 업데이트한 유저 정보
    */
   async update(file: Express.Multer.File, dto: UpdateUserDto, userIdx: number) {
-    await this.checkExistNickname(dto.nickname);
-
+    if (dto.nickname) {
+      await this.checkExistNickname(dto.nickname);
+    }
     const user = await this.userRepository.findOne({
       where: {
         idx: userIdx,
