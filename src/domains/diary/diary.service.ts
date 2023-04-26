@@ -15,6 +15,7 @@ import * as uuid from 'uuid';
 import { Diary } from './entities/diary.entity';
 import { DiaryImage } from './entities/diary-image.entity';
 import { DiaryImageRepository } from './repositories/diary-image.repository';
+import { DiaryDetailDto } from './dtos/diary-detail-dto';
 
 @Injectable()
 export class DiaryService {

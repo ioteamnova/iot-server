@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import DateUtils from 'src/utils/date-utils';
 import { Diary } from '../entities/diary.entity';
 
 export class DiaryListDto {
@@ -21,15 +22,26 @@ export class DiaryListDto {
   content: string;
 
   @ApiProperty({
-    description: '다이어리 이미지 url',
-    default: ['https://image1'],
+    description: '다이어리 대표(첫번째) 이미지 url',
+    default: 'https://image1',
   })
-  imagePaths: string[];
+  imagePath: string;
+
+  @ApiProperty({
+    description: '생성일',
+    default: DateUtils.momentNow(),
+  })
+  createdAt: Date;
 
   constructor(diary: Diary) {
+    let imagePath = '';
+    if (diary.images[0]) {
+      imagePath = diary.images[0].imagePath;
+    }
     this.idx = diary.idx;
     this.title = diary.title;
     this.content = diary.content;
-    this.imagePaths = diary.images.map((image) => image.imagePath);
+    this.imagePath = imagePath;
+    this.createdAt = diary.createdAt;
   }
 }
