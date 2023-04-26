@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { User } from './domains/user/entities/user.entity';
 import { UserModule } from './domains/user/user.module';
 import { LoggerMiddleware } from './core/middlewares/logger.middleware';
+import { DiaryModule } from './domains/diary/diary.module';
 
 @Module({
   imports: [
@@ -24,13 +25,15 @@ import { LoggerMiddleware } from './core/middlewares/logger.middleware';
       username: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE_NAME,
-      entities: [User],
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: false,
       logging: true,
+      timezone: 'Asia/Seoul',
       namingStrategy: new SnakeNamingStrategy(),
     }),
     UserModule,
     AuthModule,
+    DiaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
