@@ -1,12 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { CreateUserDto } from './create-user.dto';
+import { PickType } from '@nestjs/mapped-types';
 
-export default class DeleteUserDto {
-  @ApiProperty({
-    description: '비밀번호',
-    default: 'qwer1234#',
-  })
-  @IsNotEmpty()
-  @IsString()
-  readonly password: string;
-}
+export default class DeleteUserDto extends PickType(CreateUserDto, [
+  'password',
+] as const) {}

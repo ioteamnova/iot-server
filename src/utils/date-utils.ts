@@ -17,4 +17,8 @@ export default class DateUtils {
   static momentFile(): string {
     return moment().tz('Asia/Seoul').format('YYYYMMDDHHmmss');
   }
+
+  static momentYMD(date: Date): string {
+    return moment(date).tz(DateUtils.timezone).format('YYYY-MM-DD');
+  }
 }

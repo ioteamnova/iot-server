@@ -44,6 +44,16 @@ export const HttpErrorConstants = {
     message: '유저를 찾을 수 없습니다.',
   } as HttpErrorFormat,
 
+  CANNOT_FIND_PET: {
+    errorCode: 'CANNOT_FIND_PET',
+    message: '등록한 반려동물 정보를 찾을 수 없습니다.',
+  } as HttpErrorFormat,
+
+  CANNOT_FIND_DIARY: {
+    errorCode: 'CANNOT_FIND_DIARY',
+    message: '다이어리를 찾을 수 없습니다.',
+  } as HttpErrorFormat,
+
   AUTH_LINK_EXPIRED: {
     errorCode: 'AUTH_LINK_EXPIRED',
     message:

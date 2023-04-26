@@ -1,7 +1,6 @@
 #!/bin/bash
-cd /home/ubuntu/iot-server/build
+REPOSITORY=/home/ubuntu/iot-server/build
 
-
-pm2 kill
-pm2 start dist/main.js
-
+cd $REPOSITORY
+npm i pm2 -g
+pm2 reload main

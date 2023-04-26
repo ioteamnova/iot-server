@@ -15,9 +15,10 @@ import { EmailService } from '../email/email.service';
 import DeleteUserDto from './dtos/delete-user.dto';
 import { hashPassword, validatePassword } from 'src/utils/password.utils';
 import { S3 } from 'aws-sdk';
-import { asyncUploadToS3 } from 'src/utils/s3-utils';
+import { asyncUploadToS3, S3FolderName } from 'src/utils/s3-utils';
 import DateUtils from 'src/utils/date-utils';
 import { SocialMethodType } from '../auth/helpers/constants';
+import { FindPasswordDto } from './dtos/find-password.dto';
 
 @Injectable()
 export class UserService {
@@ -32,6 +33,7 @@ export class UserService {
    */
   async createUser(dto: CreateUserDto): Promise<User> {
     await this.checkExistEmail(dto.email);
+    await this.checkExistNickname(dto.nickname);
 
     const user = User.fromDto(dto);
 
@@ -107,6 +109,7 @@ export class UserService {
       isPremium: userInfo.isPremium,
       agreeWithMarketing: userInfo.agreeWithMarketing,
       createdAt: userInfo.createdAt,
+      loginMethod: userInfo.loginMethod,
     };
   }
 
@@ -117,6 +120,9 @@ export class UserService {
    * @returns 업데이트한 유저 정보
    */
   async update(file: Express.Multer.File, dto: UpdateUserDto, userIdx: number) {
+    if (dto.nickname) {
+      await this.checkExistNickname(dto.nickname);
+    }
     const user = await this.userRepository.findOne({
       where: {
         idx: userIdx,
@@ -128,7 +134,7 @@ export class UserService {
     }
 
     if (file) {
-      const folder = 'profile';
+      const folder = S3FolderName.PROFILE;
       const fileName = `${userIdx}-${DateUtils.momentFile()}-${uuid.v4()}-${
         file.originalname
       }`;
@@ -145,15 +151,11 @@ export class UserService {
 
   /**
    * 닉네임 중복 검사
-   * @param dto.nickname 변경할 닉네임
+   * @param dto.nickname 설정할 닉네임
    * @returns boolean
    */
   async checkExistNickname(nickname: string) {
-    const isExistNickname = await this.userRepository.exist({
-      where: {
-        nickname: nickname,
-      },
-    });
+    const isExistNickname = await this.userRepository.existByNcikname(nickname);
 
     if (isExistNickname) {
       throw new ConflictException(HttpErrorConstants.EXIST_NICKNAME);
@@ -182,6 +184,31 @@ export class UserService {
 
     user.password = hashPassword(dto.newPassword);
     await this.userRepository.save(user);
+  }
+
+  /**
+   * 비밀번호 찾기
+   * @param dto 비밀번호 찾기 dto
+   */
+  async findPassword(dto: FindPasswordDto) {
+    const user = await this.userRepository.findOne({
+      where: { email: dto.email },
+    });
+
+    if (!user) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
+    }
+    // 유저가 입력한 새 비밀번호 암호화
+    const newPassword = hashPassword(dto.password);
+    user.password = newPassword;
+    await this.userRepository.update(
+      {
+        idx: user.idx,
+      },
+      {
+        password: newPassword,
+      },
+    );
   }
 
   /**

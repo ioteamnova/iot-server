@@ -10,6 +10,7 @@ import { SocialLoginUserDto } from './dtos/social-login-user.dto';
 import { SocialMethodType } from './helpers/constants';
 import { User } from '../user/entities/user.entity';
 import { google, Auth } from 'googleapis';
+import { LoginResponseDto } from './dtos/login-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -30,9 +31,7 @@ export class AuthService {
    * @param loginUserDto
    * @returns JwtToken
    */
-  async login(
-    loginUserDto: LoginUserDto,
-  ): Promise<{ idx: number; accessToken: string }> {
+  async login(loginUserDto: LoginUserDto): Promise<LoginResponseDto> {
     const { email, password } = loginUserDto;
     const user = await this.userRepository.findOne({
       where: { email },
@@ -47,7 +46,6 @@ export class AuthService {
     const payload = { userIdx: user.idx };
     const accessToken = this.jwtService.sign(payload);
     return {
-      idx: user.idx,
       accessToken: accessToken,
     };
   }
@@ -57,8 +55,8 @@ export class AuthService {
    * @param socialLoginUserDto
    * @returns JwtToken
    */
-  async socialLogin(dto: SocialLoginUserDto) {
-    let user: User;
+  async socialLogin(dto: SocialLoginUserDto): Promise<LoginResponseDto> {
+    let user;
     switch (dto.socialType) {
       case SocialMethodType.KAKAO: {
         user = await this.getUserByKakaoAccessToken(
@@ -75,13 +73,11 @@ export class AuthService {
         break;
       }
       default: {
-        throw new Error('social login select error'); //소셜로그인 선택 실패 예외처리
+        throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH); //소셜로그인 선택 실패 예외처리
       }
     }
     const accessToken = await this.generateAccessToken(user.idx);
-
     return {
-      idx: user.idx,
       accessToken: accessToken,
     };
   }
@@ -96,7 +92,9 @@ export class AuthService {
         headers: { Authorization: `Bearer ${accessToken}` },
       },
     );
-    if (!userInfoFromKakao) throw new Error('kakao 아이디가 없는 유저임.'); //카카오 로그인 실패 예외처리
+    if (!userInfoFromKakao) {
+      throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
+    }
     const user = await this.userRepository.findOne({
       where: {
         email: userInfoFromKakao.data.kakao_account.email,
@@ -106,8 +104,12 @@ export class AuthService {
     if (!user) {
       const nickname = userInfoFromKakao.data.properties.nickname;
       const email = userInfoFromKakao.data.kakao_account.email;
-      await this.userService.createSocialUser(email, nickname, socialType);
-      return user;
+      const kakaoUser = await this.userService.createSocialUser(
+        email,
+        nickname,
+        socialType,
+      );
+      return kakaoUser;
     }
 
     return user;
@@ -130,7 +132,11 @@ export class AuthService {
 
     const userInfoFromGoogle = await this.getUserDataFromGoogle(accessToken);
     console.log('userInfoFromGoogle:::', userInfoFromGoogle);
-    const user = await this.userRepository.findUserByEmail(email);
+    const user = await this.userRepository.findOne({
+      where: {
+        email: email,
+      },
+    });
 
     if (!user) {
       const nickname = userInfoFromGoogle.name;

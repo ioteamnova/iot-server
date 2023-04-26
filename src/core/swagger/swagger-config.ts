@@ -32,10 +32,13 @@ export const initSwagger = async (app: INestApplication) => {
 // swagger 옵션 설정
 export const swaggerOptions: SwaggerCustomOptions = {
   swaggerOptions: {
-    //defaultModelsExpandDepth: -1, // 페이지 하단에 dtos 목록 표시 안함
-    docExpansion: 'none',
-    persistAuthorization: true, // 페이지 새로고침 토큰 큐지
-    apisSorter: 'alpha', // 태그 순서. can also be a function
-    operationsSorter: 'function', // 태그 내 함수 순서. 'alpha':abc순, 'method': HTTP method별로 분류
+    defaultModelsExpandDepth: 1, // -1 이면 페이지 하단에 dtos 목록 표시 안함 (기본값도 표시 X)
+    docExpansion: 'none', // 페이지 접속시 자동 상세보기 off
+    persistAuthorization: true, // 페이지 새로고침해도 토큰유지
+    tagsSorter: 'alpha', // 태그 정렬
+    operationsSorter: 'alpha', // 태그 내 함수 순서. 'alpha':abc순, 'method': HTTP method별 분류
+    displayRequestDuration: true, // http request 시간 표시
+    showCommonExtensions: true,
+    showExtensions: true,
   },
 };

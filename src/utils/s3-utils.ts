@@ -5,7 +5,7 @@ import { logger } from './logger';
 
 export const s3 = new S3({
   accessKeyId: process.env.AWS_ACECSS_KEY_ID,
-  secretAccessKey: process.env.AWS_SEECRET_KEY,
+  secretAccessKey: process.env.AWS_SECRET_KEY,
   region: process.env.AWS_BUCKET_REGION,
 });
 
@@ -23,10 +23,16 @@ export const asyncUploadToS3 = async (
       },
       async function (err, data) {
         if (err) {
-          throw new BadRequestException(err);
+          throw new BadRequestException('file is not properly uploaded');
         }
         logger.info(`file ${fileKey} uploaded successfully. ${data.Location}`);
       },
     )
     .promise();
 };
+
+export enum S3FolderName {
+  PROFILE = 'profile',
+  PET = 'pet',
+  DIARY = 'diary',
+}
