@@ -1,6 +1,6 @@
 import { CreateDiaryDto } from '../dtos/create-diary.dto';
 import BaseEntity from 'src/core/entity/base.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { Pet } from './pet.entity';
 import { UpdateDiaryDto } from '../dtos/update-diary.dto';
 import { DiaryImage } from './diary-image.entity';
@@ -19,6 +19,7 @@ export class Diary extends BaseEntity {
   images: DiaryImage[];
 
   @ManyToOne(() => Pet, (pet) => pet.diaries)
+  @JoinColumn({ name: 'pet_idx' })
   pet: Pet;
 
   static from({ title, content }: { title: string; content: string }) {
