@@ -25,7 +25,7 @@ export class EmailService {
   async sendVerificationEmail(emailAddress: string, signupVerifyToken: string) {
     const mailOptions: EmailOptions = {
       to: emailAddress,
-      subject: 'Reptimate 회원가입 인증 메일',
+      subject: 'Reptimate 인증 메일',
       html: `
         아래 이메일 인증 코드를 앱에서 입력해주세요.<br/>
         <br/>
