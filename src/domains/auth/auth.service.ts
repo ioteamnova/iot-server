@@ -14,17 +14,11 @@ import { LoginResponseDto } from './dtos/login-response.dto';
 
 @Injectable()
 export class AuthService {
-  oauthClient: Auth.OAuth2Client;
   constructor(
     private readonly userRepository: UserRepository,
     private jwtService: JwtService,
     private readonly userService: UserService,
-  ) {
-    const clientId = process.env.GOOGLE_AUTH_CLIENT_ID;
-    const clientSecret = process.env.GOOGLE_AUTH_CLIENT_SECRET;
-
-    this.oauthClient = new google.auth.OAuth2(clientId, clientSecret);
-  }
+  ) {}
 
   /**
    * 로그인
@@ -67,6 +61,13 @@ export class AuthService {
       }
       case SocialMethodType.GOOGLE: {
         user = await this.getUserByGoogleAccessToken(
+          dto.accessToken,
+          dto.socialType,
+        );
+        break;
+      }
+      case SocialMethodType.APPLE: {
+        user = await this.getUserByAppleAccessToken(
           dto.accessToken,
           dto.socialType,
         );
@@ -118,47 +119,77 @@ export class AuthService {
   async getUserByGoogleAccessToken(
     accessToken: string,
     socialType: SocialMethodType.GOOGLE,
-  ): Promise<User> {
-    const accessTokenInfo = await this.oauthClient.getTokenInfo(accessToken);
-    const email = accessTokenInfo.email;
-    console.log('google email:::', email);
-
-    // todo: email 안될 경우 이걸로 교체
-    // const idToken = await this.oauthClient.verifyIdToken({
-    //   idToken: accessToken,
-    //   audience: '',
-    // });
-    // const email = idToken.getPayload().email;
-
-    const userInfoFromGoogle = await this.getUserDataFromGoogle(accessToken);
-    console.log('userInfoFromGoogle:::', userInfoFromGoogle);
+  ) {
+    const userInfoFromGoogle = await axios.get(
+      'https://www.googleapis.com/oauth2/v3/userinfo',
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+    );
+    if (!userInfoFromGoogle) {
+      throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
+    }
     const user = await this.userRepository.findOne({
       where: {
-        email: email,
+        email: userInfoFromGoogle.data.email,
       },
     });
-
     if (!user) {
-      const nickname = userInfoFromGoogle.name;
-      console.log('google nickname:::', nickname);
-      await this.userService.createSocialUser(email, nickname, socialType);
-      return user;
+      const nickname = userInfoFromGoogle.data.name;
+      const email = userInfoFromGoogle.data.email;
+      const googleUser = await this.userService.createSocialUser(
+        email,
+        nickname,
+        socialType,
+      );
+      return googleUser;
     }
     return user;
   }
 
-  async getUserDataFromGoogle(accessToken: string) {
-    const userInfoClient = google.oauth2('v2').userinfo;
-
-    this.oauthClient.setCredentials({
-      access_token: accessToken,
+  async getUserByAppleAccessToken(
+    accessToken: string,
+    socialType: SocialMethodType.APPLE,
+  ) {
+    // const { idToken } = dto;
+    const response = await axios.get('https://appleid.apple.com/auth/token', {
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+      },
+      params: {
+        grant_type: 'authorization_code',
+        code: accessToken,
+        redirect_uri: 'https://localhost:3000/auth/apple/callback',
+        client_id: process.env.APPLE_CLIENT_ID,
+        client_secret: process.env.APPLE_CLIENT_SECRET,
+      },
     });
+    const { access_token, id_token } = response.data;
 
-    const userInfoResponse = await userInfoClient.get({
-      auth: this.oauthClient,
-    });
+    // 사용자 정보 가져오기
+    const userInfoResponse = await axios.get(
+      'https://appleid.apple.com/auth/userinfo',
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      },
+    );
+    const { sub, email } = userInfoResponse.data;
 
-    return userInfoResponse.data;
+    // 사용자 정보가 이미 등록되어 있는지 확인
+    let user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      // 사용자 정보가 없으면 새로 생성
+      user = await this.userService.createSocialUser(
+        email,
+        userInfoResponse.data.name,
+        socialType,
+      );
+      const appleUser = await this.userRepository.save(user);
+      return appleUser;
+    }
+    return user;
   }
 
   // 우리 서버 전용 JWT 토큰 발행
