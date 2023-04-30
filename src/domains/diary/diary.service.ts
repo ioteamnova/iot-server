@@ -116,45 +116,6 @@ export class DiaryService {
     return result.Location;
   }
 
-  // async createDiary(
-  //   petIdx: number,
-  //   dto: CreateDiaryDto,
-  //   files: Array<Express.Multer.File>,
-  // ) {
-  //   const pet = await this.petRepository.findByPetIdx(petIdx);
-  //   if (!pet) {
-  //     throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_PET);
-  //   }
-
-  //   const diary = Diary.from(dto);
-  //   diary.petIdx = petIdx;
-  //   await this.diaryRepository.save(diary);
-
-  //   if (!files) {
-  //     return diary;
-  //   }
-
-  //   const urls = [];
-  //   for (const file of files) {
-  //     const folder = S3FolderName.DIARY;
-  //     const fileName = `${petIdx}-${DateUtils.momentFile()}-${uuid.v4()}-${
-  //       file.originalname
-  //     }`;
-  //     const fileKey = `${folder}/${fileName}`;
-  //     const result = await asyncUploadToS3(fileKey, file.buffer);
-  //     const image = new DiaryImage();
-  //     image.diaryIdx = diary.idx;
-  //     image.imagePath = result.Location;
-  //     await this.diaryImageRepository.save(image);
-  //     urls.push(image.imagePath);
-  //   }
-  //   return {
-  //     ...diary,
-  //     images: urls,
-  //   };
-  // }
-
-  // 리팩토링
   /**
    * 반려동물의 다이어리 등록
    * @param petIdx 반려동물 인덱스
@@ -229,54 +190,6 @@ export class DiaryService {
     return diary;
   }
 
-  // async updateDiary(
-  //   diaryIdx: number,
-  //   dto: UpdateDiaryDto,
-  //   files: Array<Express.Multer.File>,
-  // ) {
-  //   const diary = await this.diaryRepository.findOne({
-  //     where: {
-  //       idx: diaryIdx,
-  //     },
-  //     relations: ['images'],
-  //   });
-
-  //   if (!diary) {
-  //     throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_DIARY);
-  //   }
-
-  //   if (!files) {
-  //     return diary;
-  //   }
-
-  //   // 기존 이미지 삭제
-  //   const images = diary.images;
-  //   await this.diaryImageRepository.softRemove(images);
-
-  //   // 새로운 이미지 저장
-  //   for (const file of files) {
-  //     const folder = S3FolderName.DIARY;
-  //     const fileName = `${diaryIdx}-${DateUtils.momentFile()}-${uuid.v4()}-${
-  //       file.originalname
-  //     }`;
-  //     const fileKey = `${folder}/${fileName}`;
-  //     const result = await asyncUploadToS3(fileKey, file.buffer);
-  //     const image = new DiaryImage();
-  //     image.diaryIdx = diary.idx;
-  //     image.imagePath = result.Location;
-
-  //     images.push(image);
-  //   }
-  //   await this.diaryImageRepository.save(images);
-
-  //   diary.updateFromDto(dto);
-  //   await this.diaryRepository.save(diary);
-
-  //   return {
-  //     ...diary,
-  //     images: images.filter((image) => !image.deletedAt),
-  //   };
-  // }
   /**
    * 다이어리 수정
    * @param diaryIdx 다이어리 인덱스
@@ -324,12 +237,16 @@ export class DiaryService {
       where: {
         idx: diaryIdx,
       },
+      relations: ['images'],
     });
 
     if (!diary) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_DIARY);
     }
-
+    // 다이어리 이미지 같이 삭제
+    if (diary.images) {
+      await this.deleteDiaryImages(diary.images);
+    }
     await this.diaryRepository.softDelete(diaryIdx);
   }
 
