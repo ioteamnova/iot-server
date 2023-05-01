@@ -120,58 +120,50 @@ export class AuthService {
     accessToken: string,
     socialType: SocialMethodType.GOOGLE,
   ) {
-    const userInfoFromGoogle = await axios.get(
-      'https://www.googleapis.com/oauth2/v3/userinfo',
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      },
-    );
-    if (!userInfoFromGoogle) {
-      throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
-    }
-    const user = await this.userRepository.findOne({
-      where: {
-        email: userInfoFromGoogle.data.email,
-      },
-    });
-    if (!user) {
-      const nickname = userInfoFromGoogle.data.name;
-      const email = userInfoFromGoogle.data.email;
-      const googleUser = await this.userService.createSocialUser(
-        email,
-        nickname,
-        socialType,
+    try {
+      const userInfoFromGoogle = await axios.get(
+        'https://www.googleapis.com/userinfo/v2/me',
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
       );
-      return googleUser;
+      console.log('userInfoFromGoogle::', userInfoFromGoogle);
+      const user = await this.userRepository.findOne({
+        where: {
+          email: userInfoFromGoogle.data.email,
+        },
+      });
+      if (!user) {
+        const nickname = userInfoFromGoogle.data.name;
+        console.log('nickname::', nickname);
+        const email = userInfoFromGoogle.data.email;
+        console.log('email::', email);
+        const googleUser = await this.userService.createSocialUser(
+          email,
+          nickname,
+          socialType,
+        );
+        console.log('googleUser::', googleUser);
+        return googleUser;
+      }
+      return user;
+    } catch (error) {
+      console.log('error::', error);
     }
-    return user;
   }
 
   async getUserByAppleAccessToken(
     accessToken: string,
     socialType: SocialMethodType.APPLE,
   ) {
-    // const { idToken } = dto;
-    const response = await axios.get('https://appleid.apple.com/auth/token', {
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded',
-      },
-      params: {
-        grant_type: 'authorization_code',
-        code: accessToken,
-        redirect_uri: 'https://localhost:3000/auth/apple/callback',
-        client_id: process.env.APPLE_CLIENT_ID,
-        client_secret: process.env.APPLE_CLIENT_SECRET,
-      },
-    });
-    const { access_token, id_token } = response.data;
-
     // 사용자 정보 가져오기
     const userInfoResponse = await axios.get(
       'https://appleid.apple.com/auth/userinfo',
       {
         headers: {
-          Authorization: `Bearer ${access_token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       },
     );
