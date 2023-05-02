@@ -16,6 +16,11 @@ import { Diary } from './entities/diary.entity';
 import { DiaryImage } from './entities/diary-image.entity';
 import { DiaryImageRepository } from './repositories/diary-image.repository';
 import { DiaryDetailDto } from './dtos/diary-detail-dto';
+import { CreatePetWeightDto } from './dtos/create-pet-weight.dto';
+import { PetWeight } from './entities/pet-weight.entity';
+import { PetWeightRepository } from './repositories/pet-weight.repository';
+import { PetWeightListDto } from './dtos/pet-weight-list.dto';
+import { UpdatePetWeightDto } from './dtos/update-pet-weight.dto';
 
 @Injectable()
 export class DiaryService {
@@ -23,6 +28,7 @@ export class DiaryService {
     private petRepository: PetRepository,
     private diaryRepository: DiaryRepository,
     private diaryImageRepository: DiaryImageRepository,
+    private petWeightRepository: PetWeightRepository,
   ) {}
   /**
    * 반려동물 정보 등록
@@ -277,5 +283,66 @@ export class DiaryService {
     for (const image of images) {
       await this.diaryImageRepository.softRemove(image);
     }
+  }
+
+  /**
+   * 반려동물 체중 등록
+   * @param petIdx 펫 인덱스
+   * @param dto CreatePetWeightDto
+   * @returns 등록한 정보
+   */
+  async createPetWeight(petIdx: number, dto: CreatePetWeightDto) {
+    const pet = await this.petRepository.findByPetIdx(petIdx);
+    if (!pet) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_PET);
+    }
+
+    const weight = PetWeight.from(dto);
+    weight.petIdx = petIdx;
+
+    const result = await this.petWeightRepository.save(weight);
+    return result;
+  }
+
+  async findPetWeights(
+    petIdx: number,
+    pageRequest: PageRequest,
+  ): Promise<Page<PetWeightListDto>> {
+    const pet = await this.petRepository.findByPetIdx(petIdx);
+    if (!pet) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_PET);
+    }
+
+    const [weights, totalCount] =
+      await this.petWeightRepository.findAndCountByPetIdx(petIdx, pageRequest);
+    const items = weights.map((weight) => new PetWeightListDto(weight));
+    return new Page<PetWeightListDto>(totalCount, items, pageRequest);
+  }
+
+  async updatePetWeight(weightIdx: number, dto: UpdatePetWeightDto) {
+    const petWeight = await this.petWeightRepository.findOne({
+      where: {
+        idx: weightIdx,
+      },
+    });
+    if (!petWeight) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_WEIGHT);
+    }
+    petWeight.updateFromDto(dto);
+
+    const result = await this.petWeightRepository.save(petWeight);
+    return result;
+  }
+
+  async removePetWeight(weightIdx: number) {
+    const petWeight = await this.petWeightRepository.findOne({
+      where: {
+        idx: weightIdx,
+      },
+    });
+    if (!petWeight) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_WEIGHT);
+    }
+    await this.petWeightRepository.softDelete(petWeight.idx);
   }
 }

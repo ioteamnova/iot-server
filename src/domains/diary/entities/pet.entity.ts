@@ -1,3 +1,4 @@
+import { PetWeight } from './pet-weight.entity';
 import { Diary } from './diary.entity';
 import { UpdatePetDto } from '../dtos/pet-update.dto';
 import BaseEntity from 'src/core/entity/base.entity';
@@ -36,6 +37,9 @@ export class Pet extends BaseEntity {
 
   @OneToMany(() => Diary, (diary) => diary.pet)
   diaries: Diary[];
+
+  @OneToMany(() => PetWeight, (petWeight) => petWeight.pet)
+  petWeights: PetWeight[];
 
   static from({
     name,
