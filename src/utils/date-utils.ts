@@ -14,11 +14,8 @@ export default class DateUtils {
     return moment().tz('Asia/Seoul').toDate();
   }
 
+  // 파일 이름에 붙힐 DateTime 포맷
   static momentFile(): string {
     return moment().tz('Asia/Seoul').format('YYYYMMDDHHmmss');
-  }
-
-  static momentYMD(date: Date): string {
-    return moment(date).tz(DateUtils.timezone).format('YYYY-MM-DD');
   }
 }

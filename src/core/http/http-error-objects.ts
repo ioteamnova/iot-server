@@ -54,6 +54,11 @@ export const HttpErrorConstants = {
     message: '다이어리를 찾을 수 없습니다.',
   } as HttpErrorFormat,
 
+  CANNOT_FIND_WEIGHT: {
+    errorCode: 'CANNOT_FIND_WEIGHT',
+    message: '등록한 몸무게 정보가 없습니다.',
+  } as HttpErrorFormat,
+
   AUTH_LINK_EXPIRED: {
     errorCode: 'AUTH_LINK_EXPIRED',
     message:
