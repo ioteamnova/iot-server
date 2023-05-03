@@ -9,6 +9,8 @@ import { User } from './domains/user/entities/user.entity';
 import { UserModule } from './domains/user/user.module';
 import { LoggerMiddleware } from './core/middlewares/logger.middleware';
 import { DiaryModule } from './domains/diary/diary.module';
+import { IotPersonalModule } from './iot_personal/iot_personal.module';
+import { IotAuthinfoModule } from './iot_authinfo/iot_authinfo.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { DiaryModule } from './domains/diary/diary.module';
     UserModule,
     AuthModule,
     DiaryModule,
+    IotPersonalModule,
+    IotAuthinfoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
