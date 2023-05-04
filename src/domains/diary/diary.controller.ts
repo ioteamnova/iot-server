@@ -41,6 +41,7 @@ import { ApiOkPaginationResponseTemplate } from 'src/core/swagger/api-ok-paginat
 import { CreatePetWeightDto } from './dtos/create-pet-weight.dto';
 import { PetWeightListDto } from './dtos/pet-weight-list.dto';
 import { UpdatePetWeightDto } from './dtos/update-pet-weight.dto';
+import { PetWeightPageRequest } from './dtos/pet-weight-page';
 
 @ApiTags(SwaggerTag.DIARY)
 @ApiCommonErrorResponseTemplate()
@@ -250,7 +251,7 @@ export class DiaryController {
     },
   ])
   @UseAuthGuards()
-  @Post('/:petIdx/weight')
+  @Post('/pet/:petIdx/weight')
   async createWeight(
     @Res() res,
     @Param('petIdx') petIdx: number,
@@ -266,11 +267,11 @@ export class DiaryController {
   })
   @ApiOkPaginationResponseTemplate({ type: PetWeightListDto })
   @UseAuthGuards()
-  @Get('/:petIdx/weight')
+  @Get('/pet/:petIdx/weight')
   async findAllWeights(
     @Res() res,
     @Param('petIdx') petIdx: number,
-    @Query() pageRequest: PageRequest,
+    @Query() pageRequest: PetWeightPageRequest,
   ) {
     const result = await this.diaryService.findPetWeights(petIdx, pageRequest);
     return HttpResponse.ok(res, result);
@@ -299,7 +300,7 @@ export class DiaryController {
   }
 
   @ApiOperation({
-    summary: '체중 삭제',
+    summary: '반려동물 체중 삭제',
     description: '반려동물의 체중을 삭제한다. ',
   })
   @ApiOkResponseTemplate()

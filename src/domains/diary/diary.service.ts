@@ -21,6 +21,7 @@ import { PetWeight } from './entities/pet-weight.entity';
 import { PetWeightRepository } from './repositories/pet-weight.repository';
 import { PetWeightListDto } from './dtos/pet-weight-list.dto';
 import { UpdatePetWeightDto } from './dtos/update-pet-weight.dto';
+import { PetWeightPageRequest } from './dtos/pet-weight-page';
 
 @Injectable()
 export class DiaryService {
@@ -304,15 +305,15 @@ export class DiaryService {
     return result;
   }
 
-  async findPetWeights(
-    petIdx: number,
-    pageRequest: PageRequest,
-  ): Promise<Page<PetWeightListDto>> {
+  async findPetWeights(petIdx: number, pageRequest: PetWeightPageRequest) {
     const pet = await this.petRepository.findByPetIdx(petIdx);
     if (!pet) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_PET);
     }
-
+    if (pageRequest.filter === 'year') {
+      const result = await this.petWeightRepository.getAverageByPetIdx(petIdx);
+      return result;
+    }
     const [weights, totalCount] =
       await this.petWeightRepository.findAndCountByPetIdx(petIdx, pageRequest);
     const items = weights.map((weight) => new PetWeightListDto(weight));
