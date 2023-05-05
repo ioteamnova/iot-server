@@ -2,7 +2,11 @@ import { UserService } from './../user/user.service';
 import { validatePassword } from './../../utils/password.utils';
 import { HttpErrorConstants } from './../../core/http/http-error-objects';
 import { UserRepository } from './../user/repositories/user.repository';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
@@ -60,10 +64,7 @@ export class AuthService {
         break;
       }
       case SocialMethodType.GOOGLE: {
-        user = await this.getUserByGoogleAccessToken(
-          dto.accessToken,
-          dto.socialType,
-        );
+        user = await this.getUserByGoogleAccessToken(dto);
         break;
       }
       case SocialMethodType.APPLE: {
@@ -87,6 +88,11 @@ export class AuthService {
     accessToken: string,
     socialType: SocialMethodType.KAKAO,
   ): Promise<User> {
+    /** 액세스토큰, 소셜 타입을 받아서 카카오 로그인 처리
+     1. 이메일로 조회
+     2. 없으면 회원가입 처리
+     3. 유저 생성 후 리턴
+     */
     const userInfoFromKakao = await axios.get(
       'https://kapi.kakao.com/v2/user/me',
       {
@@ -96,62 +102,51 @@ export class AuthService {
     if (!userInfoFromKakao) {
       throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
     }
+
     const user = await this.userRepository.findOne({
       where: {
         email: userInfoFromKakao.data.kakao_account.email,
       },
     });
 
-    if (!user) {
-      const nickname = userInfoFromKakao.data.properties.nickname;
-      const email = userInfoFromKakao.data.kakao_account.email;
-      const kakaoUser = await this.userService.createSocialUser(
-        email,
-        nickname,
-        socialType,
-      );
-      return kakaoUser;
+    if (user) {
+      throw new ConflictException(HttpErrorConstants.EXIST_EMAIL);
     }
 
-    return user;
+    const nickname = userInfoFromKakao.data.properties.nickname;
+    const email = userInfoFromKakao.data.kakao_account.email;
+    const kakaoUser = await this.userService.createSocialUser(
+      email,
+      nickname,
+      socialType,
+    );
+
+    return kakaoUser;
   }
 
-  async getUserByGoogleAccessToken(
-    accessToken: string,
-    socialType: SocialMethodType.GOOGLE,
-  ) {
-    try {
-      const userInfoFromGoogle = await axios.get(
-        'https://www.googleapis.com/userinfo/v2/me',
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-      );
-      console.log('userInfoFromGoogle::', userInfoFromGoogle);
-      const user = await this.userRepository.findOne({
-        where: {
-          email: userInfoFromGoogle.data.email,
-        },
-      });
-      if (!user) {
-        const nickname = userInfoFromGoogle.data.name;
-        console.log('nickname::', nickname);
-        const email = userInfoFromGoogle.data.email;
-        console.log('email::', email);
-        const googleUser = await this.userService.createSocialUser(
-          email,
-          nickname,
-          socialType,
-        );
-        console.log('googleUser::', googleUser);
-        return googleUser;
-      }
-      return user;
-    } catch (error) {
-      console.log('error::', error);
+  async getUserByGoogleAccessToken(dto: SocialLoginUserDto): Promise<User> {
+    /** 이메일, 닉네임, 소셜 타입을 받아서 구글 로그인 처리
+     1. 이메일로 조회
+     2. 없으면 회원가입 처리
+     3. 유저 생성 후 리턴
+     */
+
+    const user = await this.userRepository.findOne({
+      where: {
+        email: dto.email,
+      },
+    });
+    if (user) {
+      throw new ConflictException(HttpErrorConstants.EXIST_EMAIL);
     }
+
+    const googleUser = await this.userService.createSocialUser(
+      dto.email,
+      dto.nickname,
+      dto.socialType,
+    );
+
+    return googleUser;
   }
 
   async getUserByAppleAccessToken(
