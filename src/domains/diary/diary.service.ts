@@ -2,7 +2,11 @@ import { DiaryListDto } from './dtos/diary-list.dto';
 import { DiaryRepository } from './repositories/diary.repository';
 import { UpdatePetDto } from './dtos/pet-update.dto';
 import { PetRepository } from './repositories/pet.repository';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateDiaryDto } from './dtos/create-diary.dto';
 import { CreatePetDto } from './dtos/create-pet.dto';
 import { UpdateDiaryDto } from './dtos/update-diary.dto';
@@ -298,6 +302,14 @@ export class DiaryService {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_PET);
     }
 
+    const isDate = await this.petWeightRepository.checkExistDate(
+      pet.idx,
+      dto.date,
+    );
+    if (isDate) {
+      throw new ConflictException(HttpErrorConstants.EXIST_DATE);
+    }
+
     const weight = PetWeight.from(dto);
     weight.petIdx = petIdx;
 
@@ -305,11 +317,24 @@ export class DiaryService {
     return result;
   }
 
+  /**
+   * 반려동물 체중 목록 조회
+   * 목록 조회 API는 쿼리파라미터의 필터로 필요한 부분을 프론트에서 사용한다.
+   * default는 일반적인 목록 조회 페이징 리턴
+   * week: 현재 날짜로부터 7일 이내의 데이터 리턴
+   * month: 현재 날짜로부터 30일 이내의 데이터 리턴 (최대 30개)
+   * year: 현재 날짜로부터 1년 이내의 데이터 중, 월별 평균값을 리턴
+   *
+   * @param petIdx 펫 인덱스
+   * @param pageRequest 페이징 객체
+   * @returns 위의 주석 참고
+   */
   async findPetWeights(petIdx: number, pageRequest: PetWeightPageRequest) {
     const pet = await this.petRepository.findByPetIdx(petIdx);
     if (!pet) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_PET);
     }
+
     if (pageRequest.filter === 'year') {
       const result = await this.petWeightRepository.getAverageByPetIdx(petIdx);
       return result;
@@ -320,6 +345,12 @@ export class DiaryService {
     return new Page<PetWeightListDto>(totalCount, items, pageRequest);
   }
 
+  /**
+   * 반려동물 체중 정보 수정
+   * @param weightIdx 체중 인덱스
+   * @param dto UpdatePetWeightDto
+   * @returns 수정된 객체
+   */
   async updatePetWeight(weightIdx: number, dto: UpdatePetWeightDto) {
     const petWeight = await this.petWeightRepository.findOne({
       where: {
@@ -329,12 +360,25 @@ export class DiaryService {
     if (!petWeight) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_WEIGHT);
     }
+
+    const isDate = await this.petWeightRepository.checkExistDate(
+      petWeight.petIdx,
+      dto.date,
+    );
+    if (isDate) {
+      throw new ConflictException(HttpErrorConstants.EXIST_DATE);
+    }
+
     petWeight.updateFromDto(dto);
 
     const result = await this.petWeightRepository.save(petWeight);
     return result;
   }
 
+  /**
+   * 반려동물 체중 정보 삭제
+   * @param weightIdx 체중 인덱스
+   */
   async removePetWeight(weightIdx: number) {
     const petWeight = await this.petWeightRepository.findOne({
       where: {
