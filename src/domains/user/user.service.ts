@@ -124,6 +124,10 @@ export class UserService {
    * @returns 업데이트한 유저 정보
    */
   async update(file: Express.Multer.File, dto: UpdateUserDto, userIdx: number) {
+    // 이메일, 닉네임 중복 검사
+    if (dto.email) {
+      await this.checkExistEmail(dto.email);
+    }
     if (dto.nickname) {
       await this.checkExistNickname(dto.nickname);
     }

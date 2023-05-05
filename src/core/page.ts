@@ -17,7 +17,7 @@ export class Page<T> {
   }
 }
 
-export abstract class PageRequest {
+export class PageRequest {
   @ApiProperty({
     description: '페이지 번호',
     nullable: true,
@@ -38,12 +38,11 @@ export abstract class PageRequest {
 
   @ApiProperty({
     description: '정렬',
-    nullable: true,
-    default: 'DESC',
     required: false,
+    default: 'DESC',
     enum: ['DESC', 'ASC'],
   })
-  order: 'DESC' | 'ASC';
+  order?: 'DESC' | 'ASC';
 
   get offset(): number {
     return ((this.page || 1) - 1) * (this.size || 20);

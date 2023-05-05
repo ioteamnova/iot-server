@@ -2,7 +2,11 @@ import { DiaryListDto } from './dtos/diary-list.dto';
 import { DiaryRepository } from './repositories/diary.repository';
 import { UpdatePetDto } from './dtos/pet-update.dto';
 import { PetRepository } from './repositories/pet.repository';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateDiaryDto } from './dtos/create-diary.dto';
 import { CreatePetDto } from './dtos/create-pet.dto';
 import { UpdateDiaryDto } from './dtos/update-diary.dto';
@@ -15,6 +19,13 @@ import * as uuid from 'uuid';
 import { Diary } from './entities/diary.entity';
 import { DiaryImage } from './entities/diary-image.entity';
 import { DiaryImageRepository } from './repositories/diary-image.repository';
+import { DiaryDetailDto } from './dtos/diary-detail-dto';
+import { CreatePetWeightDto } from './dtos/create-pet-weight.dto';
+import { PetWeight } from './entities/pet-weight.entity';
+import { PetWeightRepository } from './repositories/pet-weight.repository';
+import { PetWeightListDto } from './dtos/pet-weight-list.dto';
+import { UpdatePetWeightDto } from './dtos/update-pet-weight.dto';
+import { PetWeightPageRequest } from './dtos/pet-weight-page';
 
 @Injectable()
 export class DiaryService {
@@ -22,6 +33,7 @@ export class DiaryService {
     private petRepository: PetRepository,
     private diaryRepository: DiaryRepository,
     private diaryImageRepository: DiaryImageRepository,
+    private petWeightRepository: PetWeightRepository,
   ) {}
   /**
    * 반려동물 정보 등록
@@ -115,45 +127,6 @@ export class DiaryService {
     return result.Location;
   }
 
-  // async createDiary(
-  //   petIdx: number,
-  //   dto: CreateDiaryDto,
-  //   files: Array<Express.Multer.File>,
-  // ) {
-  //   const pet = await this.petRepository.findByPetIdx(petIdx);
-  //   if (!pet) {
-  //     throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_PET);
-  //   }
-
-  //   const diary = Diary.from(dto);
-  //   diary.petIdx = petIdx;
-  //   await this.diaryRepository.save(diary);
-
-  //   if (!files) {
-  //     return diary;
-  //   }
-
-  //   const urls = [];
-  //   for (const file of files) {
-  //     const folder = S3FolderName.DIARY;
-  //     const fileName = `${petIdx}-${DateUtils.momentFile()}-${uuid.v4()}-${
-  //       file.originalname
-  //     }`;
-  //     const fileKey = `${folder}/${fileName}`;
-  //     const result = await asyncUploadToS3(fileKey, file.buffer);
-  //     const image = new DiaryImage();
-  //     image.diaryIdx = diary.idx;
-  //     image.imagePath = result.Location;
-  //     await this.diaryImageRepository.save(image);
-  //     urls.push(image.imagePath);
-  //   }
-  //   return {
-  //     ...diary,
-  //     images: urls,
-  //   };
-  // }
-
-  // 리팩토링
   /**
    * 반려동물의 다이어리 등록
    * @param petIdx 반려동물 인덱스
@@ -228,54 +201,6 @@ export class DiaryService {
     return diary;
   }
 
-  // async updateDiary(
-  //   diaryIdx: number,
-  //   dto: UpdateDiaryDto,
-  //   files: Array<Express.Multer.File>,
-  // ) {
-  //   const diary = await this.diaryRepository.findOne({
-  //     where: {
-  //       idx: diaryIdx,
-  //     },
-  //     relations: ['images'],
-  //   });
-
-  //   if (!diary) {
-  //     throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_DIARY);
-  //   }
-
-  //   if (!files) {
-  //     return diary;
-  //   }
-
-  //   // 기존 이미지 삭제
-  //   const images = diary.images;
-  //   await this.diaryImageRepository.softRemove(images);
-
-  //   // 새로운 이미지 저장
-  //   for (const file of files) {
-  //     const folder = S3FolderName.DIARY;
-  //     const fileName = `${diaryIdx}-${DateUtils.momentFile()}-${uuid.v4()}-${
-  //       file.originalname
-  //     }`;
-  //     const fileKey = `${folder}/${fileName}`;
-  //     const result = await asyncUploadToS3(fileKey, file.buffer);
-  //     const image = new DiaryImage();
-  //     image.diaryIdx = diary.idx;
-  //     image.imagePath = result.Location;
-
-  //     images.push(image);
-  //   }
-  //   await this.diaryImageRepository.save(images);
-
-  //   diary.updateFromDto(dto);
-  //   await this.diaryRepository.save(diary);
-
-  //   return {
-  //     ...diary,
-  //     images: images.filter((image) => !image.deletedAt),
-  //   };
-  // }
   /**
    * 다이어리 수정
    * @param diaryIdx 다이어리 인덱스
@@ -323,12 +248,16 @@ export class DiaryService {
       where: {
         idx: diaryIdx,
       },
+      relations: ['images'],
     });
 
     if (!diary) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_DIARY);
     }
-
+    // 다이어리 이미지 같이 삭제
+    if (diary.images) {
+      await this.deleteDiaryImages(diary.images);
+    }
     await this.diaryRepository.softDelete(diaryIdx);
   }
 
@@ -359,5 +288,106 @@ export class DiaryService {
     for (const image of images) {
       await this.diaryImageRepository.softRemove(image);
     }
+  }
+
+  /**
+   * 반려동물 체중 등록
+   * @param petIdx 펫 인덱스
+   * @param dto CreatePetWeightDto
+   * @returns 등록한 정보
+   */
+  async createPetWeight(petIdx: number, dto: CreatePetWeightDto) {
+    const pet = await this.petRepository.findByPetIdx(petIdx);
+    if (!pet) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_PET);
+    }
+
+    const isDate = await this.petWeightRepository.checkExistDate(
+      pet.idx,
+      dto.date,
+    );
+    if (isDate) {
+      throw new ConflictException(HttpErrorConstants.EXIST_DATE);
+    }
+
+    const weight = PetWeight.from(dto);
+    weight.petIdx = petIdx;
+
+    const result = await this.petWeightRepository.save(weight);
+    return result;
+  }
+
+  /**
+   * 반려동물 체중 목록 조회
+   * 목록 조회 API는 쿼리파라미터의 필터로 필요한 부분을 프론트에서 사용한다.
+   * default는 일반적인 목록 조회 페이징 리턴
+   * week: 현재 날짜로부터 7일 이내의 데이터 리턴
+   * month: 현재 날짜로부터 30일 이내의 데이터 리턴 (최대 30개)
+   * year: 현재 날짜로부터 1년 이내의 데이터 중, 월별 평균값을 리턴
+   *
+   * @param petIdx 펫 인덱스
+   * @param pageRequest 페이징 객체
+   * @returns 위의 주석 참고
+   */
+  async findPetWeights(petIdx: number, pageRequest: PetWeightPageRequest) {
+    const pet = await this.petRepository.findByPetIdx(petIdx);
+    if (!pet) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_PET);
+    }
+
+    if (pageRequest.filter === 'year') {
+      const result = await this.petWeightRepository.getAverageByPetIdx(petIdx);
+      return result;
+    }
+    const [weights, totalCount] =
+      await this.petWeightRepository.findAndCountByPetIdx(petIdx, pageRequest);
+    const items = weights.map((weight) => new PetWeightListDto(weight));
+    return new Page<PetWeightListDto>(totalCount, items, pageRequest);
+  }
+
+  /**
+   * 반려동물 체중 정보 수정
+   * @param weightIdx 체중 인덱스
+   * @param dto UpdatePetWeightDto
+   * @returns 수정된 객체
+   */
+  async updatePetWeight(weightIdx: number, dto: UpdatePetWeightDto) {
+    const petWeight = await this.petWeightRepository.findOne({
+      where: {
+        idx: weightIdx,
+      },
+    });
+    if (!petWeight) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_WEIGHT);
+    }
+
+    const isDate = await this.petWeightRepository.checkExistDate(
+      petWeight.petIdx,
+      dto.date,
+    );
+    if (isDate) {
+      throw new ConflictException(HttpErrorConstants.EXIST_DATE);
+    }
+
+    petWeight.updateFromDto(dto);
+
+    const result = await this.petWeightRepository.save(petWeight);
+    return result;
+  }
+
+  /**
+   * 반려동물 체중 정보 삭제
+   * @param weightIdx 체중 인덱스
+   */
+  async removePetWeight(weightIdx: number) {
+    const petWeight = await this.petWeightRepository.findOne({
+      where: {
+        idx: weightIdx,
+      },
+    });
+    if (!petWeight) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_WEIGHT);
+    }
+    await this.petWeightRepository.softDelete(petWeight.idx);
   }
 }

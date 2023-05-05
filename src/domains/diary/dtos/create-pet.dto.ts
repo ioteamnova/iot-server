@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 import { Gender } from '../helpers/constants';
 
 export class CreatePetDto {
@@ -47,12 +47,13 @@ export class CreatePetDto {
   adoptionDate: Date;
 
   @ApiProperty({
-    description: '무게 (g)',
+    description: '체중 (g)',
     default: 0,
     type: 'float',
     required: false,
   })
   @IsOptional()
+  @IsNumber()
   weight: number;
 
   imagePath: string;

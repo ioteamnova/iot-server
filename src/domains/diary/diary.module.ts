@@ -5,6 +5,7 @@ import { Module } from '@nestjs/common';
 import { DiaryService } from './diary.service';
 import { DiaryController } from './diary.controller';
 import { DiaryImageRepository } from './repositories/diary-image.repository';
+import { PetWeightRepository } from './repositories/pet-weight.repository';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { DiaryImageRepository } from './repositories/diary-image.repository';
       PetRepository,
       DiaryRepository,
       DiaryImageRepository,
+      PetWeightRepository,
     ]),
   ],
   controllers: [DiaryController],
