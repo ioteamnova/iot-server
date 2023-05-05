@@ -7,6 +7,16 @@ import { PetWeight } from '../entities/pet-weight.entity';
 
 @CustomRepository(PetWeight)
 export class PetWeightRepository extends Repository<PetWeight> {
+  async checkExistDate(petIdx: number, date: Date): Promise<boolean> {
+    const isDate = await this.exist({
+      where: {
+        petIdx,
+        date,
+      },
+    });
+    return isDate;
+  }
+
   async findAndCountByPetIdx(
     petIdx: number,
     pageRequest: PetWeightPageRequest,
@@ -28,9 +38,10 @@ export class PetWeightRepository extends Repository<PetWeight> {
         queryBuilder.andWhere(
           'petWeight.date >= DATE_SUB(NOW(), INTERVAL 30 DAY)',
         );
+
         break;
       default:
-        // calculate total count for default filter
+        // 현재 날짜로부터 date 최근순
         break;
     }
 
@@ -44,6 +55,7 @@ export class PetWeightRepository extends Repository<PetWeight> {
       .getManyAndCount();
   }
 
+  // 현재날짜로부터 일년이내의 데이터를 월별 몸무게 평균값 구하는 함수
   getAverageByPetIdx(petIdx: number) {
     const queryBuilder = this.createQueryBuilder('petWeight')
       .where('petWeight.petIdx = :petIdx', { petIdx })
