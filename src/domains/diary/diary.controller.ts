@@ -15,6 +15,7 @@ import {
   UseInterceptors,
   UploadedFile,
   UploadedFiles,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import AuthUser from 'src/core/decorators/auth-user.decorator';
@@ -37,6 +38,10 @@ import { ApiErrorResponseTemplate } from 'src/core/swagger/apt-error-response';
 import { StatusCodes } from 'http-status-codes';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
 import { ApiOkPaginationResponseTemplate } from 'src/core/swagger/api-ok-pagination-response';
+import { CreatePetWeightDto } from './dtos/create-pet-weight.dto';
+import { PetWeightListDto } from './dtos/pet-weight-list.dto';
+import { UpdatePetWeightDto } from './dtos/update-pet-weight.dto';
+import { PetWeightPageRequest } from './dtos/pet-weight-page';
 
 @ApiTags(SwaggerTag.DIARY)
 @ApiCommonErrorResponseTemplate()
@@ -231,6 +236,84 @@ export class DiaryController {
   @Delete('/:diaryIdx')
   async removeDiary(@Res() res, @Param('diaryIdx') diaryIdx: number) {
     await this.diaryService.removeDiary(diaryIdx);
+    return HttpResponse.ok(res);
+  }
+
+  @ApiOperation({
+    summary: '반려동물 체중 등록',
+    description: '선택한 반려동물의 체중을 등록한다.',
+  })
+  @ApiCreatedResponseTemplate({ type: CreatePetWeightDto })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_PET],
+    },
+  ])
+  @UseAuthGuards()
+  @Post('/pet/:petIdx/weight')
+  async createWeight(
+    @Res() res,
+    @Param('petIdx') petIdx: number,
+    @Body() dto: CreatePetWeightDto,
+  ) {
+    const result = await this.diaryService.createPetWeight(petIdx, dto);
+    return HttpResponse.created(res, { body: result });
+  }
+
+  @ApiOperation({
+    summary: '반려동물 체중 목록 조회',
+    description: '반려동물의 체중 목록을 조회한다.',
+  })
+  @ApiOkPaginationResponseTemplate({ type: PetWeightListDto })
+  @UseAuthGuards()
+  @Get('/pet/:petIdx/weight')
+  async findAllWeights(
+    @Res() res,
+    @Param('petIdx') petIdx: number,
+    @Query() pageRequest: PetWeightPageRequest,
+  ) {
+    const result = await this.diaryService.findPetWeights(petIdx, pageRequest);
+    return HttpResponse.ok(res, result);
+  }
+
+  @ApiOperation({
+    summary: '반려동물 체중 수정',
+    description: '반려동물의 체중을 수정한다.',
+  })
+  @ApiOkResponseTemplate({ type: UpdatePetWeightDto })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_WEIGHT],
+    },
+  ])
+  @UseAuthGuards()
+  @Patch('/weight/:weightIdx')
+  async updatePetWeight(
+    @Res() res,
+    @Param('weightIdx') weightIdx: number,
+    @Body() dto: UpdatePetWeightDto,
+  ) {
+    const result = await this.diaryService.updatePetWeight(weightIdx, dto);
+    return HttpResponse.ok(res, result);
+  }
+
+  @ApiOperation({
+    summary: '반려동물 체중 삭제',
+    description: '반려동물의 체중을 삭제한다. ',
+  })
+  @ApiOkResponseTemplate()
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_WEIGHT],
+    },
+  ])
+  @UseAuthGuards()
+  @Delete('/weight/:weightIdx')
+  async removePetWeight(@Res() res, @Param('weightIdx') weightIdx: number) {
+    await this.diaryService.removePetWeight(weightIdx);
     return HttpResponse.ok(res);
   }
 }
