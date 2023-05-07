@@ -15,7 +15,8 @@ export class SocialLoginUserDto {
     required: false,
   })
   @IsString()
-  readonly accessToken: string;
+  @IsOptional()
+  accessToken: string;
 
   @ApiProperty({
     description: '소셜 로그인 타입',
@@ -24,7 +25,7 @@ export class SocialLoginUserDto {
     enum: SocialMethodType,
   })
   @IsNotEmpty()
-  readonly socialType: SocialMethodType;
+  socialType: SocialMethodType;
 
   @ApiProperty({
     description: '구글 로그인 이메일',
