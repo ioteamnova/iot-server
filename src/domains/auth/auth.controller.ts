@@ -2,25 +2,12 @@ import { ApiCreatedResponseTemplate } from './../../core/swagger/api-created-res
 import HttpResponse from 'src/core/http/http-response';
 import { AuthService } from './auth.service';
 import { SwaggerTag } from '../../core/swagger/swagger-tags';
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Post, Res } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { SocialLoginUserDto } from './dtos/social-login-user.dto';
 import { ApiCommonErrorResponseTemplate } from 'src/core/swagger/api-error-common-response';
 import { LoginResponseDto } from './dtos/login-response.dto';
-import { ApiErrorResponseTemplate } from 'src/core/swagger/apt-error-response';
-import { StatusCodes } from 'http-status-codes';
-import { HttpErrorConstants } from 'src/core/http/http-error-objects';
-import { AuthGuard } from '@nestjs/passport';
-import { Request, Response } from 'express';
 
 @ApiTags(SwaggerTag.AUTH)
 @ApiCommonErrorResponseTemplate()
