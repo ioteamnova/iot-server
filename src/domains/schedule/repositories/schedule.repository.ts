@@ -11,7 +11,7 @@ export class ScheduleRepository extends Repository<Schedule> {
   ): Promise<[Schedule[], number]> {
     return this.createQueryBuilder('schedule')
       .where('schedule.userIdx = :userIdx', { userIdx })
-      .orderBy('schedule.idx', 'DESC')
+      .orderBy('schedule.idx', pageRequest.order)
       .take(pageRequest.limit)
       .skip(pageRequest.offset)
       .getManyAndCount();

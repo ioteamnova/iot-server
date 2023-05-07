@@ -30,13 +30,18 @@ export class ScheduleListDto {
     description: '알림 반복 요일',
     default: [0, 0, 0, 0, 0, 0, 0],
   })
-  repeat: number[];
+  repeat: string[];
 
   constructor(schedule: Schedule) {
+    let repeat = [];
+    if (schedule.repeat) {
+      repeat = JSON.parse(schedule.repeat);
+    }
+
     this.idx = schedule.idx;
     this.title = schedule.title;
     this.memo = schedule.memo;
     this.alarmTime = schedule.alarmTime;
-    this.repeat = schedule.repeat;
+    this.repeat = repeat;
   }
 }
