@@ -45,17 +45,25 @@ export class UserService {
    * @param dto 유저 dto
    * @returns user
    */
-  async createSocialUser(email: string, nickname: string) {
+  async createSocialUser(
+    email: string,
+    nickname: string,
+    socialType: SocialMethodType,
+  ) {
     console.log('소셜로그인 유저 회원가입::');
-    // await this.checkExistEmail(dto.email);
     const password = hashPassword(uuid.v1());
     const user = new User();
     user.email = email;
     user.password = password;
     user.nickname = nickname;
-    user.loginMethod = SocialMethodType.KAKAO;
-    const newUser = await this.userRepository.save(user);
-    return newUser;
+    user.loginMethod =
+      socialType === 'KAKAO'
+        ? SocialMethodType.KAKAO
+        : 'GOOGLE'
+        ? SocialMethodType.GOOGLE
+        : SocialMethodType.APPLE;
+
+    return await this.userRepository.save(user);
   }
 
   /**

@@ -9,7 +9,7 @@ import { User } from './domains/user/entities/user.entity';
 import { UserModule } from './domains/user/user.module';
 import { LoggerMiddleware } from './core/middlewares/logger.middleware';
 import { DiaryModule } from './domains/diary/diary.module';
-import { IotPersonalModule } from './domains/iot_personal/iot_personal.module';
+import { IotPersonalModule } from './domains/iot_board_personal/iot_personal.module';
 
 @Module({
   imports: [
@@ -29,7 +29,7 @@ import { IotPersonalModule } from './domains/iot_personal/iot_personal.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: false,
       logging: true,
-      timezone: 'Asia/Seoul',
+      timezone: 'local',
       namingStrategy: new SnakeNamingStrategy(),
     }),
     UserModule,

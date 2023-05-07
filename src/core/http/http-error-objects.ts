@@ -30,8 +30,13 @@ export const HttpErrorConstants = {
   } as HttpErrorFormat,
 
   EXIST_NICKNAME: {
-    errorCode: 'EXIST_EXIST_NICKNAME',
+    errorCode: 'EXIST_NICKNAME',
     message: '이미 사용중인 닉네임입니다.',
+  } as HttpErrorFormat,
+
+  EXIST_DATE: {
+    errorCode: 'EXIST_DATE',
+    message: '해당 날짜의 정보가 이미 존재합니다.',
   } as HttpErrorFormat,
 
   INVALID_AUTH: {
@@ -52,6 +57,11 @@ export const HttpErrorConstants = {
   CANNOT_FIND_DIARY: {
     errorCode: 'CANNOT_FIND_DIARY',
     message: '다이어리를 찾을 수 없습니다.',
+  } as HttpErrorFormat,
+
+  CANNOT_FIND_WEIGHT: {
+    errorCode: 'CANNOT_FIND_WEIGHT',
+    message: '등록한 몸무게 정보가 없습니다.',
   } as HttpErrorFormat,
 
   AUTH_LINK_EXPIRED: {

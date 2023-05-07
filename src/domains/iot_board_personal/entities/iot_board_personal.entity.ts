@@ -7,7 +7,7 @@ import { SocialMethodType } from 'src/domains/auth/helpers/constants';
 import { Pet } from 'src/domains/diary/entities/pet.entity';
 
 @Entity()
-export class Iot_personal extends BaseEntity {
+export class Iot_board_personal extends BaseEntity {
 
   @Column({
     nullable: false,
@@ -34,15 +34,15 @@ export class Iot_personal extends BaseEntity {
   autochkLight: boolean;
 
   @Column()
-  autochkWaterpump: boolean;
+  autochkTemp: boolean;
 
   @Column()
-  autochkCoolingfan: boolean;
+  autochkHumid: boolean;
 
   @Column()
   currentTemp: string;
   @Column()
-  current2Temp: string;
+  currentTemp2: string;
 
   @Column()
   maxTemp: string;
@@ -52,7 +52,7 @@ export class Iot_personal extends BaseEntity {
   @Column()
   currentHumid: string;
   @Column()
-  current2Humid: string;
+  currentHumid2: string;
 
   @Column()
   maxHumid: string;
@@ -62,6 +62,8 @@ export class Iot_personal extends BaseEntity {
   @Column()
   usage: string;
 
+  @Column()
+  utcTime: string;
 
   @OneToOne(() => Pet)
   @JoinColumn({ name: 'pet_idx' })

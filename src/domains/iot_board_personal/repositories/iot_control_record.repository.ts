@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { CustomRepository } from 'src/core/decorators/typeorm-ex.decorator';
 import { EntityRepository, Repository } from "typeorm";
-import { iot_naturerecord } from '../entities/iot_naturerecord.entity';
+import { iot_control_record } from '../entities/iot_control_record.entity';
 
 
 
-@CustomRepository(iot_naturerecord)
-export class IotNaturerecordRepository extends Repository<iot_naturerecord> {
+@CustomRepository(iot_control_record)
+export class IotControlrecordRepository extends Repository<iot_control_record> {
     // async createBoard(createBoardDto : CreateBoardDto) : Promise<Iot_personal> {
     //     const {title, description} = createBoardDto;
     //     const board = this.create({
