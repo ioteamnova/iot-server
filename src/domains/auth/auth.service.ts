@@ -45,6 +45,7 @@ export class AuthService {
     const accessToken = this.jwtService.sign(payload);
     return {
       accessToken: accessToken,
+      idx: user.idx,
     };
   }
 
@@ -81,6 +82,7 @@ export class AuthService {
     const accessToken = await this.generateAccessToken(user.idx);
     return {
       accessToken: accessToken,
+      idx: user.idx,
     };
   }
 
