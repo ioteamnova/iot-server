@@ -1,3 +1,4 @@
+import { CreateScheduleDto } from './../dtos/create-schedule.dto';
 import { User } from 'src/domains/user/entities/user.entity';
 import BaseEntity from 'src/core/entity/base.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
@@ -25,28 +26,18 @@ export class Schedule extends BaseEntity {
     comment: `월~일요일을 배열에서 1과 0으로 표현한다.
     ex) 월,수,금 반복인경우 [1,0,1,0,1,0,0]`,
   })
-  repeat: number[];
+  repeat: string;
 
   @ManyToOne(() => User, (user) => user.schedules)
   @JoinColumn({ name: 'user_idx' })
   user: User;
 
-  static from({
-    title,
-    memo,
-    alarmTime,
-    repeat,
-  }: {
-    title: string;
-    memo: string;
-    alarmTime: Date;
-    repeat: number[];
-  }) {
+  static from(dto: CreateScheduleDto) {
     const schedule = new Schedule();
-    schedule.title = title;
-    schedule.memo = memo;
-    schedule.alarmTime = alarmTime;
-    schedule.repeat = repeat;
+    schedule.title = dto.title;
+    schedule.memo = dto.memo;
+    schedule.alarmTime = dto.alarmTime;
+    schedule.repeat = JSON.stringify(dto.repeat);
 
     return schedule;
   }
@@ -55,6 +46,6 @@ export class Schedule extends BaseEntity {
     this.title = dto.title;
     this.memo = dto.memo;
     this.alarmTime = dto.alarmTime;
-    this.repeat = dto.repeat;
+    this.repeat = JSON.stringify(dto.repeat);
   }
 }
