@@ -12,7 +12,7 @@ export class DiaryRepository extends Repository<Diary> {
     return this.createQueryBuilder('diary')
       .leftJoinAndSelect('diary.images', 'image')
       .where('diary.petIdx = :petIdx', { petIdx })
-      .orderBy('diary.idx', 'DESC')
+      .orderBy('diary.idx', pageRequest.order)
       .take(pageRequest.limit)
       .skip(pageRequest.offset)
       .getManyAndCount();

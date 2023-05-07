@@ -20,7 +20,7 @@ export class PetWeightRepository extends Repository<PetWeight> {
   async findAndCountByPetIdx(
     petIdx: number,
     pageRequest: PetWeightPageRequest,
-  ) {
+  ): Promise<[PetWeight[], number]> {
     const queryBuilder = this.createQueryBuilder('petWeight').where(
       'petWeight.petIdx = :petIdx',
       { petIdx },
@@ -38,9 +38,8 @@ export class PetWeightRepository extends Repository<PetWeight> {
         queryBuilder.andWhere(
           'petWeight.date >= DATE_SUB(NOW(), INTERVAL 30 DAY)',
         );
-
         break;
-      default:
+      case 'default':
         // 현재 날짜로부터 date 최근순
         break;
     }
@@ -56,7 +55,7 @@ export class PetWeightRepository extends Repository<PetWeight> {
   }
 
   // 현재날짜로부터 일년이내의 데이터를 월별 몸무게 평균값 구하는 함수
-  getAverageByPetIdx(petIdx: number) {
+  getMonthAverageByPetIdx(petIdx: number) {
     const queryBuilder = this.createQueryBuilder('petWeight')
       .where('petWeight.petIdx = :petIdx', { petIdx })
       .select('MONTH(petWeight.date)', 'month')

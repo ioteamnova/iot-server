@@ -6,10 +6,12 @@ import { DiaryService } from './diary.service';
 import { DiaryController } from './diary.controller';
 import { DiaryImageRepository } from './repositories/diary-image.repository';
 import { PetWeightRepository } from './repositories/pet-weight.repository';
+import { UserRepository } from '../user/repositories/user.repository';
 
 @Module({
   imports: [
     TypeOrmExModule.forCustomRepository([
+      UserRepository,
       PetRepository,
       DiaryRepository,
       DiaryImageRepository,
