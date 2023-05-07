@@ -5,6 +5,8 @@ import { Iot_personal } from './entities/iot_personal.entity';
 import { IotPersonalRepository } from './repositories/iot_personal.repository';
 import { IotNaturerecordRepository } from './repositories/iot_naturerecord.repository';
 import { IotControlrecordRepository } from './repositories/iot_controlrecord.repository';
+import { Page, PageRequest } from 'src/core/page';
+
 
 @Injectable()
 export class IotPersonalService {
@@ -23,15 +25,22 @@ export class IotPersonalService {
    * @param dto 보드 dto
    * @returns iot_personal
    */
-    async getBoardList(uid:number, offset:number, limit:number) {
+    async getBoardList(
+      userIdx: number,
+      pageRequest: PageRequest,
+    ) {
+      console.log(pageRequest);
 
         const boardlist = await this.iotPersonalRepository.createQueryBuilder('iot_personal')
-        //.leftJoinAndSelect('iot_personal.pet', 'pet') // 어떤 테이블과 연결
-        .where({ userIdx: uid })
-        .offset(offset)
-        .limit(limit)
-        //.getManyAndCount();
-        .getMany();
+        .leftJoinAndSelect('iot_personal.pet', 'pet') // 어떤 테이블과 연결
+         .where({ userIdx: userIdx })
+        // .offset(offset)
+        // .limit(limit)
+        //.where('pet.userIdx = :userIdx', { userIdx })
+        .take(pageRequest.limit)
+        .skip(pageRequest.offset)
+        .getManyAndCount();
+        //.getMany();
         console.log(boardlist);
 
         // return await this.iotPersonalRepository.find({ 
@@ -48,16 +57,20 @@ export class IotPersonalService {
    * @param dto 온습도 dto
    * @returns iot_naturerecord
    */
-   async getNatureList(bid:number, offset:number, limit:number) {
+   async getNatureList(
+    userIdx: number,
+    pageRequest: PageRequest,
+    //  bid:number, offset:number, limit:number
+    ) {
 
-    const boardlist = await this.iotNaturerecordRepository.createQueryBuilder('iot_naturerecord')
-    //.leftJoinAndSelect('iot_personal.pet', 'pet') // 어떤 테이블과 연결
-    .where({ boardIdx: bid })
-    .offset(offset)
-    .limit(limit)
-    //.getManyAndCount();
-    .getMany();
-    console.log(boardlist);
+    // const boardlist = await this.iotNaturerecordRepository.createQueryBuilder('iot_naturerecord')
+    // //.leftJoinAndSelect('iot_personal.pet', 'pet') // 어떤 테이블과 연결
+    // .where({ boardIdx: bid })
+    // .offset(offset)
+    // .limit(limit)
+    // //.getManyAndCount();
+    // .getMany();
+    // console.log(boardlist);
 
     // return await this.iotPersonalRepository.find({ 
     //     relations: {
@@ -65,7 +78,7 @@ export class IotPersonalService {
     //     },
     //     where: { userIdx: uid },
     // });
-   return boardlist;
+  // return boardlist;
 }
 
 

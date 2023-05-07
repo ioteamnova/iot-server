@@ -3,6 +3,7 @@ export enum SwaggerTag {
   AUTH = 'Auth: 인증',
   USER = 'User: 유저',
   DIARY = 'Diary: 다이어리',
+  IOT = 'IotPersonal: iot 장비',
 
   // 시스템 관련 / 기타
   NOTIFICATION = 'Notification: 알림',
