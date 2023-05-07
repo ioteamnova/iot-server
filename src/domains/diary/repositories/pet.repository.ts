@@ -8,6 +8,7 @@ export class PetRepository extends Repository<Pet> {
   findAndCountByUserIdx(userIdx: number, pageRequest: PageRequest) {
     return this.createQueryBuilder('pet')
       .where('pet.userIdx = :userIdx', { userIdx })
+      .orderBy('pet.idx', 'DESC')
       .take(pageRequest.limit)
       .skip(pageRequest.offset)
       .getManyAndCount();

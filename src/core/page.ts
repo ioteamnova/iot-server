@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { IsOptional } from 'class-validator';
 
 export class Page<T> {
   pageSize: number;
@@ -24,6 +25,7 @@ export class PageRequest {
     required: false,
     default: 1,
   })
+  @IsOptional()
   @Type(() => Number)
   page?: number = 1;
 
@@ -33,6 +35,7 @@ export class PageRequest {
     required: false,
     default: 20,
   })
+  @IsOptional()
   @Type(() => Number)
   size?: number = 20;
 
@@ -42,6 +45,7 @@ export class PageRequest {
     default: 'DESC',
     enum: ['DESC', 'ASC'],
   })
+  @IsOptional()
   order?: 'DESC' | 'ASC';
 
   get offset(): number {
