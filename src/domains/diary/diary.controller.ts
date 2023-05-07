@@ -81,7 +81,6 @@ export class DiaryController {
     @Query() pageRequest: PageRequest,
   ) {
     const pets = await this.diaryService.findAllPets(user.idx, pageRequest);
-
     return HttpResponse.ok(res, pets);
   }
 

@@ -71,11 +71,7 @@ export class DiaryService {
     userIdx: number,
     pageRequest: PageRequest,
   ): Promise<Page<PetListDto>> {
-    const user = await this.userRepository.findOne({
-      where: {
-        idx: userIdx,
-      },
-    });
+    const user = await this.userRepository.findByUserIdx(userIdx);
     if (!user) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
     }
