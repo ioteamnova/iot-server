@@ -11,7 +11,7 @@ import {
     Param,
     Query,
   } from '@nestjs/common';
-import { IotPersonalService } from './iot_personal.service';
+import { IotPersonalService } from './iot_board_personal.service';
 //import { Iot_personal } from './entities/iot_personal.entity';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Page, PageRequest } from 'src/core/page';
@@ -35,25 +35,25 @@ export class IotPersonalController {
        // private authService: AuthService,
       ) {}
     
-    //보드리스트 : 사용 보류
-    // @ApiOperation({
-    //   summary: '내 보드 정보 리스트',
-    //   description: '내가 등록한 보드의 리스트를 가져온다.',
-    // })
-    // @UseAuthGuards()
-    // @Get("/boardlist")
-    // async getBoardList(
-    //   @Res() res,
-    //   @AuthUser() user: User,
-    //   @Query() pageRequest: PageRequest,
-    // ) {
-    //   console.log("boardlist start!!");
-    //   console.log('user:::', user);
-    //   console.log(pageRequest);
+    //보드리스트 
+    @ApiOperation({
+      summary: '내 보드 정보 리스트',
+      description: '내가 등록한 보드의 리스트를 가져온다.',
+    })
+    @UseAuthGuards()
+    @Get("/boardlist")
+    async getBoardList(
+      @Res() res,
+      @AuthUser() user: User,
+      @Query() pageRequest: PageRequest,
+    ) {
+      console.log("boardlist start!!");
+      console.log('user:::', user);
+      console.log(pageRequest);
 
-    //   const result = await this.iotPersonalService.getBoardList(user.idx, pageRequest);
-    //   return HttpResponse.ok(res, result);
-    // }
+      const result = await this.iotPersonalService.getBoardList(user.idx, pageRequest);
+      return HttpResponse.ok(res, result);
+    }
 
     //온습도 통계 리스트
     @ApiOperation({
