@@ -1,13 +1,8 @@
-//import { UpdateUserDto } from './../dtos/update-user.dto';
 import BaseEntity from 'src/core/entity/base.entity';
-//import { hashPassword } from 'src/utils/password.utils';
 import { Column, Entity, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
-//import { CreateUserDto } from '../dtos/create-user.dto';
-// import { SocialMethodType } from 'src/domains/auth/helpers/constants';
 
 @Entity()
 export class IotBoardPersonal extends BaseEntity {
-
   @Column({
     nullable: false,
   })
@@ -55,11 +50,11 @@ export class IotBoardPersonal extends BaseEntity {
     nullable: false,
     length: 32,
   })
-    usage: string;
+  usage: string;
 
   @Column({
-   nullable: false,
-   length: 32,
+    nullable: false,
+    length: 32,
   })
   autoLightUtctimeOn: string;
 

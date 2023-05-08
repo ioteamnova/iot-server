@@ -12,19 +12,19 @@ export class RecordControlListDto {
   @ApiProperty({
     description: '조광기 현황',
     default: 1,
-  })  
+  })
   light: boolean;
 
   @ApiProperty({
     description: '워터펌프 현황',
     default: 1,
-  })  
+  })
   waterpump: boolean;
 
   @ApiProperty({
     description: '쿨링팬 현황',
     default: 1,
-  })  
+  })
   coolingfan: boolean;
 
   @ApiProperty({
