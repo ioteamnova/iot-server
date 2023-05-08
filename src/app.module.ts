@@ -9,6 +9,7 @@ import { UserModule } from './domains/user/user.module';
 import { LoggerMiddleware } from './core/middlewares/logger.middleware';
 import { DiaryModule } from './domains/diary/diary.module';
 import { ScheduleModule } from './domains/schedule/schedule.module';
+import { IotPersonalModule } from './domains/iot_board_personal/iot_board_personal.module';
 
 @Module({
   imports: [
@@ -34,7 +35,11 @@ import { ScheduleModule } from './domains/schedule/schedule.module';
     UserModule,
     AuthModule,
     DiaryModule,
+<<<<<<< HEAD
     ScheduleModule,
+=======
+    IotPersonalModule,
+>>>>>>> feature/iot
   ],
   controllers: [AppController],
   providers: [AppService],
