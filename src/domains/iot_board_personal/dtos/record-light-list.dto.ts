@@ -12,7 +12,7 @@ export class RecordLightListDto {
   @ApiProperty({
     description: '조광기 현황',
     default: 1,
-  })  
+  })
   light: boolean;
 
   @ApiProperty({

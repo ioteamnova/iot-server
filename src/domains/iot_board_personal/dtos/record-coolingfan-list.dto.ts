@@ -12,7 +12,7 @@ export class RecordcoolingfanListDto {
   @ApiProperty({
     description: '쿨링팬 현황',
     default: 1,
-  })  
+  })
   coolingfan: boolean;
 
   @ApiProperty({

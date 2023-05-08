@@ -50,7 +50,6 @@ export class UserService {
     nickname: string,
     socialType: SocialMethodType,
   ) {
-    console.log('소셜로그인 유저 회원가입::');
     const password = hashPassword(uuid.v1());
     const user = new User();
     user.email = email;

@@ -1,4 +1,4 @@
 export enum IsType {
-    AUTO = 1,
-    PASSIVE = 2,
+  AUTO = 1,
+  PASSIVE = 2,
 }
