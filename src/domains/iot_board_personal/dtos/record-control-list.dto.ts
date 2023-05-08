@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import DateUtils from 'src/utils/date-utils';
-import { iot_control_record } from '../entities/iot_control_record.entity';
+import { IotControlRecord } from '../entities/iot-control-record.entity';
 
 export class RecordControlListDto {
   @ApiProperty({
@@ -39,11 +39,11 @@ export class RecordControlListDto {
   })
   createdAt: Date;
 
-  constructor(iot_control_record: iot_control_record) {
-    this.idx = iot_control_record.idx;
-    this.light = iot_control_record.light;
-    this.waterpump = iot_control_record.waterpump;
-    this.coolingfan = iot_control_record.coolingfan;
-    this.type = iot_control_record.type;
+  constructor(iotControlRecord: IotControlRecord) {
+    this.idx = iotControlRecord.idx;
+    this.light = iotControlRecord.light;
+    this.waterpump = iotControlRecord.waterpump;
+    this.coolingfan = iotControlRecord.coolingfan;
+    this.type = iotControlRecord.type;
   }
 }
