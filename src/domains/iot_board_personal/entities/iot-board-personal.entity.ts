@@ -3,8 +3,7 @@ import BaseEntity from 'src/core/entity/base.entity';
 //import { hashPassword } from 'src/utils/password.utils';
 import { Column, Entity, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
 //import { CreateUserDto } from '../dtos/create-user.dto';
-import { SocialMethodType } from 'src/domains/auth/helpers/constants';
-import { Pet } from 'src/domains/diary/entities/pet.entity';
+// import { SocialMethodType } from 'src/domains/auth/helpers/constants';
 
 @Entity()
 export class IotBoardPersonal extends BaseEntity {
@@ -13,11 +12,6 @@ export class IotBoardPersonal extends BaseEntity {
     nullable: false,
   })
   userIdx: number;
-
-  @Column({
-    nullable: false,
-  })
-  petIdx: number;
 
   @Column({
     nullable: false,
@@ -64,12 +58,14 @@ export class IotBoardPersonal extends BaseEntity {
     usage: string;
 
   @Column({
+   nullable: false,
+   length: 32,
+  })
+  autoLightUtctimeOn: string;
+
+  @Column({
     nullable: false,
     length: 32,
   })
-  utcTime: string;
-
-  @OneToOne(() => Pet)
-  @JoinColumn({ name: 'pet_idx' })
-  pet: Pet;
+  autoLightUtctimeOff: string;
 }

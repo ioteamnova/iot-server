@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { IotPersonalController } from './iot_personal.controller';
-import { IotPersonalService } from './iot_personal.service';
+import { IotPersonalController } from './iot_board_personal.controller';
+import { IotPersonalService } from './iot_board_personal.service';
 import { IotBoardPersonal } from './entities/iot-board-personal.entity';
 import { IotBoardPersonalRepository } from './repositories/iot-board-personal.repository';
 import { IotNaturerecordRepository } from './repositories/iot-nature-record.repository';

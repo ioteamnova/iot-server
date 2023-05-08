@@ -94,28 +94,16 @@ export class IotBoardPersonalListDto {
   usage: string;
 
   @ApiProperty({
-    description: 'utc 시간 설정(피코 용도)',
-    default: '0',
+    description: '자동 조광기 켜지는 시간',
+    default: '00:00',
   })
-  utcTime: string;
-
-  @ApiProperty({
-    description: '펫 이름',
-    default: '펫 이름',
+   autoLightUtctimeOn: string;
+ 
+   @ApiProperty({
+    description: '자동 조광기 꺼지는 시간',
+    default: '00:00',
   })
-  name: string;
-
-  @ApiProperty({
-    description: '펫 타입',
-    default: '펫 타입',
-  })
-  type: string;
-
-  @ApiProperty({
-    description: '펫 성별',
-    default: '펫 성별',
-  })
-  gender: string;
+   autoLightUtctimeOff: string;
 
   @ApiProperty({
     description: '생성일',
@@ -138,8 +126,5 @@ export class IotBoardPersonalListDto {
     this.currentHumid2 = iotBoardPersonal.currentHumid2;
     this.maxHumid = iotBoardPersonal.maxHumid;
     this.minHumid = iotBoardPersonal.minHumid;
-    this.name = iotBoardPersonal.pet.name;
-    this.type = iotBoardPersonal.pet.type;
-    this.gender = iotBoardPersonal.pet.gender;
   }
 }
