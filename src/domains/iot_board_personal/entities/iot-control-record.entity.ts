@@ -6,7 +6,8 @@ import { Column, Entity, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
 import { SocialMethodType } from 'src/domains/auth/helpers/constants';
 
 @Entity()
-export class iot_nature_record extends BaseEntity {
+export class IotControlRecord extends BaseEntity {
+
   @Column({
     nullable: false,
     //length: 11,
@@ -14,17 +15,13 @@ export class iot_nature_record extends BaseEntity {
   boardIdx: number;
 
   @Column()
-  currentTemp: string;
+  light: boolean;
 
   @Column()
-  currentHumid: string;
+  waterpump: boolean;
 
   @Column()
-  current2Temp: string;
-
-  @Column()
-  current2Humid: string;
-
+  coolingfan: boolean;
 
   @Column()
   type: number; //1. auto, 2. passive

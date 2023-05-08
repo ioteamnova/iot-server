@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import DateUtils from 'src/utils/date-utils';
-import { Iot_board_personal } from '../entities/iot_board_personal.entity';
+import { IotBoardPersonal } from '../entities/iot-board-personal.entity';
 
 export class IotBoardPersonalListDto {
   @ApiProperty({
@@ -25,19 +25,19 @@ export class IotBoardPersonalListDto {
     description: '조명 자동화 체크',
     default: 'true',
   })
-  autochkLight: boolean;
+  autoChkLight: boolean;
 
   @ApiProperty({
     description: '온도 자동화 체크',
     default: 'true',
   })
-  autochkTemp: boolean;
+  autoChkTemp: boolean;
 
   @ApiProperty({
     description: '습도 자동화 체크',
     default: 'true',
   })
-  autochkHumid: boolean;
+  autoChkHumid: boolean;
 
   @ApiProperty({
     description: '현재 온도 1',
@@ -123,24 +123,23 @@ export class IotBoardPersonalListDto {
   })
   createdAt: Date;
 
-  constructor(iotboardpersonal: Iot_board_personal) {
-    this.idx = iotboardpersonal.idx;
-    this.cageName = iotboardpersonal.cageName;
-    this.currentLight = iotboardpersonal.currentLight;
-    this.autochkLight = iotboardpersonal.autochkLight;
-    this.autochkTemp = iotboardpersonal.autochkTemp;
-    this.autochkHumid = iotboardpersonal.autochkHumid;
-    this.currentTemp = iotboardpersonal.currentTemp;
-    this.currentTemp2 = iotboardpersonal.currentTemp2;
-
-    this.maxTemp = iotboardpersonal.maxTemp;
-    this.minTemp = iotboardpersonal.minTemp;
-    this.currentHumid = iotboardpersonal.currentHumid;
-    this.currentHumid2 = iotboardpersonal.currentHumid2;
-    this.maxHumid = iotboardpersonal.maxHumid;
-    this.minHumid = iotboardpersonal.minHumid;
-    this.name = iotboardpersonal.pet.name;
-    this.type = iotboardpersonal.pet.type;
-    this.gender = iotboardpersonal.pet.gender;
+  constructor(iotBoardPersonal: IotBoardPersonal) {
+    this.idx = iotBoardPersonal.idx;
+    this.cageName = iotBoardPersonal.cageName;
+    this.currentLight = iotBoardPersonal.currentLight;
+    this.autoChkLight = iotBoardPersonal.autoChkLight;
+    this.autoChkTemp = iotBoardPersonal.autoChkTemp;
+    this.autoChkHumid = iotBoardPersonal.autoChkHumid;
+    this.currentTemp = iotBoardPersonal.currentTemp;
+    this.currentTemp2 = iotBoardPersonal.currentTemp2;
+    this.maxTemp = iotBoardPersonal.maxTemp;
+    this.minTemp = iotBoardPersonal.minTemp;
+    this.currentHumid = iotBoardPersonal.currentHumid;
+    this.currentHumid2 = iotBoardPersonal.currentHumid2;
+    this.maxHumid = iotBoardPersonal.maxHumid;
+    this.minHumid = iotBoardPersonal.minHumid;
+    this.name = iotBoardPersonal.pet.name;
+    this.type = iotBoardPersonal.pet.type;
+    this.gender = iotBoardPersonal.pet.gender;
   }
 }

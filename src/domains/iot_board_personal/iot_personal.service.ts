@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between } from "typeorm";
 
-import { Iot_board_personal } from './entities/iot_board_personal.entity';
-import { IotBoardPersonalRepository } from './repositories/iot_board_personal.repository';
-import { IotNaturerecordRepository } from './repositories/iot_nature_record.repository';
-import { IotControlrecordRepository } from './repositories/iot_control_record.repository';
+import { IotBoardPersonal } from './entities/iot-board-personal.entity';
+import { IotBoardPersonalRepository } from './repositories/iot-board-personal.repository';
+import { IotNaturerecordRepository } from './repositories/iot-nature-record.repository';
+import { IotControlrecordRepository } from './repositories/iot-control-record.repository';
 import { Page, PageRequest } from 'src/core/page';
 import { IotBoardPersonalListDto } from './dtos/iot-board-personal-list.dto';
 import { IotNaturePageRequest } from './dtos/iot-nature-page';
@@ -39,9 +39,9 @@ export class IotPersonalService {
     ) {
       console.log(pageRequest);
 
-      const [iotpersonal, totalCount] = 
-        await this.iotBoardPersonalRepository.findAndCountByUidIdx(userIdx, pageRequest);
-        const items = iotpersonal.map((board) => new IotBoardPersonalListDto(board));
+      const [iotBoards, totalCount] = 
+        await this.iotBoardPersonalRepository.findAndCountByUserIdx(userIdx, pageRequest);
+        const items = iotBoards.map((board) => new IotBoardPersonalListDto(board));
       return new Page<IotBoardPersonalListDto>(totalCount, items, pageRequest);
     }
     
@@ -53,16 +53,14 @@ export class IotPersonalService {
    async getNatureList(
     pageRequest: IotNaturePageRequest,
   ) {
-    // const [iotnaturel, totalCount] = 
-    //   await this.iotNaturerecordRepository.findAndCountByUidIdx(pageRequest, boardIdx, date);
-    //   console.log(iotnaturel);
+
 
     let firstdata = new Date(pageRequest.date);
     let secconddata = new Date(pageRequest.date);
     secconddata.setHours(secconddata.getHours() + 24);
     secconddata.setSeconds(secconddata.getSeconds() - 1);
-    console.log('date:::', new Date(firstdata));
-    console.log('date2:::', new Date(secconddata));
+    //console.log('date:::', new Date(firstdata));
+    //console.log('date2:::', new Date(secconddata));
 
     const iotnaturel = await this.iotNaturerecordRepository.find({
       where: {
@@ -74,9 +72,9 @@ export class IotPersonalService {
       }
       
     })
-    console.log("iotnaturel ::: ");
-    console.log(iotnaturel);
-    console.log(iotnaturel.length);
+    //console.log("iotnaturel ::: ");
+    //console.log(iotnaturel);
+    //console.log(iotnaturel.length);
 
 
     //온도와 습도 나눠서 dto만들고 조건에 맞춰서 변경하기. 
@@ -107,8 +105,8 @@ export class IotPersonalService {
       let secconddata = new Date(pageRequest.date);
       secconddata.setHours(secconddata.getHours() + 24);
       secconddata.setSeconds(secconddata.getSeconds() - 1);
-      console.log('date:::', new Date(firstdata));
-      console.log('date2:::', new Date(secconddata));
+      //console.log('date:::', new Date(firstdata));
+      //console.log('date2:::', new Date(secconddata));
   
       const iotcontrol = await this.iotControlrecordRepository.find({
         where: {
@@ -120,9 +118,9 @@ export class IotPersonalService {
         }
         
       })
-      console.log("iotcontrol ::: ");
-      console.log(iotcontrol);
-      console.log(iotcontrol.length);
+      //console.log("iotcontrol ::: ");
+      //console.log(iotcontrol);
+      //console.log(iotcontrol.length);
   
   
       //온도와 습도 나눠서 dto만들고 조건에 맞춰서 변경하기. 

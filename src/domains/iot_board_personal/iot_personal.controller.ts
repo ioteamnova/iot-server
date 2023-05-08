@@ -35,7 +35,7 @@ export class IotPersonalController {
        // private authService: AuthService,
       ) {}
     
-    //보드리스트
+    //보드리스트 : 사용 보류
     // @ApiOperation({
     //   summary: '내 보드 정보 리스트',
     //   description: '내가 등록한 보드의 리스트를 가져온다.',

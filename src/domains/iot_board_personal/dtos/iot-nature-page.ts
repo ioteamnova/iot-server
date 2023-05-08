@@ -7,7 +7,6 @@ export class IotNaturePageRequest extends PageRequest {
 
   @ApiProperty({
     description: '보드 인덱스',
-    //enum: ['default', 'week', 'month', 'year'],
     default: 66,
   })
   boardIdx: number;

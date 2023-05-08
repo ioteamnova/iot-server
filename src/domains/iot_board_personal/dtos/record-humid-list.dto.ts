@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import DateUtils from 'src/utils/date-utils';
-import { iot_nature_record } from '../entities/iot_nature_record.entity';
+import { IotNatureRecord } from '../entities/iot-nature-record.entity';
 
 export class RecordHumidListDto {
   @ApiProperty({
@@ -9,29 +9,17 @@ export class RecordHumidListDto {
   })
   idx: number;
 
-  // @ApiProperty({
-  //   description: '현재 온도 1',
-  //   default: '0.0',
-  // })
-  // currentTemp: string;
-
   @ApiProperty({
     description: '현재 습도 1',
     default: 'true',
   })
   currentHumid: string;
 
-  // @ApiProperty({
-  //   description: '현재 온도 2',
-  //   default: 'true',
-  // })
-  // current2Temp: string;
-
   @ApiProperty({
     description: '현재 습도 2',
     default: 'true',
   })
-  current2Humid: string;
+  currentHumid2: string;
 
   @ApiProperty({
     description: '자동, 수동 여부 1. auto, 2. passive',
@@ -45,12 +33,10 @@ export class RecordHumidListDto {
   })
   createdAt: Date;
 
-  constructor(iot_nature_record: iot_nature_record) {
-    this.idx = iot_nature_record.idx;
-    //this.currentTemp = iot_nature_record.currentTemp;
-    this.currentHumid = iot_nature_record.currentHumid;
-    //this.current2Temp = iot_nature_record.current2Temp;
-    this.current2Humid = iot_nature_record.current2Humid;
-    this.type = iot_nature_record.type;
+  constructor(iotNatureRecord: IotNatureRecord) {
+    this.idx = iotNatureRecord.idx;
+    this.currentHumid = iotNatureRecord.currentHumid;
+    this.currentHumid2 = iotNatureRecord.currentHumid2;
+    this.type = iotNatureRecord.type;
   }
 }
