@@ -54,39 +54,44 @@ export class IotPersonalService {
     pageRequest: IotNaturePageRequest,
   ) {
 
-
-    let firstdata = new Date(pageRequest.date);
-    let secconddata = new Date(pageRequest.date);
-    secconddata.setHours(secconddata.getHours() + 24);
-    secconddata.setSeconds(secconddata.getSeconds() - 1);
-    //console.log('date:::', new Date(firstdata));
-    //console.log('date2:::', new Date(secconddata));
+    //선택한 날짜의 시간을 세팅한다.
+    const timelist = await this.setTime(pageRequest.date);
 
     const iotnaturel = await this.iotNaturerecordRepository.find({
       where: {
         boardIdx: pageRequest.boardIdx,
         createdAt: Between(
-          new Date(firstdata), 
-          new Date(secconddata)
+          new Date(timelist.firstdata), 
+          new Date(timelist.secconddata)
         ),
       }
-      
     })
-    //console.log("iotnaturel ::: ");
-    //console.log(iotnaturel);
-    //console.log(iotnaturel.length);
-
 
     //온도와 습도 나눠서 dto만들고 조건에 맞춰서 변경하기. 
-    if(pageRequest.sensor == "temp"){
-      const items = iotnaturel.map((nature) => new RecordTempListDto(nature));
-      return new Page<RecordTempListDto>(iotnaturel.length, items, pageRequest);
-    }else if(pageRequest.sensor == "humid"){
-      const items = iotnaturel.map((nature) => new RecordHumidListDto(nature));
-      return new Page<RecordHumidListDto>(iotnaturel.length, items, pageRequest);
-    }else{
-      const items = iotnaturel.map((nature) => new RecordNatureListDto(nature));
-      return new Page<RecordNatureListDto>(iotnaturel.length, items, pageRequest);
+    // if(pageRequest.sensor == "temp"){
+    //   const items = iotnaturel.map((nature) => new RecordTempListDto(nature));
+    //   return new Page<RecordTempListDto>(iotnaturel.length, items, pageRequest);
+    // }else if(pageRequest.sensor == "humid"){
+    //   const items = iotnaturel.map((nature) => new RecordHumidListDto(nature));
+    //   return new Page<RecordHumidListDto>(iotnaturel.length, items, pageRequest);
+    // }else{
+    //   const items = iotnaturel.map((nature) => new RecordNatureListDto(nature));
+    //   return new Page<RecordNatureListDto>(iotnaturel.length, items, pageRequest);
+    // }
+
+    let items;
+    switch(pageRequest.sensor) {
+      case "temp":
+        items = iotnaturel.map((nature) => new RecordTempListDto(nature));
+        return new Page<RecordTempListDto>(iotnaturel.length, items, pageRequest);
+        break;
+      case "humid":
+        items = iotnaturel.map((nature) => new RecordHumidListDto(nature));
+        return new Page<RecordHumidListDto>(iotnaturel.length, items, pageRequest);
+        break;
+      default:
+        items = iotnaturel.map((nature) => new RecordNatureListDto(nature));
+        return new Page<RecordNatureListDto>(iotnaturel.length, items, pageRequest);
     }
   }
 
@@ -101,44 +106,73 @@ export class IotPersonalService {
     pageRequest: IotControlPageRequest,
     ) {
 
-      let firstdata = new Date(pageRequest.date);
-      let secconddata = new Date(pageRequest.date);
-      secconddata.setHours(secconddata.getHours() + 24);
-      secconddata.setSeconds(secconddata.getSeconds() - 1);
-      //console.log('date:::', new Date(firstdata));
-      //console.log('date2:::', new Date(secconddata));
+      //선택한 날짜의 시간을 세팅한다.
+      const timelist = await this.setTime(pageRequest.date);
   
       const iotcontrol = await this.iotControlrecordRepository.find({
         where: {
           boardIdx: pageRequest.boardIdx,
           createdAt: Between(
-            new Date(firstdata), 
-            new Date(secconddata)
+            new Date(timelist.firstdata), 
+            new Date(timelist.secconddata)
           ),
         }
-        
       })
-      //console.log("iotcontrol ::: ");
-      //console.log(iotcontrol);
-      //console.log(iotcontrol.length);
-  
   
       //온도와 습도 나눠서 dto만들고 조건에 맞춰서 변경하기. 
-      if(pageRequest.sensor == "light"){
-        const items = iotcontrol.map((control) => new RecordLightListDto(control));
-        return new Page<RecordLightListDto>(iotcontrol.length, items, pageRequest);
-      }else if(pageRequest.sensor == "waterpump"){
-        const items = iotcontrol.map((control) => new RecordWaterpumpListDto(control));
-        return new Page<RecordWaterpumpListDto>(iotcontrol.length, items, pageRequest);
-      }else if(pageRequest.sensor == "coolingfan"){
-        const items = iotcontrol.map((control) => new RecordcoolingfanListDto(control));
-        return new Page<RecordcoolingfanListDto>(iotcontrol.length, items, pageRequest);
-      }else{
-        const items = iotcontrol.map((control) => new RecordControlListDto(control));
-        return new Page<RecordControlListDto>(iotcontrol.length, items, pageRequest);
-      }
-}
+      // if(pageRequest.sensor == "light"){
+      //   const items = iotcontrol.map((control) => new RecordLightListDto(control));
+      //   return new Page<RecordLightListDto>(iotcontrol.length, items, pageRequest);
+      // }else if(pageRequest.sensor == "waterpump"){
+      //   const items = iotcontrol.map((control) => new RecordWaterpumpListDto(control));
+      //   return new Page<RecordWaterpumpListDto>(iotcontrol.length, items, pageRequest);
+      // }else if(pageRequest.sensor == "coolingfan"){
+      //   const items = iotcontrol.map((control) => new RecordcoolingfanListDto(control));
+      //   return new Page<RecordcoolingfanListDto>(iotcontrol.length, items, pageRequest);
+      // }else{
+      //   const items = iotcontrol.map((control) => new RecordControlListDto(control));
+      //   return new Page<RecordControlListDto>(iotcontrol.length, items, pageRequest);
+      // }
 
+      let items;
+      switch(pageRequest.sensor) {
+        case "light":
+          items = iotcontrol.map((control) => new RecordLightListDto(control));
+          return new Page<RecordLightListDto>(iotcontrol.length, items, pageRequest);
+          break;
+        case "waterpump":
+          items = iotcontrol.map((control) => new RecordWaterpumpListDto(control));
+          return new Page<RecordWaterpumpListDto>(iotcontrol.length, items, pageRequest);
+          break;
+        case "coolingfan":
+          items = iotcontrol.map((control) => new RecordcoolingfanListDto(control));
+          return new Page<RecordcoolingfanListDto>(iotcontrol.length, items, pageRequest);
+          break;
+        default:
+          items = iotcontrol.map((control) => new RecordControlListDto(control));
+          return new Page<RecordControlListDto>(iotcontrol.length, items, pageRequest);
+      }
+
+
+    }
+
+
+
+
+    //선택한 날짜의 시간 기준 정하는 함수
+    async setTime(todaydate: Date) {
+      const firstdata = new Date(todaydate);
+      let secconddata = new Date(todaydate);
+      secconddata.setHours(secconddata.getHours() + 24);
+      secconddata.setSeconds(secconddata.getSeconds() - 1);
+
+      let timelist = {
+        firstdata : firstdata,
+        secconddata : secconddata
+      }
+
+      return timelist;
+    }
 }
 
 

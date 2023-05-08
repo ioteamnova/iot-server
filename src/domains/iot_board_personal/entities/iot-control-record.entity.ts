@@ -4,6 +4,7 @@ import BaseEntity from 'src/core/entity/base.entity';
 import { Column, Entity, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
 //import { CreateUserDto } from '../dtos/create-user.dto';
 import { SocialMethodType } from 'src/domains/auth/helpers/constants';
+import { IsType } from './enums';
 
 @Entity()
 export class IotControlRecord extends BaseEntity {
@@ -23,6 +24,6 @@ export class IotControlRecord extends BaseEntity {
   @Column()
   coolingfan: boolean;
 
-  @Column()
+  @Column({ type: 'enum', name: 'type', enum: IsType })
   type: number; //1. auto, 2. passive
 }
