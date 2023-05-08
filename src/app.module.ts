@@ -35,11 +35,8 @@ import { IotPersonalModule } from './domains/iot_board_personal/iot_board_person
     UserModule,
     AuthModule,
     DiaryModule,
-<<<<<<< HEAD
     ScheduleModule,
-=======
     IotPersonalModule,
->>>>>>> feature/iot
   ],
   controllers: [AppController],
   providers: [AppService],
