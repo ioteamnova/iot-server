@@ -1,10 +1,7 @@
-import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { PageRequest } from 'src/core/page';
-import DateUtils from 'src/utils/date-utils';
 
 export class IotNaturePageRequest extends PageRequest {
-
-
   @ApiProperty({
     description: '보드 인덱스',
     default: 66,
@@ -23,7 +20,7 @@ export class IotNaturePageRequest extends PageRequest {
 
   @ApiProperty({
     description: '선택한 날짜',
-    default: "2023-05-07",
+    default: '2023-05-07',
   })
   date: Date;
 }

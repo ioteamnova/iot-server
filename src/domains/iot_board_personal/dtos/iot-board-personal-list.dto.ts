@@ -97,13 +97,13 @@ export class IotBoardPersonalListDto {
     description: '자동 조광기 켜지는 시간',
     default: '00:00',
   })
-   autoLightUtctimeOn: string;
- 
-   @ApiProperty({
+  autoLightUtctimeOn: string;
+
+  @ApiProperty({
     description: '자동 조광기 꺼지는 시간',
     default: '00:00',
   })
-   autoLightUtctimeOff: string;
+  autoLightUtctimeOff: string;
 
   @ApiProperty({
     description: '생성일',
