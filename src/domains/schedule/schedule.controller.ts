@@ -111,4 +111,13 @@ export class ScheduleController {
     await this.scheduleService.remove(scheduleIdx);
     return HttpResponse.ok(res);
   }
+
+  @Post('/token')
+  async receiveToken(@Res() res, @Body() token: string) {
+    const result = await this.scheduleService.sendPushNotificationToDevice(
+      token,
+    );
+    console.log('fcmToken::', token);
+    return HttpResponse.ok(res, result);
+  }
 }

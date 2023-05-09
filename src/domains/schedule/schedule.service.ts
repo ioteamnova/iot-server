@@ -7,13 +7,22 @@ import { Page, PageRequest } from 'src/core/page';
 import { UserRepository } from '../user/repositories/user.repository';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
 import { ScheduleListDto } from './dtos/schedule-list.dto';
+import * as path from 'path';
+import * as admin from 'firebase-admin';
+import { serviceAccount } from '../../../firebase-adminsdk.json';
 
 @Injectable()
 export class ScheduleService {
   constructor(
     private scheduleRepository: ScheduleRepository,
     private userRepository: UserRepository,
-  ) {}
+    private readonly fcm: admin.messaging.Messaging,
+  ) {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+    this.fcm = admin.messaging();
+  }
   async create(dto: CreateScheduleDto, userIdx: number) {
     const user = await this.userRepository.findByUserIdx(userIdx);
     if (!user) {
@@ -63,5 +72,18 @@ export class ScheduleService {
     }
 
     await this.scheduleRepository.softDelete(scheduleIdx);
+  }
+
+  async sendPushNotificationToDevice(fcmToken: string) {
+    const payload = {
+      notification: {
+        title: '제목입니다.',
+        body: '메세지입니다.',
+        click_action: 'FLUTTER_NOTIFICATION_CLICK',
+        icon: 'https://reptimate.s3.ap-northeast-2.amazonaws.com/reptimate_logo.png',
+      },
+    };
+
+    await this.fcm.sendToDevice(fcmToken, payload);
   }
 }
