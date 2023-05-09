@@ -1,14 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
-import DateUtils from 'src/utils/date-utils';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IotNatureRecord } from '../entities/iot-nature-record.entity';
+import { CreateNatureRecordDto } from './create-nature-record.dto';
 
-export class RecordNatureListDto {
-  @ApiProperty({
-    description: '온습도 리스트 인덱스',
-    default: 1,
-  })
-  idx: number;
-
+export class RecordNatureListDto extends PartialType(CreateNatureRecordDto) {
   @ApiProperty({
     description: '현재 온도 1',
     default: '0.0',
@@ -33,19 +27,8 @@ export class RecordNatureListDto {
   })
   currentHumid2: string;
 
-  @ApiProperty({
-    description: '자동, 수동 여부 1. auto, 2. passive',
-    default: 1,
-  })
-  type: number;
-
-  @ApiProperty({
-    description: '생성일',
-    default: DateUtils.momentNow(),
-  })
-  createdAt: Date;
-
   constructor(iotNatureRecord: IotNatureRecord) {
+    super();
     this.idx = iotNatureRecord.idx;
     this.currentTemp = iotNatureRecord.currentTemp;
     this.currentHumid = iotNatureRecord.currentHumid;

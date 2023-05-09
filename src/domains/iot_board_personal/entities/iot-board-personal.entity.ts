@@ -28,21 +28,25 @@ export class IotBoardPersonal extends BaseEntity {
 
   @Column()
   currentTemp: string;
+
   @Column()
   currentTemp2: string;
 
   @Column()
   maxTemp: string;
+
   @Column()
   minTemp: string;
 
   @Column()
   currentHumid: string;
+
   @Column()
   currentHumid2: string;
 
   @Column()
   maxHumid: string;
+
   @Column()
   minHumid: string;
 

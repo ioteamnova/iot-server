@@ -29,6 +29,8 @@ export class IotPersonalService {
    * @returns Iot_board_personal
    */
   async getBoardList(userIdx: number, pageRequest: PageRequest) {
+    console.log(pageRequest);
+
     const [iotBoards, totalCount] =
       await this.iotBoardPersonalRepository.findAndCountByUserIdx(
         userIdx,
@@ -51,23 +53,11 @@ export class IotPersonalService {
       where: {
         boardIdx: pageRequest.boardIdx,
         createdAt: Between(
-          new Date(timelist.firstdata),
-          new Date(timelist.secconddata),
+          new Date(timelist.firstData),
+          new Date(timelist.secondData),
         ),
       },
     });
-
-    //온도와 습도 나눠서 dto만들고 조건에 맞춰서 변경하기.
-    // if(pageRequest.sensor == "temp"){
-    //   const items = iotnaturel.map((nature) => new RecordTempListDto(nature));
-    //   return new Page<RecordTempListDto>(iotnaturel.length, items, pageRequest);
-    // }else if(pageRequest.sensor == "humid"){
-    //   const items = iotnaturel.map((nature) => new RecordHumidListDto(nature));
-    //   return new Page<RecordHumidListDto>(iotnaturel.length, items, pageRequest);
-    // }else{
-    //   const items = iotnaturel.map((nature) => new RecordNatureListDto(nature));
-    //   return new Page<RecordNatureListDto>(iotnaturel.length, items, pageRequest);
-    // }
 
     let items;
     switch (pageRequest.sensor) {
@@ -110,26 +100,11 @@ export class IotPersonalService {
       where: {
         boardIdx: pageRequest.boardIdx,
         createdAt: Between(
-          new Date(timelist.firstdata),
-          new Date(timelist.secconddata),
+          new Date(timelist.firstData),
+          new Date(timelist.secondData),
         ),
       },
     });
-
-    //온도와 습도 나눠서 dto만들고 조건에 맞춰서 변경하기.
-    // if(pageRequest.sensor == "light"){
-    //   const items = iotcontrol.map((control) => new RecordLightListDto(control));
-    //   return new Page<RecordLightListDto>(iotcontrol.length, items, pageRequest);
-    // }else if(pageRequest.sensor == "waterpump"){
-    //   const items = iotcontrol.map((control) => new RecordWaterpumpListDto(control));
-    //   return new Page<RecordWaterpumpListDto>(iotcontrol.length, items, pageRequest);
-    // }else if(pageRequest.sensor == "coolingfan"){
-    //   const items = iotcontrol.map((control) => new RecordcoolingfanListDto(control));
-    //   return new Page<RecordcoolingfanListDto>(iotcontrol.length, items, pageRequest);
-    // }else{
-    //   const items = iotcontrol.map((control) => new RecordControlListDto(control));
-    //   return new Page<RecordControlListDto>(iotcontrol.length, items, pageRequest);
-    // }
 
     let items;
     switch (pageRequest.sensor) {
@@ -173,14 +148,14 @@ export class IotPersonalService {
 
   //선택한 날짜의 시간 기준 정하는 함수
   async setTime(todaydate: Date) {
-    const firstdata = new Date(todaydate);
-    let secconddata = new Date(todaydate);
-    secconddata.setHours(secconddata.getHours() + 24);
-    secconddata.setSeconds(secconddata.getSeconds() - 1);
+    const firstData = new Date(todaydate);
+    const secondData = new Date(todaydate);
+    secondData.setHours(secondData.getHours() + 24);
+    secondData.setSeconds(secondData.getSeconds() - 1);
 
-    let timelist = {
-      firstdata: firstdata,
-      secconddata: secconddata,
+    const timelist = {
+      firstData: firstData,
+      secondData: secondData,
     };
 
     return timelist;

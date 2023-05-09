@@ -1,6 +1,6 @@
 import BaseEntity from 'src/core/entity/base.entity';
 import { Column, Entity } from 'typeorm';
-import { IsType } from './enums';
+import { ControlType } from './constants';
 
 @Entity()
 export class IotControlRecord extends BaseEntity {
@@ -19,6 +19,6 @@ export class IotControlRecord extends BaseEntity {
   @Column()
   coolingfan: boolean;
 
-  @Column({ type: 'enum', name: 'type', enum: IsType })
+  @Column({ type: 'enum', name: 'type', enum: ControlType })
   type: number; //1. auto, 2. passive
 }
