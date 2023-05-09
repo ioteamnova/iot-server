@@ -61,18 +61,6 @@ export class IotPersonalService {
       },
     });
 
-    //온도와 습도 나눠서 dto만들고 조건에 맞춰서 변경하기.
-    // if(pageRequest.sensor == "temp"){
-    //   const items = iotnaturel.map((nature) => new RecordTempListDto(nature));
-    //   return new Page<RecordTempListDto>(iotnaturel.length, items, pageRequest);
-    // }else if(pageRequest.sensor == "humid"){
-    //   const items = iotnaturel.map((nature) => new RecordHumidListDto(nature));
-    //   return new Page<RecordHumidListDto>(iotnaturel.length, items, pageRequest);
-    // }else{
-    //   const items = iotnaturel.map((nature) => new RecordNatureListDto(nature));
-    //   return new Page<RecordNatureListDto>(iotnaturel.length, items, pageRequest);
-    // }
-
     let items;
     switch (pageRequest.sensor) {
       case 'temp':
@@ -119,21 +107,6 @@ export class IotPersonalService {
         ),
       },
     });
-
-    //온도와 습도 나눠서 dto만들고 조건에 맞춰서 변경하기.
-    // if(pageRequest.sensor == "light"){
-    //   const items = iotcontrol.map((control) => new RecordLightListDto(control));
-    //   return new Page<RecordLightListDto>(iotcontrol.length, items, pageRequest);
-    // }else if(pageRequest.sensor == "waterpump"){
-    //   const items = iotcontrol.map((control) => new RecordWaterpumpListDto(control));
-    //   return new Page<RecordWaterpumpListDto>(iotcontrol.length, items, pageRequest);
-    // }else if(pageRequest.sensor == "coolingfan"){
-    //   const items = iotcontrol.map((control) => new RecordcoolingfanListDto(control));
-    //   return new Page<RecordcoolingfanListDto>(iotcontrol.length, items, pageRequest);
-    // }else{
-    //   const items = iotcontrol.map((control) => new RecordControlListDto(control));
-    //   return new Page<RecordControlListDto>(iotcontrol.length, items, pageRequest);
-    // }
 
     let items;
     switch (pageRequest.sensor) {
