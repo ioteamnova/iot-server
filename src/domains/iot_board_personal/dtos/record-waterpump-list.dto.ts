@@ -12,7 +12,7 @@ export class RecordWaterpumpListDto {
   @ApiProperty({
     description: '워터펌프 현황',
     default: 1,
-  })  
+  })
   waterpump: boolean;
 
   @ApiProperty({

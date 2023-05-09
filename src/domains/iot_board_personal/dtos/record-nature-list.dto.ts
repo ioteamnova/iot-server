@@ -48,7 +48,7 @@ export class RecordNatureListDto {
   constructor(iotNatureRecord: IotNatureRecord) {
     this.idx = iotNatureRecord.idx;
     this.currentTemp = iotNatureRecord.currentTemp;
-   this.currentHumid = iotNatureRecord.currentHumid;
+    this.currentHumid = iotNatureRecord.currentHumid;
     this.currentTemp2 = iotNatureRecord.currentTemp2;
     this.currentHumid2 = iotNatureRecord.currentHumid2;
     this.type = iotNatureRecord.type;
