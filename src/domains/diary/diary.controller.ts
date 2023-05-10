@@ -80,13 +80,8 @@ export class DiaryController {
     @AuthUser() user: User,
     @Query() pageRequest: PageRequest,
   ) {
-    const [pets, totalCount] = await this.diaryService.findAll(
-      user.idx,
-      pageRequest,
-    );
-    const items = pets.map((pet: Pet) => new PetListDto(pet));
-    const result = new Page<PetListDto>(totalCount, items, pageRequest);
-    return HttpResponse.ok(res, result);
+    const pets = await this.diaryService.findAllPets(user.idx, pageRequest);
+    return HttpResponse.ok(res, pets);
   }
 
   @ApiOperation({
@@ -109,7 +104,7 @@ export class DiaryController {
     @Body() dto: UpdatePetDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    const pet = await this.diaryService.update(petIdx, dto, file);
+    const pet = await this.diaryService.updatePet(petIdx, dto, file);
     return HttpResponse.ok(res, pet);
   }
 

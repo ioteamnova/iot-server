@@ -61,7 +61,12 @@ export const HttpErrorConstants = {
 
   CANNOT_FIND_WEIGHT: {
     errorCode: 'CANNOT_FIND_WEIGHT',
-    message: '등록한 몸무게 정보가 없습니다.',
+    message: '등록한 체중 정보가 없습니다.',
+  } as HttpErrorFormat,
+
+  CANNOT_FIND_SCHEDULE: {
+    errorCode: 'CANNOT_FIND_SCHEDULE',
+    message: '등록한 스케줄링이 없습니다.',
   } as HttpErrorFormat,
 
   AUTH_LINK_EXPIRED: {

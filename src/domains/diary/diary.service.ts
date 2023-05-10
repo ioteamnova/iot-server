@@ -26,10 +26,13 @@ import { PetWeightRepository } from './repositories/pet-weight.repository';
 import { PetWeightListDto } from './dtos/pet-weight-list.dto';
 import { UpdatePetWeightDto } from './dtos/update-pet-weight.dto';
 import { PetWeightPageRequest } from './dtos/pet-weight-page';
+import { PetListDto } from './dtos/pet-list.dto';
+import { UserRepository } from '../user/repositories/user.repository';
 
 @Injectable()
 export class DiaryService {
   constructor(
+    private userRepository: UserRepository,
     private petRepository: PetRepository,
     private diaryRepository: DiaryRepository,
     private diaryImageRepository: DiaryImageRepository,
@@ -64,16 +67,22 @@ export class DiaryService {
    * @param pageRequest 페이징객체
    * @returns 반려동물 목록
    */
-  async findAll(
+  async findAllPets(
     userIdx: number,
     pageRequest: PageRequest,
-  ): Promise<[Pet[], number]> {
-    const pet = await this.petRepository.findAndCountByUserIdx(
+  ): Promise<Page<PetListDto>> {
+    const user = await this.userRepository.findByUserIdx(userIdx);
+    if (!user) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
+    }
+
+    const [pets, totalCount] = await this.petRepository.findAndCountByUserIdx(
       userIdx,
       pageRequest,
     );
 
-    return pet;
+    const items = pets.map((pet: Pet) => new PetListDto(pet));
+    return new Page<PetListDto>(totalCount, items, pageRequest);
   }
 
   /**
@@ -83,7 +92,11 @@ export class DiaryService {
    * @param file 이미지 파일
    * @returns 반려동물 정보
    */
-  async update(petIdx: number, dto: UpdatePetDto, file: Express.Multer.File) {
+  async updatePet(
+    petIdx: number,
+    dto: UpdatePetDto,
+    file: Express.Multer.File,
+  ) {
     const pet = await this.petRepository.findByPetIdx(petIdx);
 
     if (!pet) {
@@ -336,7 +349,9 @@ export class DiaryService {
     }
 
     if (pageRequest.filter === 'year') {
-      const result = await this.petWeightRepository.getAverageByPetIdx(petIdx);
+      const result = await this.petWeightRepository.getMonthAverageByPetIdx(
+        petIdx,
+      );
       return result;
     }
     const [weights, totalCount] =

@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Between } from 'typeorm';
-
 import { IotBoardPersonalRepository } from './repositories/iot-board-personal.repository';
 import { IotNaturerecordRepository } from './repositories/iot-nature-record.repository';
 import { IotControlrecordRepository } from './repositories/iot-control-record.repository';
 import { Page, PageRequest } from 'src/core/page';
 import { IotBoardPersonalListDto } from './dtos/iot-board-personal-list.dto';
 import { IotNaturePageRequest } from './dtos/iot-nature-page';
-
 import { RecordTempListDto } from './dtos/record-temp-list.dto';
 import { RecordHumidListDto } from './dtos/record-humid-list.dto';
 import { RecordNatureListDto } from './dtos/record-nature-list.dto';
@@ -23,7 +21,7 @@ export class IotPersonalService {
     private iotBoardPersonalRepository: IotBoardPersonalRepository,
     private iotNaturerecordRepository: IotNaturerecordRepository,
     private iotControlrecordRepository: IotControlrecordRepository,
-  ) { }
+  ) {}
 
   /**
    *  보드 리스트
@@ -55,8 +53,8 @@ export class IotPersonalService {
       where: {
         boardIdx: pageRequest.boardIdx,
         createdAt: Between(
-          new Date(timelist.firstdata),
-          new Date(timelist.secconddata),
+          new Date(timelist.firstData),
+          new Date(timelist.secondData),
         ),
       },
     });
@@ -102,8 +100,8 @@ export class IotPersonalService {
       where: {
         boardIdx: pageRequest.boardIdx,
         createdAt: Between(
-          new Date(timelist.firstdata),
-          new Date(timelist.secconddata),
+          new Date(timelist.firstData),
+          new Date(timelist.secondData),
         ),
       },
     });
@@ -150,14 +148,14 @@ export class IotPersonalService {
 
   //선택한 날짜의 시간 기준 정하는 함수
   async setTime(todaydate: Date) {
-    const firstdata = new Date(todaydate);
-    const secconddata = new Date(todaydate);
-    secconddata.setHours(secconddata.getHours() + 24);
-    secconddata.setSeconds(secconddata.getSeconds() - 1);
+    const firstData = new Date(todaydate);
+    const secondData = new Date(todaydate);
+    secondData.setHours(secondData.getHours() + 24);
+    secondData.setSeconds(secondData.getSeconds() - 1);
 
     const timelist = {
-      firstdata: firstdata,
-      secconddata: secconddata,
+      firstData: firstData,
+      secondData: secondData,
     };
 
     return timelist;

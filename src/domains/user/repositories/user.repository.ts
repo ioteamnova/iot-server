@@ -21,4 +21,13 @@ export class UserRepository extends Repository<User> {
     });
     return existNickname;
   }
+
+  async findByUserIdx(userIdx: number): Promise<User> {
+    const user = await this.findOne({
+      where: {
+        idx: userIdx,
+      },
+    });
+    return user;
+  }
 }
