@@ -1,5 +1,5 @@
 import BaseEntity from 'src/core/entity/base.entity';
-import { Column, Entity, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 
 @Entity()
 export class IotBoardPersonal extends BaseEntity {
