@@ -6,7 +6,6 @@ import { IsType } from './enums';
 export class IotControlRecord extends BaseEntity {
   @Column({
     nullable: false,
-    //length: 11,
   })
   boardIdx: number;
 
