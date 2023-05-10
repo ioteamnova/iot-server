@@ -2,18 +2,13 @@ import { UserService } from './../user/user.service';
 import { validatePassword } from './../../utils/password.utils';
 import { HttpErrorConstants } from './../../core/http/http-error-objects';
 import { UserRepository } from './../user/repositories/user.repository';
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
 import { SocialLoginUserDto } from './dtos/social-login-user.dto';
 import { SocialMethodType } from './helpers/constants';
 import { User } from '../user/entities/user.entity';
-import { google, Auth } from 'googleapis';
 import { LoginResponseDto } from './dtos/login-response.dto';
 
 @Injectable()
@@ -45,6 +40,7 @@ export class AuthService {
     const accessToken = this.jwtService.sign(payload);
     return {
       accessToken: accessToken,
+      idx: user.idx,
     };
   }
 
@@ -81,6 +77,7 @@ export class AuthService {
     const accessToken = await this.generateAccessToken(user.idx);
     return {
       accessToken: accessToken,
+      idx: user.idx,
     };
   }
 
@@ -110,7 +107,7 @@ export class AuthService {
     });
 
     if (user) {
-      throw new ConflictException(HttpErrorConstants.EXIST_EMAIL);
+      return user;
     }
 
     const nickname = userInfoFromKakao.data.properties.nickname;
@@ -137,7 +134,7 @@ export class AuthService {
       },
     });
     if (user) {
-      throw new ConflictException(HttpErrorConstants.EXIST_EMAIL);
+      return user;
     }
 
     const googleUser = await this.userService.createSocialUser(

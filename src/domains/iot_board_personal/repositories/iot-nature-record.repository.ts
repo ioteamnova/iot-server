@@ -3,4 +3,4 @@ import { Repository } from 'typeorm';
 import { IotNatureRecord } from '../entities/iot-nature-record.entity';
 
 @CustomRepository(IotNatureRecord)
-export class IotNaturerecordRepository extends Repository<IotNatureRecord> { }
+export class IotNaturerecordRepository extends Repository<IotNatureRecord> {}

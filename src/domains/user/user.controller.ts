@@ -75,7 +75,6 @@ export class UserController {
     const signupVerifyToken = await this.userService.sendMemberJoinEmail(
       dto.email,
     );
-    console.log('signupVerifyToken:::', signupVerifyToken);
     return HttpResponse.ok(res, signupVerifyToken);
   }
 

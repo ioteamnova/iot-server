@@ -23,3 +23,6 @@ package-lock.json
 
 # test code file
 *.spec.ts
+
+#firebase-adminsdk
+firebase-adminsdk.json

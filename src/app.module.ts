@@ -5,10 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { User } from './domains/user/entities/user.entity';
 import { UserModule } from './domains/user/user.module';
 import { LoggerMiddleware } from './core/middlewares/logger.middleware';
 import { DiaryModule } from './domains/diary/diary.module';
+import { ScheduleModule } from './domains/schedule/schedule.module';
 import { IotPersonalModule } from './domains/iot_board_personal/iot_board_personal.module';
 
 @Module({
@@ -35,6 +35,7 @@ import { IotPersonalModule } from './domains/iot_board_personal/iot_board_person
     UserModule,
     AuthModule,
     DiaryModule,
+    ScheduleModule,
     IotPersonalModule,
   ],
   controllers: [AppController],
