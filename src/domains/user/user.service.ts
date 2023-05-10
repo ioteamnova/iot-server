@@ -1,4 +1,3 @@
-import { logger } from './../../utils/logger';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
 import {
   ConflictException,
@@ -14,7 +13,6 @@ import * as uuid from 'uuid';
 import { EmailService } from '../email/email.service';
 import DeleteUserDto from './dtos/delete-user.dto';
 import { hashPassword, validatePassword } from 'src/utils/password.utils';
-import { S3 } from 'aws-sdk';
 import { asyncUploadToS3, S3FolderName } from 'src/utils/s3-utils';
 import DateUtils from 'src/utils/date-utils';
 import { SocialMethodType } from '../auth/helpers/constants';

@@ -10,7 +10,7 @@ export class LoginUserDto {
   })
   @IsNotEmpty()
   @IsEmail()
-  readonly email: string;
+  email: string;
 
   @ApiProperty({
     description: '비밀번호',
@@ -18,22 +18,14 @@ export class LoginUserDto {
     required: true,
   })
   @IsNotEmpty()
-  readonly password: string;
+  password: string;
 
-  // @ApiProperty({
-  //   description: '인가코드',
-  //   default: 'asdf1234#',
-  //   required: false,
-  // })
-  // @IsOptional()
-  // @IsString()
-  // readonly accessToken: string;
-
-  // @ApiProperty({
-  //   description: '소셜 로그인 타입',
-  //   default: null,
-  //   required: false,
-  // })
-  // @IsOptional()
-  // readonly socialType: SocialMethodType;
+  @ApiProperty({
+    description: '파이어 베이스 토큰',
+    default: '',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  fbToken: string;
 }

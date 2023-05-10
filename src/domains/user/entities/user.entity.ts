@@ -38,6 +38,9 @@ export class User extends BaseEntity {
   @Column()
   loginMethod: SocialMethodType;
 
+  @Column()
+  fbToken: string;
+
   @OneToMany(() => Pet, (pet) => pet.user)
   pets: Pet[];
 
@@ -52,6 +55,7 @@ export class User extends BaseEntity {
     isPremium,
     agreeWithMarketing,
     loginMethod,
+    fbToken,
   }: {
     email: string;
     password: string;
@@ -60,6 +64,7 @@ export class User extends BaseEntity {
     isPremium: boolean;
     agreeWithMarketing: boolean;
     loginMethod: SocialMethodType;
+    fbToken: string;
   }) {
     const user = new User();
     user.email = email;
@@ -69,7 +74,7 @@ export class User extends BaseEntity {
     user.isPremium = isPremium;
     user.agreeWithMarketing = agreeWithMarketing;
     user.loginMethod = loginMethod;
-
+    user.fbToken = fbToken;
     return user;
   }
 
@@ -80,6 +85,7 @@ export class User extends BaseEntity {
     user.isPremium = dto.isPremium;
     user.agreeWithMarketing = dto.agreeWithMarketing;
     user.password = hashPassword(dto.password);
+    // user.fbToken = dto.fbToken;
     return user;
   }
 
