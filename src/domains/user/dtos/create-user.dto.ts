@@ -46,13 +46,13 @@ ex) HakWon123#, hakwon123#
   nickname: string;
 
   // @ApiProperty({
-  //   description: '프로필 이미지 url',
-  //   default: null,
+  //   description: '파이어베이스 토큰',
+  //   default: 'firebase_token',
   //   required: false,
   // })
   // @IsString()
   // @IsOptional()
-  // profilePath: string;
+  // fbToken: string;
 
   @ApiProperty({
     description: '구독 여부',

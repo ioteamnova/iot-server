@@ -44,4 +44,13 @@ export class SocialLoginUserDto {
   @IsOptional()
   @MaxLength(32)
   nickname: string;
+
+  @ApiProperty({
+    description: '파이어 베이스 토큰',
+    default: '',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  fbToken: string;
 }
