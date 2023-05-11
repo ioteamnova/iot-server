@@ -7,25 +7,25 @@ export class RecordControlListDto extends PartialType(CreateRecordDto) {
     description: 'uvb 램프 현황',
     default: 1,
   })
-  uvbLight: boolean;
+  uvbLight: number;
 
   @ApiProperty({
     description: '온열 램프 현황',
     default: 1,
   })
-  heatingLight: boolean;
+  heatingLight: number;
 
   @ApiProperty({
     description: '워터펌프 현황',
     default: 1,
   })
-  waterpump: boolean;
+  waterpump: number;
 
   @ApiProperty({
     description: '쿨링팬 현황',
     default: 1,
   })
-  coolingfan: boolean;
+  coolingfan: number;
 
   constructor(iotControlRecord: IotControlRecord) {
     super();
