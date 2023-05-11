@@ -15,7 +15,10 @@ export class IotBoardPersonal extends BaseEntity {
   cageName: string;
 
   @Column()
-  currentLight: boolean;
+  currentUvbLight: boolean;
+
+  @Column()
+  currentHeatingLight: boolean;
 
   @Column()
   autoChkLight: boolean;
