@@ -8,9 +8,9 @@ import { AppService } from './app.service';
 import { UserModule } from './domains/user/user.module';
 import { LoggerMiddleware } from './core/middlewares/logger.middleware';
 import { DiaryModule } from './domains/diary/diary.module';
-import { ScheduleModule } from './domains/schedule/schedule.module';
+import { SchedulerModule } from './domains/schedule/schedule.module';
 import { IotPersonalModule } from './domains/iot_board_personal/iot_board_personal.module';
-
+import { ScheduleModule } from '@nestjs/schedule';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -35,8 +35,9 @@ import { IotPersonalModule } from './domains/iot_board_personal/iot_board_person
     UserModule,
     AuthModule,
     DiaryModule,
-    ScheduleModule,
+    SchedulerModule, // 스케줄 모듈과 혼동 주의
     IotPersonalModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -24,4 +24,8 @@ export class ScheduleRepository extends Repository<Schedule> {
       },
     });
   }
+
+  async findByTimeSchedule(time: Date) {
+    // todo: getMany return
+  }
 }

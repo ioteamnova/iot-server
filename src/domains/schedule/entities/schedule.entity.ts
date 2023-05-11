@@ -1,4 +1,4 @@
-import { CreateScheduleDto } from './../dtos/create-schedule.dto';
+import { CreateScheduleDto } from '../dtos/create-schedule.dto';
 import { User } from 'src/domains/user/entities/user.entity';
 import BaseEntity from 'src/core/entity/base.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';

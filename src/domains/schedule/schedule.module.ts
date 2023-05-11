@@ -1,4 +1,4 @@
-import { UserRepository } from './../user/repositories/user.repository';
+import { UserRepository } from '../user/repositories/user.repository';
 import { ScheduleRepository } from './repositories/schedule.repository';
 import { Module } from '@nestjs/common';
 import { ScheduleService } from './schedule.service';
@@ -13,4 +13,4 @@ import { TypeOrmExModule } from 'src/core/typeorm-ex.module';
   providers: [ScheduleService],
   exports: [TypeOrmExModule],
 })
-export class ScheduleModule {}
+export class SchedulerModule {}
