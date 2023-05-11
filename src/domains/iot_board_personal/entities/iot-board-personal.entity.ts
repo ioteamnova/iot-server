@@ -1,5 +1,6 @@
 import BaseEntity from 'src/core/entity/base.entity';
-import { Column, Entity, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { IotAuthInfo } from './iot-auth-info.entity';
 
 @Entity()
 export class IotBoardPersonal extends BaseEntity {
@@ -10,12 +11,20 @@ export class IotBoardPersonal extends BaseEntity {
 
   @Column({
     nullable: false,
+  })
+  authIdx: number;
+
+  @Column({
+    nullable: false,
     length: 32,
   })
   cageName: string;
 
   @Column()
-  currentLight: boolean;
+  currentUvbLight: boolean;
+
+  @Column()
+  currentHeatingLight: boolean;
 
   @Column()
   autoChkLight: boolean;
@@ -67,4 +76,8 @@ export class IotBoardPersonal extends BaseEntity {
     length: 32,
   })
   autoLightUtctimeOff: string;
+
+  @OneToOne(() => IotAuthInfo)
+  @JoinColumn({ name: 'auth_idx' })
+  iotAuthInfo: IotAuthInfo;
 }

@@ -1,13 +1,19 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IotControlRecord } from '../entities/iot-control-record.entity';
-import { CreateControlRecordDto } from './create-control-record.dto';
+import { CreateRecordDto } from './create-record.dto';
 
-export class RecordControlListDto extends PartialType(CreateControlRecordDto) {
+export class RecordControlListDto extends PartialType(CreateRecordDto) {
   @ApiProperty({
-    description: '조광기 현황',
+    description: 'uvb 램프 현황',
     default: 1,
   })
-  light: boolean;
+  uvbLight: boolean;
+
+  @ApiProperty({
+    description: '온열 램프 현황',
+    default: 1,
+  })
+  heatingLight: boolean;
 
   @ApiProperty({
     description: '워터펌프 현황',
@@ -24,9 +30,10 @@ export class RecordControlListDto extends PartialType(CreateControlRecordDto) {
   constructor(iotControlRecord: IotControlRecord) {
     super();
     this.idx = iotControlRecord.idx;
-    this.light = iotControlRecord.light;
-    this.waterpump = iotControlRecord.waterpump;
-    this.coolingfan = iotControlRecord.coolingfan;
+    this.uvbLight = iotControlRecord.uvbLight;
+    this.heatingLight = iotControlRecord.heatingLight;
+    this.waterpump = iotControlRecord.waterPump;
+    this.coolingfan = iotControlRecord.coolingFan;
     this.type = iotControlRecord.type;
   }
 }

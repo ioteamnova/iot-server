@@ -10,8 +10,9 @@ export class IotBoardPersonalRepository extends Repository<IotBoardPersonal> {
     pageRequest: PageRequest,
   ): Promise<[IotBoardPersonal[], number]> {
     return this.createQueryBuilder('iot_board_personal')
+      .leftJoinAndSelect('iot_board_personal.iotAuthInfo', 'iot-auth-info')
       .where({ userIdx: userIdx })
-      .orderBy('idx', 'DESC')
+      .orderBy('iot_board_personal.idx', pageRequest.order)
       .take(pageRequest.limit)
       .skip(pageRequest.offset)
       .getManyAndCount();

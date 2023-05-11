@@ -6,18 +6,20 @@ import { ControlType } from './constants';
 export class IotControlRecord extends BaseEntity {
   @Column({
     nullable: false,
-    //length: 11,
   })
   boardIdx: number;
 
   @Column()
-  light: boolean;
+  uvbLight: boolean;
 
   @Column()
-  waterpump: boolean;
+  heatingLight: boolean;
 
   @Column()
-  coolingfan: boolean;
+  waterPump: boolean;
+
+  @Column()
+  coolingFan: boolean;
 
   @Column({ type: 'enum', name: 'type', enum: ControlType })
   type: number; //1. auto, 2. passive

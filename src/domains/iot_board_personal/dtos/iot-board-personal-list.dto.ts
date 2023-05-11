@@ -16,10 +16,16 @@ export class IotBoardPersonalListDto {
   cageName: string;
 
   @ApiProperty({
-    description: '현재 조명 현황',
+    description: '현재 uvb 램프 현황',
     default: 'true',
   })
-  currentLight: boolean;
+  currentUvbLight: boolean;
+
+  @ApiProperty({
+    description: '현재 heating 램프 현황',
+    default: 'true',
+  })
+  currentHeatingLight: boolean;
 
   @ApiProperty({
     description: '조명 자동화 체크',
@@ -106,6 +112,12 @@ export class IotBoardPersonalListDto {
   autoLightUtctimeOff: string;
 
   @ApiProperty({
+    description: 'boardTempname',
+    default: 'KR_B1',
+  })
+  boardTempname: string;
+
+  @ApiProperty({
     description: '생성일',
     default: DateUtils.momentNow(),
   })
@@ -114,7 +126,8 @@ export class IotBoardPersonalListDto {
   constructor(iotBoardPersonal: IotBoardPersonal) {
     this.idx = iotBoardPersonal.idx;
     this.cageName = iotBoardPersonal.cageName;
-    this.currentLight = iotBoardPersonal.currentLight;
+    this.currentUvbLight = iotBoardPersonal.currentUvbLight;
+    this.currentHeatingLight = iotBoardPersonal.currentHeatingLight;
     this.autoChkLight = iotBoardPersonal.autoChkLight;
     this.autoChkTemp = iotBoardPersonal.autoChkTemp;
     this.autoChkHumid = iotBoardPersonal.autoChkHumid;
@@ -126,5 +139,9 @@ export class IotBoardPersonalListDto {
     this.currentHumid2 = iotBoardPersonal.currentHumid2;
     this.maxHumid = iotBoardPersonal.maxHumid;
     this.minHumid = iotBoardPersonal.minHumid;
+    this.usage = iotBoardPersonal.usage;
+    this.autoLightUtctimeOn = iotBoardPersonal.autoLightUtctimeOn;
+    this.autoLightUtctimeOff = iotBoardPersonal.autoLightUtctimeOff;
+    this.boardTempname = iotBoardPersonal.iotAuthInfo.boardTempname;
   }
 }
