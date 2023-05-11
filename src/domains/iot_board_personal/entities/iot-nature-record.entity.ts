@@ -6,7 +6,6 @@ import { ControlType } from './constants';
 export class IotNatureRecord extends BaseEntity {
   @Column({
     nullable: false,
-    //length: 11,
   })
   boardIdx: number;
 

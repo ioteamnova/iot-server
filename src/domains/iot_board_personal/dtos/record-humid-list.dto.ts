@@ -1,8 +1,8 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IotNatureRecord } from '../entities/iot-nature-record.entity';
-import { CreateNatureRecordDto } from './create-nature-record.dto';
+import { CreateRecordDto } from './create-record.dto';
 
-export class RecordHumidListDto extends PartialType(CreateNatureRecordDto) {
+export class RecordHumidListDto extends PartialType(CreateRecordDto) {
   @ApiProperty({
     description: '현재 습도 1',
     default: 'true',

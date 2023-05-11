@@ -1,8 +1,8 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IotNatureRecord } from '../entities/iot-nature-record.entity';
-import { CreateNatureRecordDto } from './create-nature-record.dto';
+import { CreateRecordDto } from './create-record.dto';
 
-export class RecordNatureListDto extends PartialType(CreateNatureRecordDto) {
+export class RecordNatureListDto extends PartialType(CreateRecordDto) {
   @ApiProperty({
     description: '현재 온도 1',
     default: '0.0',
