@@ -11,7 +11,8 @@ import { RecordHumidListDto } from './dtos/record-humid-list.dto';
 import { RecordNatureListDto } from './dtos/record-nature-list.dto';
 import { IotControlPageRequest } from './dtos/iot-control-page';
 import { RecordControlListDto } from './dtos/record-control-list.dto';
-import { RecordLightListDto } from './dtos/record-light-list.dto';
+import { RecordUvblightListDto } from './dtos/record-uvblight-list.dto';
+import { RecordHeatinglightListDto } from './dtos/record-heatinglight-list.dto';
 import { RecordWaterpumpListDto } from './dtos/record-waterpump-list.dto';
 import { RecordcoolingfanListDto } from './dtos/record-coolingfan-list.dto';
 
@@ -21,7 +22,7 @@ export class IotPersonalService {
     private iotBoardPersonalRepository: IotBoardPersonalRepository,
     private iotNaturerecordRepository: IotNaturerecordRepository,
     private iotControlrecordRepository: IotControlrecordRepository,
-  ) {}
+  ) { }
 
   /**
    *  보드 리스트
@@ -108,9 +109,19 @@ export class IotPersonalService {
 
     let items;
     switch (pageRequest.sensor) {
-      case 'light':
-        items = iotcontrol.map((control) => new RecordLightListDto(control));
-        return new Page<RecordLightListDto>(
+      case 'uvblight':
+        items = iotcontrol.map((control) => new RecordUvblightListDto(control));
+        return new Page<RecordUvblightListDto>(
+          iotcontrol.length,
+          items,
+          pageRequest,
+        );
+        break;
+      case 'heatinglight':
+        items = iotcontrol.map(
+          (control) => new RecordHeatinglightListDto(control),
+        );
+        return new Page<RecordHeatinglightListDto>(
           iotcontrol.length,
           items,
           pageRequest,

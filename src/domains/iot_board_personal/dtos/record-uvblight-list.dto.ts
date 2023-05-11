@@ -2,17 +2,17 @@ import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IotControlRecord } from '../entities/iot-control-record.entity';
 import { CreateRecordDto } from './create-record.dto';
 
-export class RecordcoolingfanListDto extends PartialType(CreateRecordDto) {
+export class RecordUvblightListDto extends PartialType(CreateRecordDto) {
   @ApiProperty({
-    description: '쿨링팬 현황',
+    description: 'uvb 램프 현황',
     default: 1,
   })
-  coolingFan: boolean;
+  uvbLight: boolean;
 
   constructor(iotControlRecord: IotControlRecord) {
     super();
     this.idx = iotControlRecord.idx;
-    this.coolingFan = iotControlRecord.coolingFan;
+    this.uvbLight = iotControlRecord.uvbLight;
     this.type = iotControlRecord.type;
   }
 }

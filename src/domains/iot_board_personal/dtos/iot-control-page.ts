@@ -11,13 +11,14 @@ export class IotControlPageRequest extends PageRequest {
   @ApiProperty({
     description: `센서 필터\n
         - 기본(전체)
-        - 조광기(light)\n
+        - uvb램프(uvb light)\n
+        - 온열램프(heating light)\n
         - 워터펌프(waterpump)\n
         - 쿨링팬(coolingfan)`,
-    enum: ['default', 'light', 'waterpump', 'coolingfan'],
+    enum: ['default', 'uvblight', 'heatinglight', 'waterpump', 'coolingfan'],
     default: 'default',
   })
-  sensor: 'default' | 'light' | 'waterpump' | 'coolingfan';
+  sensor: 'default' | 'uvblight' | 'heatinglight' | 'waterpump' | 'coolingfan';
 
   @ApiProperty({
     description: '선택한 날짜',
