@@ -1,4 +1,4 @@
-import { Schedule } from './../entities/schedule.entity';
+import { Schedule } from '../entities/schedule.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ScheduleListDto {

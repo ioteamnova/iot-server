@@ -1,4 +1,4 @@
-import { Schedule } from './../../schedule/entities/schedule.entity';
+import { Schedule } from '../../schedule/entities/schedule.entity';
 import { UpdateUserDto } from './../dtos/update-user.dto';
 import BaseEntity from 'src/core/entity/base.entity';
 import { hashPassword } from 'src/utils/password.utils';

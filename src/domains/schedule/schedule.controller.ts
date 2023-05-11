@@ -1,5 +1,5 @@
 import { ScheduleListDto } from './dtos/schedule-list.dto';
-import { SwaggerTag } from './../../core/swagger/swagger-tags';
+import { SwaggerTag } from '../../core/swagger/swagger-tags';
 import {
   Controller,
   Get,
@@ -27,6 +27,7 @@ import { ApiCommonErrorResponseTemplate } from 'src/core/swagger/api-error-commo
 import { ApiOkPaginationResponseTemplate } from 'src/core/swagger/api-ok-pagination-response';
 import { PageRequest } from 'src/core/page';
 import { ApiOkResponseTemplate } from 'src/core/swagger/api-ok-response';
+import { RequestScheduleDto } from './dtos/request-dto';
 @ApiTags(SwaggerTag.SCHEDULE)
 @ApiCommonErrorResponseTemplate()
 @Controller('/schedules')
@@ -110,5 +111,11 @@ export class ScheduleController {
   async remove(@Res() res, @Param('scheduleIdx') scheduleIdx: number) {
     await this.scheduleService.remove(scheduleIdx);
     return HttpResponse.ok(res);
+  }
+
+  @Post('/send')
+  async sendNotification(@Res() res, @Body() dto: RequestScheduleDto) {
+    const result = await this.scheduleService.sendPushMessage(dto.fbToken);
+    return HttpResponse.ok(res, result);
   }
 }
