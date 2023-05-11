@@ -1,5 +1,6 @@
 import { Controller, Get, Res, Query } from '@nestjs/common';
 import { IotPersonalService } from './iot_board_personal.service';
+//import { Iot_personal } from './entities/iot_personal.entity';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PageRequest } from 'src/core/page';
 import UseAuthGuards from '../auth/auth-guards/use-auth';
@@ -15,7 +16,9 @@ import { IotControlPageRequest } from './dtos/iot-control-page';
 @ApiCommonErrorResponseTemplate()
 @Controller('iotpersonal')
 export class IotPersonalController {
-  constructor(private readonly iotPersonalService: IotPersonalService) {}
+  constructor(
+    private readonly iotPersonalService: IotPersonalService, // private authService: AuthService,
+  ) { }
 
   //보드리스트
   @ApiOperation({
@@ -29,6 +32,10 @@ export class IotPersonalController {
     @AuthUser() user: User,
     @Query() pageRequest: PageRequest,
   ) {
+    console.log('boardlist start!!');
+    console.log('user:::', user);
+    console.log(pageRequest);
+
     const result = await this.iotPersonalService.getBoardList(
       user.idx,
       pageRequest,
@@ -48,6 +55,10 @@ export class IotPersonalController {
     @AuthUser() user: User,
     @Query() pageRequest: IotNaturePageRequest,
   ) {
+    console.log('natureList start!!');
+    console.log('user:::', user);
+    console.log(pageRequest);
+
     const result = await this.iotPersonalService.getNatureList(pageRequest);
     return HttpResponse.ok(res, result);
   }
@@ -64,6 +75,10 @@ export class IotPersonalController {
     @AuthUser() user: User,
     @Query() pageRequest: IotControlPageRequest,
   ) {
+    console.log('controllist start!!');
+    console.log('user:::', user);
+    console.log(pageRequest);
+
     const result = await this.iotPersonalService.getControlList(pageRequest);
     return HttpResponse.ok(res, result);
   }

@@ -112,6 +112,12 @@ export class IotBoardPersonalListDto {
   autoLightUtctimeOff: string;
 
   @ApiProperty({
+    description: 'boardTempname',
+    default: 'KR_B1',
+  })
+  boardTempname: string;
+
+  @ApiProperty({
     description: '생성일',
     default: DateUtils.momentNow(),
   })
@@ -133,5 +139,9 @@ export class IotBoardPersonalListDto {
     this.currentHumid2 = iotBoardPersonal.currentHumid2;
     this.maxHumid = iotBoardPersonal.maxHumid;
     this.minHumid = iotBoardPersonal.minHumid;
+    this.usage = iotBoardPersonal.usage;
+    this.autoLightUtctimeOn = iotBoardPersonal.autoLightUtctimeOn;
+    this.autoLightUtctimeOff = iotBoardPersonal.autoLightUtctimeOff;
+    this.boardTempname = iotBoardPersonal.iotAuthInfo.boardTempname;
   }
 }
