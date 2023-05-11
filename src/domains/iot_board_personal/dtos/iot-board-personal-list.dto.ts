@@ -19,31 +19,31 @@ export class IotBoardPersonalListDto {
     description: '현재 uvb 램프 현황',
     default: 'true',
   })
-  currentUvbLight: boolean;
+  currentUvbLight: number;
 
   @ApiProperty({
     description: '현재 heating 램프 현황',
     default: 'true',
   })
-  currentHeatingLight: boolean;
+  currentHeatingLight: number;
 
   @ApiProperty({
     description: '조명 자동화 체크',
     default: 'true',
   })
-  autoChkLight: boolean;
+  autoChkLight: number;
 
   @ApiProperty({
     description: '온도 자동화 체크',
     default: 'true',
   })
-  autoChkTemp: boolean;
+  autoChkTemp: number;
 
   @ApiProperty({
     description: '습도 자동화 체크',
     default: 'true',
   })
-  autoChkHumid: boolean;
+  autoChkHumid: number;
 
   @ApiProperty({
     description: '현재 온도 1',

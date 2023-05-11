@@ -7,7 +7,7 @@ export class RecordWaterpumpListDto extends PartialType(CreateRecordDto) {
     description: '워터펌프 현황',
     default: 1,
   })
-  waterPump: boolean;
+  waterPump: number;
 
   constructor(iotControlRecord: IotControlRecord) {
     super();
