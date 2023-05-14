@@ -163,24 +163,27 @@ export class ScheduleService {
 
   async sendNotification(title: string, body: string, token: string) {
     const message = {
+      notification: {
+        title: title,
+        body: body,
+        imageUrl:
+          'https://reptimate.s3.ap-northeast-2.amazonaws.com/reptimate_logo.png',
+      },
+      token: token,
       android: {
+        // data를 사용하면 내용을 자유롭게 입력 가능
         data: {
-          title: title,
-          body: body,
+          idx: '3',
         },
       },
       apns: {
         payload: {
           aps: {
-            contentAvailble: true,
-            alert: {
-              title: title,
-              body: body,
-            },
+            // custom data 자유롭게 사용 가능
+            idx: '3',
           },
         },
       },
-      token: token,
     };
     // 푸시 알림 보내기
     admin
