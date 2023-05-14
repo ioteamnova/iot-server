@@ -10,8 +10,10 @@ import { ScheduleListDto } from './dtos/schedule-list.dto';
 import * as admin from 'firebase-admin';
 // import serviceAccount from '../../../firebase-adminsdk.json';
 import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
-import moment from 'moment-timezone';
+import * as moment from 'moment-timezone';
 import { google } from 'googleapis';
+import DateUtils from 'src/utils/date-utils';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const serviceAccount = require('../../../firebase-adminsdk.json');
 
 @Injectable()
@@ -106,22 +108,42 @@ export class ScheduleService {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
     }
 
-    // const currentTime = moment().tz('Asia/Seoul').format('HH:mm:ss');
-    const currentTime = '18:00:00'; // 테스트용
-    console.log('currentTime::', currentTime);
+    const currentTime = DateUtils.momentTime();
 
-    const time = new Date(currentTime);
-    console.log('time::', time);
+    const time = DateUtils.stringToTime(currentTime);
+
+    let testTime;
+    testTime = '18:00'; // 테스트용
+    testTime = DateUtils.stringToTime(testTime);
+
+    const day = DateUtils.momentDay();
+    console.log('day::', day);
 
     // todo: getMany로 여러개 가져와야함. 같은 유저가 같은 시간의 스케줄을 등록했을 경우 대비
     const schedule = await this.scheduleRepository.findOne({
       where: {
         userIdx: user.idx,
-        alarmTime: time,
+        alarmTime: testTime,
       },
     });
     console.log('schedule::', schedule);
 
+    // 스케줄 없으면? 빈값 리턴시켜도 되는지?
+    const repeat = schedule.repeat;
+    // 스트링 => 어레이
+    const repeatArray = repeat.split(',');
+    console.log('repeatArray::', repeatArray);
+
+    let isRepeat: boolean;
+    // day가 0~6까지 나오고, 배열의 인덱스도 0~6 이다. 해당 요일의 값이 1인지 0인지 체크
+    if (repeatArray[day] === '1') {
+      isRepeat = true;
+    }
+
+    if (!isRepeat) {
+      console.log('isRepeat::', isRepeat);
+      console.log('알람 설정한 요일이 아님.');
+    }
     return schedule;
   }
 
@@ -135,9 +157,6 @@ export class ScheduleService {
     // 2. 있으면 파이어베이스로 title-body를 담아서 전송
     const title = schedule.title;
     const body = schedule.memo;
-    const userIdx = schedule.userIdx;
-    const repeat = schedule.repeat; //todo: 스트링이니까 배열로 변환해서 (또는 Json?) 배열에서 1인 인덱스 위치와 현재 요일이 1이면
-    console.log('type::', typeof repeat);
 
     await this.sendNotification(title, body, token);
   }
@@ -174,37 +193,4 @@ export class ScheduleService {
         console.log('Error sending message:', error);
       });
   }
-
-  // async sendNotification() {
-  //   const message = {
-  //     android: {
-  //       data: {
-  //         title: 'title',
-  //         body: 'body',
-  //       },
-  //     },
-  //     apns: {
-  //       payload: {
-  //         aps: {
-  //           contentAvailble: true,
-  //           alert: {
-  //             title: 'title',
-  //             body: 'body',
-  //           },
-  //         },
-  //       },
-  //     },
-  //     token: 'token',
-  //   };
-  //   // 푸시 알림 보내기
-  //   admin
-  //     .messaging()
-  //     .send(message) //여러개: sendMulticast()
-  //     .then((response) => {
-  //       console.log('Successfully sent message:', response);
-  //     })
-  //     .catch((error) => {
-  //       console.log('Error sending message:', error);
-  //     });
-  // }
 }
