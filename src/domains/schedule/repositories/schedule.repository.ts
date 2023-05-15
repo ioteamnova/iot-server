@@ -9,7 +9,7 @@ export class ScheduleRepository extends Repository<Schedule> {
     userIdx: number,
     pageRequest: PageRequest,
   ): Promise<[Schedule[], number]> {
-    return this.createQueryBuilder('schedule')
+    return await this.createQueryBuilder('schedule')
       .where('schedule.userIdx = :userIdx', { userIdx })
       .orderBy('schedule.idx', pageRequest.order)
       .take(pageRequest.limit)
@@ -18,14 +18,17 @@ export class ScheduleRepository extends Repository<Schedule> {
   }
 
   async findByScheduleIdx(scheduleIdx: number): Promise<Schedule> {
-    return this.findOne({
+    return await this.findOne({
       where: {
         idx: scheduleIdx,
       },
     });
   }
 
-  async findByTimeSchedule(time: Date) {
-    // todo: getMany return
+  async findCurrentSchedules(userIdxes: number[], time: Date) {
+    return await this.createQueryBuilder('schedule')
+      .where('schedule.userIdx IN (:...userIdxes)', { userIdxes })
+      .andWhere('schedule.alarmTime', { time })
+      .getMany();
   }
 }

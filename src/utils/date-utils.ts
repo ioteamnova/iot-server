@@ -26,15 +26,18 @@ export default class DateUtils {
     return DateUtils.moment.day();
   }
 
+  // 시,분을 가져오는 함수.
   static momentTime(): string {
     return moment().tz(DateUtils.timezone).format('HH:mm');
   }
 
+  // 문자 -> 날짜
   static stringToDate(date: string): Date {
     return moment(date).tz(DateUtils.timezone).toDate();
   }
 
+  // 문자 -> 시간
   static stringToTime(date: string): Date {
-    return moment(date, 'HH:mm').tz(DateUtils.timezone).toDate();
+    return moment(date, 'HH:mm').tz('Asia/Seoul').toDate();
   }
 }

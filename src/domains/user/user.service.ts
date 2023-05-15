@@ -160,7 +160,7 @@ export class UserService {
    * @returns boolean
    */
   async checkExistNickname(nickname: string) {
-    const isExistNickname = await this.userRepository.existByNcikname(nickname);
+    const isExistNickname = await this.userRepository.existByNickname(nickname);
 
     if (isExistNickname) {
       throw new ConflictException(HttpErrorConstants.EXIST_NICKNAME);
