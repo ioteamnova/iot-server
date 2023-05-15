@@ -13,6 +13,7 @@ import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 import * as moment from 'moment-timezone';
 import { google } from 'googleapis';
 import DateUtils from 'src/utils/date-utils';
+import { MulticastMessage } from 'firebase-admin/lib/messaging/messaging-api';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const serviceAccount = require('../../../firebase-adminsdk.json');
 
@@ -78,27 +79,46 @@ export class ScheduleService {
     await this.scheduleRepository.softDelete(scheduleIdx);
   }
 
-  // async getAccessToken() {
-  //   return new Promise(function(resolve, reject) {
-  //     const jwtClient = new google.auth.JWT(
-  //       serviceAccount.client_email,
-  //       null,
-  //       serviceAccount.private_key.replace(/\\n/gm, '\n'),
-  //       ['https://www.googleapis.com/auth/cloud-platform'],
-  //       null
-  //     );
-  //     jwtClient.authorize(function(err, tokens) {
-  //       if (err) {
-  //         reject(err);
-  //         return;
-  //       }
-  //       resolve(tokens.access_token);
-  //     });
-  //   });
-  // }
-
   // 스케줄 테이블에서 현재시간과 일치하는 row 찾기
-  async getSchdeule(token: string) {
+  async getSchdeules(tokens: string[]) {
+    // 토큰으로 유저 여러명을 가져옴
+    const users = await this.userRepository.findByfbTokens(tokens);
+    if (!users) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
+    }
+
+    // todo: +9시간해야함.
+    const currentTime = DateUtils.stringToTime(DateUtils.momentTime());
+    console.log('currentTime::', currentTime);
+    console.log('currentTime type::', typeof currentTime);
+    const testTime = DateUtils.stringToTime('18:00'); // 테스트용
+
+    const day = DateUtils.momentDay();
+
+    const userIdxes = users.map((user) => user.idx);
+    const schedules = await this.scheduleRepository.findCurrentSchedules(
+      userIdxes,
+      testTime,
+    );
+    if (!schedules) return;
+
+    const matchingSchedules = schedules.filter((schedule) => {
+      const repeatArray = schedule.repeat.split(',');
+      console.log('repeatArray::', repeatArray);
+      const isRepeat: boolean = repeatArray[day] === '1';
+
+      return isRepeat;
+    });
+
+    if (!matchingSchedules) {
+      console.log('No alarm scheduled for today.');
+      return;
+    }
+
+    return matchingSchedules;
+  }
+
+  async getSingleSchdeule(token: string) {
     const user = await this.userRepository.findOne({
       where: {
         fbToken: token,
@@ -108,31 +128,22 @@ export class ScheduleService {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
     }
 
-    const currentTime = DateUtils.momentTime();
+    const testTime = DateUtils.stringToTime('18:00'); //  for test, convert string '18:00' to 18:00 Date
 
-    const time = DateUtils.stringToTime(currentTime);
+    const day = DateUtils.momentDay(); // get day number from moment.js
 
-    let testTime;
-    testTime = '18:00'; // 테스트용
-    testTime = DateUtils.stringToTime(testTime);
-
-    const day = DateUtils.momentDay();
-    console.log('day::', day);
-
-    // todo: getMany로 여러개 가져와야함. 같은 유저가 같은 시간의 스케줄을 등록했을 경우 대비
     const schedule = await this.scheduleRepository.findOne({
       where: {
         userIdx: user.idx,
         alarmTime: testTime,
       },
     });
-    console.log('schedule::', schedule);
+    if (!schedule) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_SCHEDULE);
+    }
 
-    // 스케줄 없으면? 빈값 리턴시켜도 되는지?
-    const repeat = schedule.repeat;
-    // 스트링 => 어레이
+    const repeat = schedule.repeat; // ex) 1,1,1,1,1,1,1
     const repeatArray = repeat.split(',');
-    console.log('repeatArray::', repeatArray);
 
     let isRepeat: boolean;
     // day가 0~6까지 나오고, 배열의 인덱스도 0~6 이다. 해당 요일의 값이 1인지 0인지 체크
@@ -141,28 +152,30 @@ export class ScheduleService {
     }
 
     if (!isRepeat) {
-      console.log('isRepeat::', isRepeat);
-      console.log('알람 설정한 요일이 아님.');
+      console.log('Today is no alarm.');
+      return;
     }
     return schedule;
   }
 
   // @Cron(CronExpression.EVERY_MINUTE) // 1분마다 실행
-  async sendPushMessage(token: string) {
-    // 1. 1분마다 스케줄 db에서 현재시간과 일치하는것을 찾는다.
-    const schedule = await this.getSchdeule(token);
-    if (!schedule) {
-      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_SCHEDULE);
-    }
-    // 2. 있으면 파이어베이스로 title-body를 담아서 전송
-    const title = schedule.title;
-    const body = schedule.memo;
+  async sendPushMessage(tokens: string[]) {
+    const schedules = await this.getSchdeules(tokens);
+    for (const schedule of schedules) {
+      const title = schedule.title;
+      const body = schedule.memo;
 
-    await this.sendNotification(title, body, token);
+      console.log(
+        `${DateUtils.momentNow()} || The schedule of idx is : ${schedule.idx}.`,
+      );
+      await this.sendNotification(title, body, tokens);
+    }
   }
 
-  async sendNotification(title: string, body: string, token: string) {
-    const message = {
+  // 복수 메세지 처리
+  async sendNotification(title: string, body: string, tokens: string[]) {
+    // todo: refactoring
+    const messages = tokens.map((token) => ({
       notification: {
         title: title,
         body: body,
@@ -179,21 +192,59 @@ export class ScheduleService {
       apns: {
         payload: {
           aps: {
-            // custom data 자유롭게 사용 가능
+            // aps안에 custom data 자유롭게 사용 가능
             idx: '3',
           },
         },
       },
-    };
+    }));
     // 푸시 알림 보내기
-    admin
-      .messaging()
-      .send(message) //여러개: sendMulticast()
-      .then((response) => {
-        console.log('Successfully sent message:', response);
-      })
-      .catch((error) => {
-        console.log('Error sending message:', error);
-      });
+    const sendPromises = messages.map((message) =>
+      admin.messaging().send(message),
+    );
+
+    try {
+      const responses = await Promise.all(sendPromises);
+      console.log('Successfully sent messages:', responses);
+    } catch (error) {
+      console.log('Error sending messages:', error);
+    }
   }
+
+  // 단일 메세지 처리
+  // async sendNotification(title: string, body: string, tokens: string[]) {
+  //   const message = {
+  //     notification: {
+  //       title: title,
+  //       body: body,
+  //       imageUrl:
+  //         'https://reptimate.s3.ap-northeast-2.amazonaws.com/reptimate_logo.png',
+  //     },
+  //     token: token,
+  //     android: {
+  //       // data를 사용하면 내용을 자유롭게 입력 가능
+  //       data: {
+  //         idx: '3',
+  //       },
+  //     },
+  //     apns: {
+  //       payload: {
+  //         aps: {
+  //           // aps안에 custom data 자유롭게 사용 가능
+  //           idx: '3',
+  //         },
+  //       },
+  //     },
+  //   };
+  //   // 푸시 알림 보내기
+  //   admin
+  //     .messaging()
+  //     .send(message) //여러개: sendMulticast()
+  //     .then((response) => {
+  //       console.log('Successfully sent message:', response);
+  //     })
+  //     .catch((error) => {
+  //       console.log('Error sending message:', error);
+  //     });
+  // }
 }

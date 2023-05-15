@@ -13,7 +13,7 @@ export class UserRepository extends Repository<User> {
     return existEmail;
   }
 
-  async existByNcikname(nickname: string): Promise<boolean> {
+  async existByNickname(nickname: string): Promise<boolean> {
     const existNickname = await this.exist({
       where: {
         nickname,
@@ -29,5 +29,14 @@ export class UserRepository extends Repository<User> {
       },
     });
     return user;
+  }
+
+  async findByfbTokens(tokens: string[]): Promise<User[]> {
+    return await this.createQueryBuilder('user')
+      .select(['user.idx', 'user.fbToken'])
+      // .select('user.idx')
+      // .addSelect('user.fbToken')
+      .where('user.fbToken IN (:...tokens)', { tokens })
+      .getMany();
   }
 }
