@@ -114,8 +114,8 @@ export class ScheduleController {
   }
 
   @Post('/send')
-  async sendNotification(@Res() res, @Body() dto: RequestScheduleDto) {
-    const result = await this.scheduleService.sendPushMessage(dto.fbToken);
+  async sendNotification(@Res() res) {
+    const result = await this.scheduleService.sendPushMessages();
     return HttpResponse.ok(res, result);
   }
 }

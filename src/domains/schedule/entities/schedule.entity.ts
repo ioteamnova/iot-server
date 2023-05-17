@@ -17,14 +17,12 @@ export class Schedule extends BaseEntity {
   })
   userIdx: number;
 
-  @Column({
-    type: 'time',
-  })
-  alarmTime: Date;
+  @Column()
+  alarmTime: string;
 
   @Column({
-    comment: `월~일요일을 배열에서 1과 0으로 표현한다.
-    ex) 월,수,금 반복인경우 [1,0,1,0,1,0,0]`,
+    comment: `일~월요일에서 알림을 설정한 날을 1과 0으로 표현한다.
+    ex) 월,수,금 반복인경우 0,1,0,1,0,1,0`,
   })
   repeat: string;
 
@@ -37,7 +35,8 @@ export class Schedule extends BaseEntity {
     schedule.title = dto.title;
     schedule.memo = dto.memo;
     schedule.alarmTime = dto.alarmTime;
-    schedule.repeat = JSON.stringify(dto.repeat);
+    schedule.repeat = dto.repeat;
+    // schedule.repeat = JSON.stringify(dto.repeat);
 
     return schedule;
   }
@@ -46,6 +45,7 @@ export class Schedule extends BaseEntity {
     this.title = dto.title;
     this.memo = dto.memo;
     this.alarmTime = dto.alarmTime;
-    this.repeat = JSON.stringify(dto.repeat);
+    // this.repeat = JSON.stringify(dto.repeat);
+    this.repeat = dto.repeat;
   }
 }

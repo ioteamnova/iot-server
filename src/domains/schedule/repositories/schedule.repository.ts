@@ -25,10 +25,17 @@ export class ScheduleRepository extends Repository<Schedule> {
     });
   }
 
-  async findCurrentSchedules(userIdxes: number[], time: Date) {
+  // async findCurrentSchedules(userIdxes: number[], time: Date) {
+  //   return await this.createQueryBuilder('schedule')
+  //     .where('schedule.userIdx IN (:...userIdxes)', { userIdxes })
+  //     .andWhere('schedule.alarmTime', { time })
+  //     .getMany();
+  // }
+
+  async findSchedulesByTime(time: string) {
     return await this.createQueryBuilder('schedule')
-      .where('schedule.userIdx IN (:...userIdxes)', { userIdxes })
-      .andWhere('schedule.alarmTime', { time })
+      .leftJoinAndSelect('schedule.user', 'user')
+      .where('schedule.alarmTime = :time', { time })
       .getMany();
   }
 }

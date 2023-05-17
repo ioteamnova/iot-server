@@ -6,38 +6,38 @@ export default class DateUtils {
   private static timezone = 'Asia/Seoul';
   private static moment = moment().tz(DateUtils.timezone);
 
-  // 현재시간 가져오기 (string 타입)
+  // ex) 2023-05-17 15:40:08
   static momentNow(): string {
-    return DateUtils.moment.format(timeFormat);
+    return moment().tz(DateUtils.timezone).format(timeFormat);
   }
 
-  // 현재시간 가져오기 (Date 타입)
+  // ex) 2023-05-17T06:40:08.000Z
   static momentNowDate(): Date {
-    return new Date(DateUtils.momentNow());
+    return moment().tz(DateUtils.timezone).toDate();
   }
 
-  // 파일 이름에 붙힐 DateTime
+  // ex) 20230517165408
   static momentFile(): string {
-    return moment().tz('Asia/Seoul').format('YYYYMMDDHHmmss');
+    return this.moment.format('YYYYMMDDHHmmss');
   }
 
-  // 요일을 가져오는 함수. 0:일 1:월 ... 6:토
+  // 0:일 1:월 ... 6:토
   static momentDay(): number {
-    return DateUtils.moment.day();
+    return this.moment.day();
   }
 
-  // 시,분을 가져오는 함수.
+  // ex) 18:00
   static momentTime(): string {
-    return moment().tz(DateUtils.timezone).format('HH:mm');
+    return this.moment.format('HH:mm');
   }
 
-  // 문자 -> 날짜
+  // 문자 -> 날짜 ex) 2023-05-17T07:54:08.000Z
   static stringToDate(date: string): Date {
-    return moment(date).tz(DateUtils.timezone).toDate();
+    return moment(date).tz(this.timezone).toDate();
   }
 
-  // 문자 -> 시간
+  // 문자 -> 시간 ex) 2023-05-17T07:54:08.000Z
   static stringToTime(date: string): Date {
-    return moment(date, 'HH:mm').tz('Asia/Seoul').toDate();
+    return moment(date, 'HH:mm').tz(this.timezone).toDate();
   }
 }
