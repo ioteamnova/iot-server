@@ -24,24 +24,23 @@ export class ScheduleListDto {
     description: '알림 시간',
     default: '18:00',
   })
-  alarmTime: Date;
+  alarmTime: string;
 
   @ApiProperty({
     description: '알림 반복 요일',
-    default: [0, 0, 0, 0, 0, 0, 0],
+    default: '0, 0, 0, 0, 0, 0, 0',
   })
-  repeat: string[];
+  repeat: string;
 
   constructor(schedule: Schedule) {
-    let repeat = [];
-    if (schedule.repeat) {
-      repeat = JSON.parse(schedule.repeat);
-    }
-
+    // let repeat = [];
+    // if (schedule.repeat) {
+    //   repeat = JSON.parse(schedule.repeat);
+    // }
     this.idx = schedule.idx;
     this.title = schedule.title;
     this.memo = schedule.memo;
     this.alarmTime = schedule.alarmTime;
-    this.repeat = repeat;
+    this.repeat = schedule.repeat;
   }
 }

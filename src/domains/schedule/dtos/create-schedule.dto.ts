@@ -16,15 +16,17 @@ export class CreateScheduleDto {
     required: true,
   })
   @IsNotEmpty()
-  alarmTime: Date;
+  alarmTime: string;
 
   @ApiProperty({
-    description: '푸시 알림 반복할 요일',
-    default: [0, 0, 0, 0, 0, 0, 0],
+    description: `푸시 알림 반복할 요일
+    일~월요일에서 알림을 설정한 날을 1과 0으로 표현한다.
+    ex) 월,수,금 반복인경우 0,1,0,1,0,1,0`,
+    default: '0, 0, 0, 0, 0, 0, 0',
     required: false,
   })
   @IsNotEmpty()
-  repeat: number[];
+  repeat: string;
 
   @ApiProperty({
     description: '스케줄링 내용',
