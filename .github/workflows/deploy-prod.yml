@@ -44,10 +44,10 @@ jobs:
           echo NODE_MAILER_ID=${{ secrets.PROD_NODE_MAILER_ID }} >> .env.prod
           echo NODE_MAILER_PASSWORD=${{ secrets.PROD_NODE_MAILER_PASSWORD }} >> .env.prod
 
-      # firebase admin
-      - name: Create firebase-adminsdk.json file
+      - name: create firebase-adminsdk.json file
         run: |
-          echo ${{ secrets.PROD_FIREBASE_ADMIN }} > firebase-adminsdk.json
+          touch firebase-adminsdk.json
+          echo ${{ secrets.PROD_FIREBASE_ADMIN }} >> firebase-adminsdk.json
 
       # zip 파일 생성
       - name: create a zip file

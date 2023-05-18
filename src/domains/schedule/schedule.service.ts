@@ -10,7 +10,6 @@ import { ScheduleListDto } from './dtos/schedule-list.dto';
 import * as admin from 'firebase-admin';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import DateUtils from 'src/utils/date-utils';
-// import serviceAccount from '../../../firebase-adminsdk.json';
 
 @Injectable()
 export class ScheduleService {
