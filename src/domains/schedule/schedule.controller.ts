@@ -113,9 +113,9 @@ export class ScheduleController {
     return HttpResponse.ok(res);
   }
 
-  @Post('/send')
-  async sendNotification(@Res() res) {
-    const result = await this.scheduleService.sendPushMessages();
-    return HttpResponse.ok(res, result);
-  }
+  // @Post('/send')
+  // async sendNotification(@Res() res) {
+  //   const result = await this.scheduleService.sendPushMessages();
+  //   return HttpResponse.ok(res, result);
+  // }
 }
