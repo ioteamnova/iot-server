@@ -7,7 +7,7 @@ export class RecordcoolingfanListDto extends PartialType(CreateRecordDto) {
     description: '쿨링팬 현황',
     default: 1,
   })
-  coolingFan: boolean;
+  coolingFan: number;
 
   constructor(iotControlRecord: IotControlRecord) {
     super();

@@ -10,16 +10,16 @@ export class IotControlRecord extends BaseEntity {
   boardIdx: number;
 
   @Column()
-  uvbLight: boolean;
+  uvbLight: number;
 
   @Column()
-  heatingLight: boolean;
+  heatingLight: number;
 
   @Column()
-  waterPump: boolean;
+  waterPump: number;
 
   @Column()
-  coolingFan: boolean;
+  coolingFan: number;
 
   @Column({ type: 'enum', name: 'type', enum: ControlType })
   type: number; //1. auto, 2. passive
