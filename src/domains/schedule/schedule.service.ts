@@ -10,7 +10,6 @@ import { ScheduleListDto } from './dtos/schedule-list.dto';
 import * as admin from 'firebase-admin';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import DateUtils from 'src/utils/date-utils';
-
 // import serviceAccount from '../../../firebase-adminsdk.json';
 
 @Injectable()
@@ -22,11 +21,11 @@ export class ScheduleService {
     private userRepository: UserRepository,
   ) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const serviceAccount = require('../../../firebase-adminsdk.json');
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    });
-    this.fcm = admin.messaging();
+    // const serviceAccount = require('../../../firebase-adminsdk.json');
+    // admin.initializeApp({
+    //   credential: admin.credential.cert(serviceAccount),
+    // });
+    // this.fcm = admin.messaging();
   }
   async create(dto: CreateScheduleDto, userIdx: number) {
     const user = await this.userRepository.findByUserIdx(userIdx);
@@ -81,13 +80,13 @@ export class ScheduleService {
 
   // @Cron(CronExpression.EVERY_MINUTE) // 1분마다 실행
   async sendPushMessages() {
-    // 1. 현재시간의 스케줄 가져오기
-    const currentTime = DateUtils.momentTime(); // 현재 시간 '18:00'
-    const testTime = '18:00'; // 테스트용
-    const day = DateUtils.momentDay(); // 현재 요일 3
+    const currentTime = DateUtils.momentTime();
+    console.log('currentTime::', currentTime);
+    // const testTime = '18:00'; // 테스트용
+    const day = DateUtils.momentDay();
 
     const schedules = await this.scheduleRepository.findSchedulesByTime(
-      testTime,
+      currentTime,
     );
     if (!schedules) {
       console.log('No schedules to send alerts.');
@@ -105,40 +104,44 @@ export class ScheduleService {
       console.log('No schedules to send alerts.');
       return;
     }
-
-    // 유저 토큰 가져오기
-    const userTokens = matchingSchedules.map((ms) => ms.user.fbToken);
-
+    const userTokensMap = new Map();
     for (const matchingSchedule of matchingSchedules) {
-      const title = matchingSchedule.title;
-      const body = matchingSchedule.memo;
+      const userToken = matchingSchedule.user.fbToken;
+
+      if (!userTokensMap.has(userToken)) {
+        userTokensMap.set(userToken, []);
+      }
+
+      userTokensMap.get(userToken).push(matchingSchedule);
+    }
+
+    for (const [userToken, userSchedules] of userTokensMap) {
+      const notifications = userSchedules.map((schedule) => {
+        return {
+          title: schedule.title,
+          body: schedule.memo,
+        };
+      });
 
       console.log(
-        `${DateUtils.momentNow()} || The matchingSchedule of idx is : ${
-          matchingSchedule.idx
-        }.`,
+        `${DateUtils.momentNow()} || Sending notifications to user with token: ${userToken}`,
       );
-      await this.sendNotifications(title, body, userTokens);
+      await this.sendNotifications(notifications, userToken);
     }
   }
 
-  // 파이어베이스 서버로 요청 보내는 함수
-  async sendNotifications(title: string, body: string, tokens: string[]) {
+  async sendNotifications(notifications, token) {
     const message = {
       notification: {
-        title: title,
-        body: body,
-        imageUrl:
-          'https://reptimate.s3.ap-northeast-2.amazonaws.com/reptimate_logo.png',
+        title: notifications[0].title,
+        body: notifications[0].body,
       },
-      tokens: tokens,
+      tokens: [token],
       android: {
-        // data안에 클라이언트에게 보낼 필요할 데이터 입력
         data: {},
       },
       apns: {
         payload: {
-          // aps안에 클라이언트에게 보낼 필요할 데이터 입력
           aps: {},
         },
       },
