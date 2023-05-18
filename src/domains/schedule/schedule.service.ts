@@ -7,14 +7,14 @@ import { Page, PageRequest } from 'src/core/page';
 import { UserRepository } from '../user/repositories/user.repository';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
 import { ScheduleListDto } from './dtos/schedule-list.dto';
-import * as admin from 'firebase-admin';
-import { Cron, CronExpression } from '@nestjs/schedule';
+// import * as admin from 'firebase-admin';
+// import { Cron, CronExpression } from '@nestjs/schedule';
 import DateUtils from 'src/utils/date-utils';
 // import serviceAccount from '../../../firebase-adminsdk.json';
 
 @Injectable()
 export class ScheduleService {
-  private fcm: admin.messaging.Messaging;
+  // private fcm: admin.messaging.Messaging;
 
   constructor(
     private scheduleRepository: ScheduleRepository,
@@ -79,79 +79,79 @@ export class ScheduleService {
   }
 
   // @Cron(CronExpression.EVERY_MINUTE) // 1분마다 실행
-  async sendPushMessages() {
-    const currentTime = DateUtils.momentTime();
-    console.log('currentTime::', currentTime);
-    // const testTime = '18:00'; // 테스트용
-    const day = DateUtils.momentDay();
+  // async sendPushMessages() {
+  //   const currentTime = DateUtils.momentTime();
+  //   console.log('currentTime::', currentTime);
+  //   // const testTime = '18:00'; // 테스트용
+  //   const day = DateUtils.momentDay();
 
-    const schedules = await this.scheduleRepository.findSchedulesByTime(
-      currentTime,
-    );
-    if (!schedules) {
-      console.log('No schedules to send alerts.');
-      return;
-    }
+  //   const schedules = await this.scheduleRepository.findSchedulesByTime(
+  //     currentTime,
+  //   );
+  //   if (!schedules) {
+  //     console.log('No schedules to send alerts.');
+  //     return;
+  //   }
 
-    const matchingSchedules = schedules.filter((schedule) => {
-      const repeatArray = schedule.repeat.split(',');
-      const isRepeat: boolean = repeatArray[day] === '1';
+  //   const matchingSchedules = schedules.filter((schedule) => {
+  //     const repeatArray = schedule.repeat.split(',');
+  //     const isRepeat: boolean = repeatArray[day] === '1';
 
-      return isRepeat;
-    });
+  //     return isRepeat;
+  //   });
 
-    if (!matchingSchedules) {
-      console.log('No schedules to send alerts.');
-      return;
-    }
-    const userTokensMap = new Map();
-    for (const matchingSchedule of matchingSchedules) {
-      const userToken = matchingSchedule.user.fbToken;
+  //   if (!matchingSchedules) {
+  //     console.log('No schedules to send alerts.');
+  //     return;
+  //   }
+  //   const userTokensMap = new Map();
+  //   for (const matchingSchedule of matchingSchedules) {
+  //     const userToken = matchingSchedule.user.fbToken;
 
-      if (!userTokensMap.has(userToken)) {
-        userTokensMap.set(userToken, []);
-      }
+  //     if (!userTokensMap.has(userToken)) {
+  //       userTokensMap.set(userToken, []);
+  //     }
 
-      userTokensMap.get(userToken).push(matchingSchedule);
-    }
+  //     userTokensMap.get(userToken).push(matchingSchedule);
+  //   }
 
-    for (const [userToken, userSchedules] of userTokensMap) {
-      const notifications = userSchedules.map((schedule) => {
-        return {
-          title: schedule.title,
-          body: schedule.memo,
-        };
-      });
+  //   for (const [userToken, userSchedules] of userTokensMap) {
+  //     const notifications = userSchedules.map((schedule) => {
+  //       return {
+  //         title: schedule.title,
+  //         body: schedule.memo,
+  //       };
+  //     });
 
-      console.log(
-        `${DateUtils.momentNow()} || Sending notifications to user with token: ${userToken}`,
-      );
-      await this.sendNotifications(notifications, userToken);
-    }
-  }
+  //     console.log(
+  //       `${DateUtils.momentNow()} || Sending notifications to user with token: ${userToken}`,
+  //     );
+  //     await this.sendNotifications(notifications, userToken);
+  //   }
+  // }
 
-  async sendNotifications(notifications, token) {
-    const message = {
-      notification: {
-        title: notifications[0].title,
-        body: notifications[0].body,
-      },
-      tokens: [token],
-      android: {
-        data: {},
-      },
-      apns: {
-        payload: {
-          aps: {},
-        },
-      },
-    };
+  // async sendNotifications(notifications, token) {
+  //   const message = {
+  //     notification: {
+  //       title: notifications[0].title,
+  //       body: notifications[0].body,
+  //     },
+  //     tokens: [token],
+  //     android: {
+  //       data: {},
+  //     },
+  //     apns: {
+  //       payload: {
+  //         aps: {},
+  //       },
+  //     },
+  //   };
 
-    try {
-      const responses = await this.fcm.sendEachForMulticast(message);
-      console.log('Successfully sent messages:', responses);
-    } catch (error) {
-      console.log('Error sending messages:', error);
-    }
-  }
+  //   try {
+  //     const responses = await this.fcm.sendEachForMulticast(message);
+  //     console.log('Successfully sent messages:', responses);
+  //   } catch (error) {
+  //     console.log('Error sending messages:', error);
+  //   }
+  // }
 }
