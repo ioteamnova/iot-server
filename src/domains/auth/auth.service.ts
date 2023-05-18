@@ -64,10 +64,7 @@ export class AuthService {
         break;
       }
       case SocialMethodType.APPLE: {
-        user = await this.getUserByAppleAccessToken(
-          dto.accessToken,
-          dto.socialType,
-        );
+        user = await this.getUserByAppleAccessToken(dto);
         break;
       }
       default: {
@@ -146,34 +143,28 @@ export class AuthService {
     return googleUser;
   }
 
-  async getUserByAppleAccessToken(
-    accessToken: string,
-    socialType: SocialMethodType.APPLE,
-  ) {
-    // 사용자 정보 가져오기
-    const userInfoResponse = await axios.get(
-      'https://appleid.apple.com/auth/userinfo',
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+  async getUserByAppleAccessToken(dto: SocialLoginUserDto): Promise<User> {
+    /** 이메일, 닉네임, 소셜 타입을 받아서 구글 로그인 처리
+     1. 이메일로 조회
+     2. 없으면 회원가입 처리
+     3. 유저 생성 후 리턴
+     */
+    const user = await this.userRepository.findOne({
+      where: {
+        email: dto.email,
       },
-    );
-    const { sub, email } = userInfoResponse.data;
-
-    // 사용자 정보가 이미 등록되어 있는지 확인
-    let user = await this.userRepository.findOne({ where: { email } });
-    if (!user) {
-      // 사용자 정보가 없으면 새로 생성
-      user = await this.userService.createSocialUser(
-        email,
-        userInfoResponse.data.name,
-        socialType,
-      );
-      const appleUser = await this.userRepository.save(user);
-      return appleUser;
+    });
+    if (user) {
+      return user;
     }
-    return user;
+
+    const appleUser = await this.userService.createSocialUser(
+      dto.email,
+      dto.nickname,
+      dto.socialType,
+    );
+
+    return appleUser;
   }
 
   // 우리 서버 전용 JWT 토큰 발행

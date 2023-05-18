@@ -28,7 +28,7 @@ export class SocialLoginUserDto {
   socialType: SocialMethodType;
 
   @ApiProperty({
-    description: '구글 로그인 이메일',
+    description: '소셜 로그인 이메일',
     default: 'asd123@gmail.com',
     required: false,
   })
