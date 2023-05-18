@@ -7,7 +7,7 @@ export class RecordUvblightListDto extends PartialType(CreateRecordDto) {
     description: 'uvb 램프 현황',
     default: 1,
   })
-  uvbLight: boolean;
+  uvbLight: number;
 
   constructor(iotControlRecord: IotControlRecord) {
     super();

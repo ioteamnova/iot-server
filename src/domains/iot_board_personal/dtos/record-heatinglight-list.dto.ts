@@ -7,7 +7,7 @@ export class RecordHeatinglightListDto extends PartialType(CreateRecordDto) {
     description: '온열 램프 현황',
     default: 1,
   })
-  heatingLight: boolean;
+  heatingLight: number;
 
   constructor(iotControlRecord: IotControlRecord) {
     super();
