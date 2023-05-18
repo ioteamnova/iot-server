@@ -27,7 +27,6 @@ import { ApiCommonErrorResponseTemplate } from 'src/core/swagger/api-error-commo
 import { ApiOkPaginationResponseTemplate } from 'src/core/swagger/api-ok-pagination-response';
 import { PageRequest } from 'src/core/page';
 import { ApiOkResponseTemplate } from 'src/core/swagger/api-ok-response';
-import { RequestScheduleDto } from './dtos/request-dto';
 @ApiTags(SwaggerTag.SCHEDULE)
 @ApiCommonErrorResponseTemplate()
 @Controller('/schedules')
@@ -112,10 +111,4 @@ export class ScheduleController {
     await this.scheduleService.remove(scheduleIdx);
     return HttpResponse.ok(res);
   }
-
-  // @Post('/send')
-  // async sendNotification(@Res() res) {
-  //   const result = await this.scheduleService.sendPushMessages();
-  //   return HttpResponse.ok(res, result);
-  // }
 }
