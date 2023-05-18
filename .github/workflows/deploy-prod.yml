@@ -46,9 +46,9 @@ jobs:
           echo GOOGLE_AUTH_CLIENT_ID=${{ secrets.PROD_GOOGLE_AUTH_CLIENT_ID }} >> .env.prod
           echo GOOGLE_AUTH_CLIENT_SECRET=${{ secrets.PROD_GOOGLE_AUTH_CLIENT_SECRET }} >> .env.prod
       # firebase admin
-      - name: Create firebase-adminsdk.json file
-        run: |
-          echo ${{ secrets.PROD_FIREBASE_ADMIN }} >> firebase-adminsdk.json
+      # - name: Create firebase-adminsdk.json file
+      #   run: |
+      #     echo ${{ secrets.PROD_FIREBASE_ADMIN }} >> firebase-adminsdk.json
 
       # zip 파일 생성
       - name: create a zip file
