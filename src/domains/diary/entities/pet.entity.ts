@@ -27,9 +27,6 @@ export class Pet extends BaseEntity {
   adoptionDate: Date;
 
   @Column()
-  weight: number;
-
-  @Column()
   imagePath: string;
 
   @ManyToOne(() => User, (user) => user.pets)
@@ -47,7 +44,6 @@ export class Pet extends BaseEntity {
     gender,
     birthDate,
     adoptionDate,
-    weight,
     imagePath,
   }: {
     name: string;
@@ -55,7 +51,6 @@ export class Pet extends BaseEntity {
     gender: Gender;
     birthDate: Date;
     adoptionDate: Date;
-    weight: number;
     imagePath: string;
   }) {
     const pet = new Pet();
@@ -64,7 +59,6 @@ export class Pet extends BaseEntity {
     pet.gender = gender;
     pet.birthDate = birthDate;
     pet.adoptionDate = adoptionDate;
-    pet.weight = weight;
     pet.imagePath = imagePath;
 
     return pet;
@@ -76,7 +70,6 @@ export class Pet extends BaseEntity {
     this.gender = dto.gender;
     this.birthDate = dto.birthDate;
     this.adoptionDate = dto.adoptionDate;
-    this.weight = dto.weight;
     this.imagePath = dto.imagePath;
   }
 }

@@ -45,9 +45,6 @@ jobs:
           echo AWS_BUCKET_REGION=${{ secrets.PROD_AWS_BUCKET_REGION }} >> .env.prod
           echo NODE_MAILER_ID=${{ secrets.PROD_NODE_MAILER_ID }} >> .env.prod
           echo NODE_MAILER_PASSWORD=${{ secrets.PROD_NODE_MAILER_PASSWORD }} >> .env.prod
-          echo FB_PROJECT_ID=${{ secrets.PROD_FB_PROJECT_ID }} >> .env.prod
-          echo FB_CLIENT_EMAIL=${{ secrets.PROD_FB_CLIENT_EMAIL }} >> .env.prod
-          echo FB_PRIVATE_KEY=${{ secrets.PROD_FB_PRIVATE_KEY }} >> .env.prod
 
       # zip 파일 생성
       - name: create a zip file

@@ -19,11 +19,8 @@ export class ScheduleService {
     private scheduleRepository: ScheduleRepository,
     private userRepository: UserRepository,
   ) {
-    const serviceAccount = {
-      projectId: process.env.FB_PROJECT_ID,
-      clientEmail: process.env.FB_CLIENT_EMAIL,
-      privateKey: process.env.FB_PRIVATE_KEY.replace(/\\n/g, '\n'),
-    };
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const serviceAccount = require('../../../firebase-adminsdk.json');
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });

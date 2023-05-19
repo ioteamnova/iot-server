@@ -46,15 +46,5 @@ export class CreatePetDto {
   @IsOptional()
   adoptionDate: Date;
 
-  @ApiProperty({
-    description: '체중 (g)',
-    default: 0,
-    type: 'float',
-    required: false,
-  })
-  @IsOptional()
-  @IsNumber()
-  weight: number;
-
   imagePath: string;
 }
