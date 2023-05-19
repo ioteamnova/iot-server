@@ -10,6 +10,8 @@ import { ScheduleListDto } from './dtos/schedule-list.dto';
 import * as admin from 'firebase-admin';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import DateUtils from 'src/utils/date-utils';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const serviceAccount = require('../../../firebase-adminsdk.json');
 
 @Injectable()
 export class ScheduleService {
@@ -19,8 +21,6 @@ export class ScheduleService {
     private scheduleRepository: ScheduleRepository,
     private userRepository: UserRepository,
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const serviceAccount = require('../../../firebase-adminsdk.json');
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
