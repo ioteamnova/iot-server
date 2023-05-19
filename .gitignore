@@ -25,4 +25,4 @@ package-lock.json
 *.spec.ts
 
 #firebase-adminsdk
-firebase-adminsdk.json
+# firebase-adminsdk.json

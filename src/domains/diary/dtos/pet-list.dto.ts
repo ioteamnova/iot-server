@@ -52,13 +52,6 @@ export class PetListDto {
   adoptionDate: Date;
 
   @ApiProperty({
-    description: '체중(g)',
-    default: 100.25,
-  })
-  @IsOptional()
-  weight: number;
-
-  @ApiProperty({
     description: '이미지 url',
     default: null,
   })
@@ -72,7 +65,6 @@ export class PetListDto {
     this.gender = pet.gender;
     this.birthDate = pet.birthDate;
     this.adoptionDate = pet.adoptionDate;
-    this.weight = pet.weight;
     this.imagePath = pet.imagePath;
   }
 }

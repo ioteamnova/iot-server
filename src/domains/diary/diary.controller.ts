@@ -15,7 +15,6 @@ import {
   UseInterceptors,
   UploadedFile,
   UploadedFiles,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import AuthUser from 'src/core/decorators/auth-user.decorator';
