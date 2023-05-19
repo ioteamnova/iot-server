@@ -56,7 +56,7 @@ export class UserService {
     user.loginMethod =
       socialType === 'KAKAO'
         ? SocialMethodType.KAKAO
-        : 'GOOGLE'
+        : socialType === 'GOOGLE'
         ? SocialMethodType.GOOGLE
         : SocialMethodType.APPLE;
 
