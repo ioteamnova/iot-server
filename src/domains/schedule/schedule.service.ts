@@ -20,12 +20,12 @@ export class ScheduleService {
     private userRepository: UserRepository,
   ) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    // const serviceAccount = require('../../../firebase-adminsdk.json');
-    const serviceAccount = {
-      projectId: process.env.FB_PROJECT_ID,
-      clientEmail: process.env.FB_CLIENT_EMAIL,
-      privateKey: process.env.FB_PRIVATE_KEY.replace(/\\n/g, '\n'),
-    };
+    const serviceAccount = require('../../../firebase-adminsdk.json');
+    // const serviceAccount = {
+    //   projectId: process.env.FB_PROJECT_ID,
+    //   clientEmail: process.env.FB_CLIENT_EMAIL,
+    //   privateKey: process.env.FB_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    // };
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
@@ -86,11 +86,11 @@ export class ScheduleService {
   async sendPushMessages() {
     const currentTime = DateUtils.momentTime();
     console.log('currentTime::', currentTime);
-    const testTime = '18:00'; // 테스트용
+    // const testTime = '18:00'; // 테스트용
     const day = DateUtils.momentDay();
 
     const schedules = await this.scheduleRepository.findSchedulesByTime(
-      testTime,
+      currentTime,
     );
     if (schedules.length === 0) {
       console.log('No schedules to send alerts.');
