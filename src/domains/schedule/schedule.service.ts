@@ -19,13 +19,11 @@ export class ScheduleService {
     private scheduleRepository: ScheduleRepository,
     private userRepository: UserRepository,
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const serviceAccount = require('../../../firebase-adminsdk.json');
-    // const serviceAccount = {
-    //   projectId: process.env.FB_PROJECT_ID,
-    //   clientEmail: process.env.FB_CLIENT_EMAIL,
-    //   privateKey: process.env.FB_PRIVATE_KEY.replace(/\\n/g, '\n'),
-    // };
+    const serviceAccount = {
+      projectId: process.env.FB_PROJECT_ID,
+      clientEmail: process.env.FB_CLIENT_EMAIL,
+      privateKey: process.env.FB_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    };
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
@@ -116,7 +114,6 @@ export class ScheduleService {
       }
 
       userTokensMap.get(userToken).push(matchingSchedule);
-      console.log('userTokensMap::', userTokensMap);
     }
 
     for (const [userToken, userSchedules] of userTokensMap) {
@@ -126,7 +123,6 @@ export class ScheduleService {
           body: schedule.memo,
         };
       });
-      console.log('notifications::', notifications);
 
       console.log(
         `${DateUtils.momentNow()} || Sending notifications to user with token: ${userToken}`,
@@ -154,7 +150,6 @@ export class ScheduleService {
               },
             },
           };
-          console.log('message-notification::', message.notification);
           return this.fcm.sendEachForMulticast(message);
         }),
       );
