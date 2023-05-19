@@ -20,7 +20,12 @@ export class ScheduleService {
     private userRepository: UserRepository,
   ) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const serviceAccount = require('../../../firebase-adminsdk.json');
+    // const serviceAccount = require('../../../firebase-adminsdk.json');
+    const serviceAccount = {
+      projectId: process.env.FB_PROJECT_ID,
+      clientEmail: process.env.FB_CLIENT_EMAIL,
+      privateKey: process.env.FB_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    };
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
@@ -81,11 +86,11 @@ export class ScheduleService {
   async sendPushMessages() {
     const currentTime = DateUtils.momentTime();
     console.log('currentTime::', currentTime);
-    // const testTime = '18:00'; // 테스트용
+    const testTime = '18:00'; // 테스트용
     const day = DateUtils.momentDay();
 
     const schedules = await this.scheduleRepository.findSchedulesByTime(
-      currentTime,
+      testTime,
     );
     if (schedules.length === 0) {
       console.log('No schedules to send alerts.');
@@ -95,7 +100,6 @@ export class ScheduleService {
     const matchingSchedules = schedules.filter((schedule) => {
       const repeatArray = schedule.repeat.split(',');
       const isRepeat: boolean = repeatArray[day] === '1';
-
       return isRepeat;
     });
 
@@ -112,6 +116,7 @@ export class ScheduleService {
       }
 
       userTokensMap.get(userToken).push(matchingSchedule);
+      console.log('userTokensMap::', userTokensMap);
     }
 
     for (const [userToken, userSchedules] of userTokensMap) {
@@ -121,6 +126,7 @@ export class ScheduleService {
           body: schedule.memo,
         };
       });
+      console.log('notifications::', notifications);
 
       console.log(
         `${DateUtils.momentNow()} || Sending notifications to user with token: ${userToken}`,
@@ -130,24 +136,28 @@ export class ScheduleService {
   }
 
   async sendNotifications(notifications, token) {
-    const message = {
-      notification: {
-        title: notifications[0].title,
-        body: notifications[0].body,
-      },
-      tokens: [token],
-      android: {
-        data: {},
-      },
-      apns: {
-        payload: {
-          aps: {},
-        },
-      },
-    };
-
     try {
-      const responses = await this.fcm.sendEachForMulticast(message);
+      const responses = await Promise.all(
+        notifications.map(async (notification) => {
+          const message = {
+            notification: {
+              title: notification.title,
+              body: notification.body,
+            },
+            tokens: [token],
+            android: {
+              data: {},
+            },
+            apns: {
+              payload: {
+                aps: {},
+              },
+            },
+          };
+          console.log('message-notification::', message.notification);
+          return this.fcm.sendEachForMulticast(message);
+        }),
+      );
       console.log('Successfully sent messages:', responses);
     } catch (error) {
       console.log('Error sending messages:', error);
