@@ -16,7 +16,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.prod',
-      // todo: 환경 변수 유효성 검사 joi
     }),
     //todo: 설정파일 분리
     TypeOrmModule.forRoot({
