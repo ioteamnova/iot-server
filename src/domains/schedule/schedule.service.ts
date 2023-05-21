@@ -87,11 +87,11 @@ export class ScheduleService {
   async sendPushMessages() {
     const currentTime = DateUtils.momentTime();
     console.log('currentTime::', currentTime);
-    const testTime = '18:00'; // 테스트용
+    // const testTime = '18:00'; // 테스트용
     const day = DateUtils.momentDay();
 
     const schedules = await this.scheduleRepository.findSchedulesByTime(
-      testTime,
+      currentTime,
     );
     if (schedules.length === 0) {
       console.log('No schedules to send alerts.');
@@ -126,10 +126,6 @@ export class ScheduleService {
           body: schedule.memo,
         };
       });
-
-      console.log(
-        `${DateUtils.momentNow()} || Sending notifications to user: ${userSchedules}`,
-      );
       await this.sendNotifications(notifications, userToken);
     }
   }
