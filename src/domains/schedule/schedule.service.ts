@@ -8,9 +8,9 @@ import { UserRepository } from '../user/repositories/user.repository';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
 import { ScheduleListDto } from './dtos/schedule-list.dto';
 import * as admin from 'firebase-admin';
-// import { ServiceAccount } from 'firebase-admin';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import DateUtils from 'src/utils/date-utils';
+const serviceAccount = require('../../../firebase-adminsdk.json');
 
 @Injectable()
 export class ScheduleService {
@@ -20,14 +20,12 @@ export class ScheduleService {
     private scheduleRepository: ScheduleRepository,
     private userRepository: UserRepository,
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const serviceAccount = require('../../../firebase-adminsdk.json');
     // const serviceAccount: ServiceAccount = {
     //   projectId: process.env.FB_PROJECT_ID,
     //   clientEmail: process.env.FB_CLIENT_EMAIL,
     //   privateKey: process.env.FB_PRIVATE_KEY.replace(/\\n/g, '\n'),
     // };
-    console.log(serviceAccount.privateKey);
+    // console.log(serviceAccount);
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
