@@ -49,8 +49,8 @@ jobs:
           echo FB_CLIENT_EMAIL=${{ secrets.PROD_FB_CLIENT_EMAIL }} >> .env.prod
           echo FB_PRIVATE_KEY=${{ secrets.PROD_FB_PRIVATE_KEY }} >> .env.prod
 
-      - name: create firebase admin sdk json
-        id: create firebase admin sdk json
+      - name: create-json
+        id: create-json
         uses: jsdaniell/create-json@1.1.2
         with:
           name: 'firebase-adminsdk.json'
