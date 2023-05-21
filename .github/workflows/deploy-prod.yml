@@ -47,7 +47,7 @@ jobs:
           echo NODE_MAILER_PASSWORD=${{ secrets.PROD_NODE_MAILER_PASSWORD }} >> .env.prod
           echo FB_PROJECT_ID=${{ secrets.PROD_FB_PROJECT_ID }} >> .env.prod
           echo FB_CLIENT_EMAIL=${{ secrets.PROD_FB_CLIENT_EMAIL }} >> .env.prod
-          echo -e FB_PRIVATE_KEY=\"${{ secrets.PROD_FB_PRIVATE_KEY }}\" >> .env.prod
+          echo 'FB_PRIVATE_KEY=$(cat <<EOF\n${{ secrets.PROD_FB_PRIVATE_KEY }}\nEOF)' >> .env.prod
 
       # zip 파일 생성
       - name: create a zip file
