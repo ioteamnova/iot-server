@@ -16,7 +16,7 @@ export class IotAuthInfo extends BaseEntity {
     nullable: false,
     length: 255,
   })
-  boardTempname: string;
+  boardTempName: string;
 
   @Column({
     nullable: false,
@@ -27,7 +27,7 @@ export class IotAuthInfo extends BaseEntity {
   static fromDto(dto: CreateIotAuthDto) {
     const iotAuthInfo = new IotAuthInfo();
     iotAuthInfo.userIdx = dto.userIdx;
-    iotAuthInfo.boardTempname = dto.boardTempname;
+    iotAuthInfo.boardTempName = dto.boardTempName;
     iotAuthInfo.boardSerial = dto.boardSerial;
     return iotAuthInfo;
   }

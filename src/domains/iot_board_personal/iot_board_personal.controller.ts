@@ -106,8 +106,8 @@ export class IotBoardPersonalController {
   ) {
     const currentAuthInfo = await this.iotPersonalService.getAuthInfo_current();
 
-    //currentAuthInfo.boardTempname 여기서 숫자만 늘어나도록 할 것
-    const authNum = currentAuthInfo.boardTempname.split('KR_B')[1];
+    //currentAuthInfo.boardTempName 여기서 숫자만 늘어나도록 할 것
+    const authNum = currentAuthInfo.boardTempName.split('KR_B')[1];
     const newAuthNum = parseInt(authNum) + 1;
 
     //20자에서 영어 대문자 섞기
@@ -130,7 +130,7 @@ export class IotBoardPersonalController {
     if (chkDuplicate == null) {
       const iot_auth_info: any = {
         userIdx: user.idx,
-        boardTempname: 'KR_B' + newAuthNum,
+        boardTempName: 'KR_B' + newAuthNum,
         boardSerial: randomstring,
       };
       console.log(iot_auth_info);
