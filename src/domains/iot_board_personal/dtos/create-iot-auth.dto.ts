@@ -17,7 +17,7 @@ export class CreateIotAuthDto extends PageRequest {
     required: true,
   })
   @IsNotEmpty()
-  boardTempname: string;
+  boardTempName: string;
 
   @ApiProperty({
     description: '다이어리 내용',
