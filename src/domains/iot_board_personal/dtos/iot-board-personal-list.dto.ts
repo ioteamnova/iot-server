@@ -112,10 +112,10 @@ export class IotBoardPersonalListDto {
   autoLightUtctimeOff: string;
 
   @ApiProperty({
-    description: 'boardTempname',
+    description: 'boardTempName',
     default: 'KR_B1',
   })
-  boardTempname: string;
+  boardTempName: string;
 
   @ApiProperty({
     description: '생성일',
@@ -142,6 +142,6 @@ export class IotBoardPersonalListDto {
     this.usage = iotBoardPersonal.usage;
     this.autoLightUtctimeOn = iotBoardPersonal.autoLightUtctimeOn;
     this.autoLightUtctimeOff = iotBoardPersonal.autoLightUtctimeOff;
-    this.boardTempname = iotBoardPersonal.iotAuthInfo.boardTempname;
+    this.boardTempName = iotBoardPersonal.iotAuthInfo.boardTempName;
   }
 }
