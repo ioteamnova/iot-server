@@ -1,7 +1,15 @@
-import { Controller, Get, Res, Query } from '@nestjs/common';
-import { IotPersonalService } from './iot_board_personal.service';
+import {
+  Controller,
+  Get,
+  Res,
+  Query,
+  Post,
+  UseInterceptors,
+  Body,
+} from '@nestjs/common';
+import { IotBoardPersonalService } from './iot_board_personal.service';
 //import { Iot_personal } from './entities/iot_personal.entity';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PageRequest } from 'src/core/page';
 import UseAuthGuards from '../auth/auth-guards/use-auth';
 import AuthUser from 'src/core/decorators/auth-user.decorator';
@@ -15,9 +23,9 @@ import { IotControlPageRequest } from './dtos/iot-control-page';
 @ApiTags(SwaggerTag.IOT)
 @ApiCommonErrorResponseTemplate()
 @Controller('iotpersonal')
-export class IotPersonalController {
+export class IotBoardPersonalController {
   constructor(
-    private readonly iotPersonalService: IotPersonalService, // private authService: AuthService,
+    private readonly iotPersonalService: IotBoardPersonalService, // private authService: AuthService,
   ) { }
 
   //보드리스트
@@ -81,5 +89,59 @@ export class IotPersonalController {
 
     const result = await this.iotPersonalService.getControlList(pageRequest);
     return HttpResponse.ok(res, result);
+  }
+
+  @ApiOperation({
+    summary: '새로운 시리얼 보드를 생성',
+    description:
+      '새로운 시리얼 보드를 생성한다. 보드 시퀀스 가장 초기에 생성하는 부분이다. ',
+  })
+  @UseAuthGuards()
+  @Post('/creat_serialboard')
+  async createSerialBoard(
+    @Res() res,
+    // @Param('petIdx') petIdx: number,
+    // @Body() dto: CreatePetDto,
+    @AuthUser() user: User,
+  ) {
+    const currentAuthInfo = await this.iotPersonalService.getAuthInfo_current();
+
+    //currentAuthInfo.boardTempname 여기서 숫자만 늘어나도록 할 것
+    const authNum = currentAuthInfo.boardTempname.split('KR_B')[1];
+    const newAuthNum = parseInt(authNum) + 1;
+
+    //20자에서 영어 대문자 섞기
+    const bigAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXTZ';
+    const string_length = 20;
+    let randomstring = '';
+    for (let i = 0; i < string_length; i++) {
+      const rnum = Math.floor(Math.random() * bigAlphabet.length);
+      randomstring += bigAlphabet.substring(rnum, rnum + 1);
+    }
+
+    //boardSerial 중복 막기
+    const chkDuplicate = await this.iotPersonalService.chkAuthInfoDuplicate(
+      randomstring,
+    );
+
+    console.log('chkDuplicate');
+    console.log(chkDuplicate);
+
+    if (chkDuplicate == null) {
+      const iot_auth_info: any = {
+        userIdx: user.idx,
+        boardTempname: 'KR_B' + newAuthNum,
+        boardSerial: randomstring,
+      };
+      console.log(iot_auth_info);
+
+      const result = await this.iotPersonalService.createAuthInfo(
+        iot_auth_info,
+      );
+      return HttpResponse.ok(res, result);
+    } else {
+      const result = false;
+      return HttpResponse.ok(res, result);
+    }
   }
 }
