@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { IotPersonalController } from './iot_board_personal.controller';
-import { IotPersonalService } from './iot_board_personal.service';
+import { IotBoardPersonalController } from './iot_board_personal.controller';
+import { IotBoardPersonalService } from './iot_board_personal.service';
 import { IotBoardPersonalRepository } from './repositories/iot-board-personal.repository';
 import { IotNaturerecordRepository } from './repositories/iot-nature-record.repository';
 import { IotControlrecordRepository } from './repositories/iot-control-record.repository';
+import { IotAuthInfoRepository } from './repositories/iot-auth-info.repository';
 import { TypeOrmExModule } from 'src/core/typeorm-ex.module';
 
 @Module({
@@ -12,9 +13,10 @@ import { TypeOrmExModule } from 'src/core/typeorm-ex.module';
       IotBoardPersonalRepository,
       IotNaturerecordRepository,
       IotControlrecordRepository,
+      IotAuthInfoRepository,
     ]),
   ],
-  controllers: [IotPersonalController],
-  providers: [IotPersonalService],
+  controllers: [IotBoardPersonalController],
+  providers: [IotBoardPersonalService],
 })
-export class IotPersonalModule {}
+export class IotPersonalModule { }
