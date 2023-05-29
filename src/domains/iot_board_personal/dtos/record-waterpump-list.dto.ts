@@ -1,8 +1,8 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IotControlRecord } from '../entities/iot-control-record.entity';
-import { CreateRecordDto } from './create-record.dto';
+import { RecordListDto } from './record-list.dto';
 
-export class RecordWaterpumpListDto extends PartialType(CreateRecordDto) {
+export class RecordWaterpumpListDto extends PartialType(RecordListDto) {
   @ApiProperty({
     description: '워터펌프 현황',
     default: 1,
