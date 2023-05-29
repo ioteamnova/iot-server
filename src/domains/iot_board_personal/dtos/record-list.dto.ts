@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import DateUtils from 'src/utils/date-utils';
 
-export class CreateRecordDto {
+export class RecordListDto {
   @ApiProperty({
     description: '인덱스',
     default: 1,
