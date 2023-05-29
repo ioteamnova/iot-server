@@ -7,14 +7,14 @@ import { Page, PageRequest } from 'src/core/page';
 import { UserRepository } from '../user/repositories/user.repository';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
 import { ScheduleListDto } from './dtos/schedule-list.dto';
-import * as admin from 'firebase-admin';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import DateUtils from 'src/utils/date-utils';
-const serviceAccount = require('../../../firebase-adminsdk.json');
+// import * as admin from 'firebase-admin';
+// import { Cron, CronExpression } from '@nestjs/schedule';
+// import DateUtils from 'src/utils/date-utils';
+// const serviceAccount = require('../../../firebase-adminsdk.json');
 
 @Injectable()
 export class ScheduleService {
-  private fcm: admin.messaging.Messaging;
+  // private fcm: admin.messaging.Messaging;
 
   constructor(
     private scheduleRepository: ScheduleRepository,
@@ -26,11 +26,10 @@ export class ScheduleService {
     //   privateKey: process.env.FB_PRIVATE_KEY.replace(/\\n/g, '\n'),
     // };
     // console.log(serviceAccount);
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
-    });
-
-    this.fcm = admin.messaging();
+    // admin.initializeApp({
+    //   credential: admin.credential.cert(serviceAccount),
+    // });
+    // this.fcm = admin.messaging();
   }
   async create(dto: CreateScheduleDto, userIdx: number) {
     const user = await this.userRepository.findByUserIdx(userIdx);
@@ -83,78 +82,78 @@ export class ScheduleService {
     await this.scheduleRepository.softDelete(scheduleIdx);
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
-  async sendPushMessages() {
-    const currentTime = DateUtils.momentTime();
-    console.log('currentTime::', currentTime);
-    // const testTime = '18:00'; // 테스트용
-    const day = DateUtils.momentDay();
+  // @Cron(CronExpression.EVERY_MINUTE)
+  // async sendPushMessages() {
+  //   const currentTime = DateUtils.momentTime();
+  //   console.log('currentTime::', currentTime);
+  //   // const testTime = '18:00'; // 테스트용
+  //   const day = DateUtils.momentDay();
 
-    const schedules = await this.scheduleRepository.findSchedulesByTime(
-      currentTime,
-    );
-    if (schedules.length === 0) {
-      console.log('No schedules to send alerts.');
-      return;
-    }
+  //   const schedules = await this.scheduleRepository.findSchedulesByTime(
+  //     currentTime,
+  //   );
+  //   if (schedules.length === 0) {
+  //     console.log('No schedules to send alerts.');
+  //     return;
+  //   }
 
-    const matchingSchedules = schedules.filter((schedule) => {
-      const repeatArray = schedule.repeat.split(',');
-      const isRepeat: boolean = repeatArray[day] === '1';
-      return isRepeat;
-    });
+  //   const matchingSchedules = schedules.filter((schedule) => {
+  //     const repeatArray = schedule.repeat.split(',');
+  //     const isRepeat: boolean = repeatArray[day] === '1';
+  //     return isRepeat;
+  //   });
 
-    if (matchingSchedules.length === 0) {
-      console.log('No matchingSchedules to send alerts.');
-      return;
-    }
-    const userTokensMap = new Map();
-    for (const matchingSchedule of matchingSchedules) {
-      const userToken = matchingSchedule.user.fbToken;
+  //   if (matchingSchedules.length === 0) {
+  //     console.log('No matchingSchedules to send alerts.');
+  //     return;
+  //   }
+  //   const userTokensMap = new Map();
+  //   for (const matchingSchedule of matchingSchedules) {
+  //     const userToken = matchingSchedule.user.fbToken;
 
-      if (!userTokensMap.has(userToken)) {
-        userTokensMap.set(userToken, []);
-      }
+  //     if (!userTokensMap.has(userToken)) {
+  //       userTokensMap.set(userToken, []);
+  //     }
 
-      userTokensMap.get(userToken).push(matchingSchedule);
-    }
+  //     userTokensMap.get(userToken).push(matchingSchedule);
+  //   }
 
-    for (const [userToken, userSchedules] of userTokensMap) {
-      const notifications = userSchedules.map((schedule) => {
-        return {
-          title: schedule.title,
-          body: schedule.memo,
-        };
-      });
-      await this.sendNotifications(notifications, userToken);
-    }
-  }
+  //   for (const [userToken, userSchedules] of userTokensMap) {
+  //     const notifications = userSchedules.map((schedule) => {
+  //       return {
+  //         title: schedule.title,
+  //         body: schedule.memo,
+  //       };
+  //     });
+  //     await this.sendNotifications(notifications, userToken);
+  //   }
+  // }
 
-  async sendNotifications(notifications, token) {
-    try {
-      const responses = await Promise.all(
-        notifications.map(async (notification) => {
-          const message = {
-            notification: {
-              title: notification.title,
-              body: notification.body,
-            },
-            tokens: [token],
-            android: {
-              data: {},
-            },
-            apns: {
-              payload: {
-                aps: {},
-              },
-            },
-          };
-          return this.fcm.sendEachForMulticast(message);
-        }),
-      );
-      console.log('Successfully sent messages:', responses);
-    } catch (error) {
-      console.log('Error sending messages:', error);
-    }
-  }
+  // async sendNotifications(notifications, token) {
+  //   try {
+  //     const responses = await Promise.all(
+  //       notifications.map(async (notification) => {
+  //         const message = {
+  //           notification: {
+  //             title: notification.title,
+  //             body: notification.body,
+  //           },
+  //           tokens: [token],
+  //           android: {
+  //             data: {},
+  //           },
+  //           apns: {
+  //             payload: {
+  //               aps: {},
+  //             },
+  //           },
+  //         };
+  //         return this.fcm.sendEachForMulticast(message);
+  //       }),
+  //     );
+  //     console.log('Successfully sent messages:', responses);
+  //   } catch (error) {
+  //     console.log('Error sending messages:', error);
+  //   }
+  // }
 }
