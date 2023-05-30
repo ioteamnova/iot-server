@@ -24,8 +24,8 @@ export class AuthService {
    * @param loginUserDto
    * @returns JwtToken
    */
-  async login(loginUserDto: LoginUserDto): Promise<LoginResponseDto> {
-    const { email, password } = loginUserDto;
+  async login(dto: LoginUserDto): Promise<LoginResponseDto> {
+    const { email, password } = dto;
     const user = await this.userRepository.findOne({
       where: { email },
     });
@@ -35,6 +35,9 @@ export class AuthService {
       throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
     }
     await validatePassword(password, user.password);
+
+    const firebaseToken = dto.fbToken;
+    await this.userRepository.update(user.idx, { fbToken: firebaseToken });
 
     const payload = { userIdx: user.idx };
     const accessToken = this.jwtService.sign(payload);
