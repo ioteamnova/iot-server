@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, IsOptional } from 'class-validator';
-import { SocialMethodType } from '../helpers/constants';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export class LoginUserDto {
   @ApiProperty({
@@ -22,10 +21,9 @@ export class LoginUserDto {
 
   @ApiProperty({
     description: '파이어 베이스 토큰',
-    default: '',
-    required: false,
+    default: 'abcdefg',
+    required: true,
   })
-  @IsOptional()
   @IsString()
   fbToken: string;
 }
