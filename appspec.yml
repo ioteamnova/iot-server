@@ -2,18 +2,17 @@ version: 0.0
 os: linux
 files:
   - source: / # 인스턴스에 복사할 S3 파일의 경로입니다. / 로 설정하면S3_BUCKET_NAME/PROJECT_NAME/GITHUB_SHA.zip을 가져옵니다.
-    destination: /home/ubuntu/build # S3에서 가져온 파일을 저장할 위치입니다.
+    destination: /home/ubuntu/iot-server/build # S3에서 가져온 파일을 저장할 위치입니다.
     overwrite: yes # 덮어쓰기를 허용하는 옵션입니다.
 
 permissions: # pemission 설정 destination 파일에 owner,group,mode를 지정한다.
-  - object: /home/ubuntu/build
+  - object: /home/ubuntu/iot-server/build
     pattern: '**'
     owner: ubuntu
     group: ubuntu
     mode: 755
-
-hooks:
-  AfterInstall:
-    - location: scripts/after-deploy.sh
-      timeout: 300
-      runas: ubuntu
+# hooks:
+#   AfterInstall:
+#     - location: scripts/after-deploy.sh
+#       timeout: 300
+#       runas: ubuntu
