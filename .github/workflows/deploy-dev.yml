@@ -32,19 +32,19 @@ jobs:
       # env
       - name: create env file
         run: |
-          touch .env.prod
-          echo AWS_ACCESS_KEY_ID=${{ secrets.PROD_AWS_ACCESS_KEY_ID }} >> .env.prod
-          echo AWS_SECRET_ACCESS_KEY=${{ secrets.secrets.PROD_AWS_SECRET_KEY }} >> .env.prod
-          echo MYSQL_HOST=${{ secrets.PROD_MYSQL_HOST }} >> .env.prod
-          echo MYSQL_PORT=${{ secrets.PROD_MYSQL_PORT }} >> .env.prod
-          echo MYSQL_USER=${{ secrets.PROD_MYSQL_USER }} >> .env.prod
-          echo MYSQL_PASSWORD=${{ secrets.PROD_MYSQL_PASSWORD }} >> .env.prod
-          echo MYSQL_DATABASE_NAME= ${{ secrets.PROD_MYSQL_DATABASE_NAME }} >> .env.prod         
-          echo MYSQL_LOGGING=${{ secrets.PROD_MYSQL_LOGGING }} >> .env.prod
-          echo AWS_BUCKET_NAME=${{ secrets.PROD_AWS_BUCKET_NAME }} >> .env.prod
-          echo AWS_BUCKET_REGION=${{ secrets.PROD_AWS_BUCKET_REGION }} >> .env.prod
-          echo NODE_MAILER_ID=${{ secrets.PROD_NODE_MAILER_ID }} >> .env.prod
-          echo NODE_MAILER_PASSWORD=${{ secrets.PROD_NODE_MAILER_PASSWORD }} >> .env.prod
+          touch .env.dev
+          echo AWS_ACCESS_KEY_ID=${{ secrets.PROD_AWS_ACCESS_KEY_ID }} >> .env.dev
+          echo AWS_SECRET_ACCESS_KEY=${{ secrets.secrets.PROD_AWS_SECRET_KEY }} >> .env.dev
+          echo MYSQL_HOST=${{ secrets.PROD_MYSQL_HOST }} >> .env.dev
+          echo MYSQL_PORT=${{ secrets.PROD_MYSQL_PORT }} >> .env.dev
+          echo MYSQL_USER=${{ secrets.PROD_MYSQL_USER }} >> .env.dev
+          echo MYSQL_PASSWORD=${{ secrets.PROD_MYSQL_PASSWORD }} >> .env.dev
+          echo MYSQL_DATABASE_NAME= ${{ secrets.PROD_MYSQL_DATABASE_NAME }} >> .env.dev
+          echo MYSQL_LOGGING=${{ secrets.PROD_MYSQL_LOGGING }} >> .env.dev
+          echo AWS_BUCKET_NAME=${{ secrets.PROD_AWS_BUCKET_NAME }} >> .env.dev
+          echo AWS_BUCKET_REGION=${{ secrets.PROD_AWS_BUCKET_REGION }} >> .env.dev
+          echo NODE_MAILER_ID=${{ secrets.PROD_NODE_MAILER_ID }} >> .env.dev
+          echo NODE_MAILER_PASSWORD=${{ secrets.PROD_NODE_MAILER_PASSWORD }} >> .env.dev
 
       - name: create-json
         id: create-json

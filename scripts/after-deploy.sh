@@ -1,6 +1,7 @@
 #!/bin/bash
-REPOSITORY=/home/ubuntu/iot-server/build
+REPOSITORY=/home/ubuntu/build
 
 cd $REPOSITORY
-npm i pm2 -g
-pm2 reload main
+
+sudo /usr/bin/npm i
+sudo /usr/bin/pm2 reload main
