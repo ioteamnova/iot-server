@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 import { ExtractJwt } from 'passport-jwt';
-import { jwtConstants } from './jwt.constants';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -11,7 +10,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), // 헤더로부터 토큰 추출하는 함수. Bearer 타입 사용
       ignoreExpiration: false,
-      secretOrKey: jwtConstants.secret, //todo: env로 빼기
+      secretOrKey: process.env.JWT_SECRET,
       jsonWebTokenOptions: {
         subject: 'userInfo',
         issuer: 'reptimate.store',
