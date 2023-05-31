@@ -6,13 +6,12 @@ import { UserRepository } from '../user/repositories/user.repository';
 import { TypeOrmExModule } from 'src/core/typeorm-ex.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { jwtConstants } from './jwt/jwt.constants';
 import { JwtStrategy } from './jwt/jwt.strategy';
 
 @Module({
   imports: [
     JwtModule.register({
-      secret: jwtConstants.secret,
+      secret: process.env.JWT_SECRET,
       signOptions: {
         expiresIn: '365 days',
         issuer: 'reptimate.store',
