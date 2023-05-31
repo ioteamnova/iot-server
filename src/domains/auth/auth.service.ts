@@ -63,11 +63,11 @@ export class AuthService {
         break;
       }
       case SocialMethodType.GOOGLE: {
-        user = await this.getUserByGoogleAccessToken(dto);
+        user = await this.getSocialLoginUser(dto);
         break;
       }
       case SocialMethodType.APPLE: {
-        user = await this.getUserByAppleAccessToken(dto);
+        user = await this.getSocialLoginUser(dto);
         break;
       }
       default: {
@@ -121,8 +121,8 @@ export class AuthService {
     return kakaoUser;
   }
 
-  async getUserByGoogleAccessToken(dto: SocialLoginUserDto): Promise<User> {
-    /** 이메일, 닉네임, 소셜 타입을 받아서 구글 로그인 처리
+  async getSocialLoginUser(dto: SocialLoginUserDto): Promise<User> {
+    /** 이메일, 닉네임, 소셜 타입을 받아서 구글/애플 로그인 처리
      1. 이메일로 조회
      2. 없으면 회원가입 처리
      3. 유저 생성 후 리턴
@@ -137,37 +137,13 @@ export class AuthService {
       return user;
     }
 
-    const googleUser = await this.userService.createSocialUser(
+    const socialUser = await this.userService.createSocialUser(
       dto.email,
       dto.nickname,
       dto.socialType,
     );
 
-    return googleUser;
-  }
-
-  async getUserByAppleAccessToken(dto: SocialLoginUserDto): Promise<User> {
-    /** 이메일, 닉네임, 소셜 타입을 받아서 구글 로그인 처리
-     1. 이메일로 조회
-     2. 없으면 회원가입 처리
-     3. 유저 생성 후 리턴
-     */
-    const user = await this.userRepository.findOne({
-      where: {
-        email: dto.email,
-      },
-    });
-    if (user) {
-      return user;
-    }
-
-    const appleUser = await this.userService.createSocialUser(
-      dto.email,
-      dto.nickname,
-      dto.socialType,
-    );
-
-    return appleUser;
+    return socialUser;
   }
 
   // 우리 서버 전용 JWT 토큰 발행

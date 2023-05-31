@@ -45,6 +45,7 @@ jobs:
           echo AWS_BUCKET_REGION=${{ secrets.PROD_AWS_BUCKET_REGION }} >> .env.prod
           echo NODE_MAILER_ID=${{ secrets.PROD_NODE_MAILER_ID }} >> .env.prod
           echo NODE_MAILER_PASSWORD=${{ secrets.PROD_NODE_MAILER_PASSWORD }} >> .env.prod
+          echo JWT_SECRET=${{ secrets.PROD_JWT_SECRET }} >> .env.prod
 
       - name: create-json
         id: create-json
