@@ -47,10 +47,9 @@ export class SocialLoginUserDto {
 
   @ApiProperty({
     description: '파이어 베이스 토큰',
-    default: '',
-    required: false,
+    default: 'abcdefg',
+    required: true,
   })
-  @IsOptional()
   @IsString()
   fbToken: string;
 }

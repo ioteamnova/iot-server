@@ -1,5 +1,4 @@
-import { PickType, ApiProperty } from '@nestjs/swagger';
-import { SocialLoginUserDto } from './social-login-user.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class LoginResponseDto {
   @ApiProperty({
