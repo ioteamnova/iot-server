@@ -28,7 +28,7 @@ export class AuthController {
   @Post()
   async login(@Res() res, @Body() dto: LoginUserDto) {
     const result = await this.authService.login(dto);
-    return HttpResponse.ok(res, result);
+    return HttpResponse.created(res, { body: result });
     // return res.status(201).send(result);
   }
 
@@ -43,6 +43,6 @@ export class AuthController {
   @Post('/social')
   async socialLogin(@Res() res, @Body() dto: SocialLoginUserDto) {
     const result = await this.authService.socialLogin(dto);
-    return HttpResponse.ok(res, result);
+    return HttpResponse.created(res, { body: result });
   }
 }

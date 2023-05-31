@@ -7,16 +7,20 @@ import { TypeOrmExModule } from 'src/core/typeorm-ex.module';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt/jwt.strategy';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: {
-        expiresIn: '365 days',
-        issuer: 'reptimate.store',
-        subject: 'userInfo',
-      },
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_SECRET'),
+        signOptions: {
+          expiresIn: '365 days',
+          issuer: 'reptimate.store',
+          subject: 'userInfo',
+        },
+      }),
     }),
     TypeOrmExModule.forCustomRepository([UserRepository]),
     PassportModule,
