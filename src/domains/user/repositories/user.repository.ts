@@ -31,12 +31,21 @@ export class UserRepository extends Repository<User> {
     return user;
   }
 
-  async findByfbTokens(tokens: string[]): Promise<User[]> {
-    return await this.createQueryBuilder('user')
-      .select(['user.idx', 'user.fbToken'])
-      // .select('user.idx')
-      // .addSelect('user.fbToken')
-      .where('user.fbToken IN (:...tokens)', { tokens })
-      .getMany();
+  async findByEmail(email: string): Promise<User> {
+    const user = await this.findOne({
+      where: {
+        email: email,
+      },
+    });
+    return user;
   }
+
+  // async findByfbTokens(tokens: string[]): Promise<User[]> {
+  //   return await this.createQueryBuilder('user')
+  //     .select(['user.idx', 'user.fbToken'])
+  //     // .select('user.idx')
+  //     // .addSelect('user.fbToken')
+  //     .where('user.fbToken IN (:...tokens)', { tokens })
+  //     .getMany();
+  // }
 }
