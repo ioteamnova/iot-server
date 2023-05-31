@@ -39,8 +39,7 @@ export class AuthService {
     const firebaseToken = dto.fbToken;
     await this.userRepository.update(user.idx, { fbToken: firebaseToken });
 
-    const payload = { userIdx: user.idx };
-    const accessToken = this.jwtService.sign(payload);
+    const accessToken = await this.generateAccessToken(user.idx);
     return {
       accessToken: accessToken,
       idx: user.idx,
@@ -74,6 +73,8 @@ export class AuthService {
         throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH); //소셜로그인 선택 실패 예외처리
       }
     }
+    const firebaseToken = dto.fbToken;
+    await this.userRepository.update(user.idx, { fbToken: firebaseToken });
     const accessToken = await this.generateAccessToken(user.idx);
     return {
       accessToken: accessToken,
@@ -81,15 +82,15 @@ export class AuthService {
     };
   }
 
-  async getUserByKakaoAccessToken(
-    accessToken: string,
-    socialType: SocialMethodType.KAKAO,
-  ): Promise<User> {
-    /** 액세스토큰, 소셜 타입을 받아서 카카오 로그인 처리
+  /** 액세스토큰, 소셜 타입을 받아서 카카오 로그인 처리
      1. 이메일로 조회
      2. 없으면 회원가입 처리
      3. 유저 생성 후 리턴
      */
+  async getUserByKakaoAccessToken(
+    accessToken: string,
+    socialType: SocialMethodType.KAKAO,
+  ): Promise<User> {
     const userInfoFromKakao = await axios.get(
       'https://kapi.kakao.com/v2/user/me',
       {
@@ -100,12 +101,9 @@ export class AuthService {
       throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
     }
 
-    const user = await this.userRepository.findOne({
-      where: {
-        email: userInfoFromKakao.data.kakao_account.email,
-      },
-    });
-
+    const user = await this.userRepository.findByEmail(
+      userInfoFromKakao.data.kakao_account.email,
+    );
     if (user) {
       return user;
     }
@@ -121,18 +119,13 @@ export class AuthService {
     return kakaoUser;
   }
 
-  async getSocialLoginUser(dto: SocialLoginUserDto): Promise<User> {
-    /** 이메일, 닉네임, 소셜 타입을 받아서 구글/애플 로그인 처리
+  /** 이메일, 닉네임, 소셜 타입을 받아서 구글/애플 로그인 처리
      1. 이메일로 조회
      2. 없으면 회원가입 처리
      3. 유저 생성 후 리턴
      */
-
-    const user = await this.userRepository.findOne({
-      where: {
-        email: dto.email,
-      },
-    });
+  async getSocialLoginUser(dto: SocialLoginUserDto): Promise<User> {
+    const user = await this.userRepository.findByEmail(dto.email);
     if (user) {
       return user;
     }
