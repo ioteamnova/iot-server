@@ -1,7 +1,5 @@
-import * as moment from 'moment-timezone';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber } from 'class-validator';
-import DateUtils from 'src/utils/date-utils';
 
 export class CreatePetWeightDto {
   @ApiProperty({
