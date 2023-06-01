@@ -11,7 +11,10 @@ export class PetWeight extends BaseEntity {
   @Column()
   weight: number;
 
-  @Column()
+  @Column({
+    type: 'date',
+    transformer: { to: (value) => value, from: (value) => value },
+  })
   date: Date;
 
   @ManyToOne(() => Pet, (pet) => pet.petWeights)

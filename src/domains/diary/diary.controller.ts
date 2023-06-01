@@ -1,6 +1,5 @@
 import { DiaryDetailDto } from './dtos/diary-detail-dto';
 import { UpdatePetDto } from './dtos/pet-update.dto';
-import { Pet } from 'src/domains/diary/entities/pet.entity';
 import { User } from 'src/domains/user/entities/user.entity';
 import {
   Controller,
@@ -26,7 +25,7 @@ import { CreatePetDto } from './dtos/create-pet.dto';
 import { UpdateDiaryDto } from './dtos/update-diary.dto';
 import { PetListDto } from './dtos/pet-list.dto';
 import { SwaggerTag } from 'src/core/swagger/swagger-tags';
-import { Page, PageRequest } from 'src/core/page';
+import { PageRequest } from 'src/core/page';
 import { ApiOkResponseTemplate } from 'src/core/swagger/api-ok-response';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { DiaryListDto } from './dtos/diary-list.dto';

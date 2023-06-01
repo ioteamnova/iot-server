@@ -20,10 +20,16 @@ export class Pet extends BaseEntity {
   @Column()
   gender: Gender;
 
-  @Column()
+  @Column({
+    type: 'date',
+    transformer: { to: (value) => value, from: (value) => value },
+  })
   birthDate: Date;
 
-  @Column()
+  @Column({
+    type: 'date',
+    transformer: { to: (value) => value, from: (value) => value },
+  })
   adoptionDate: Date;
 
   @Column()

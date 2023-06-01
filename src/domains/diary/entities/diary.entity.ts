@@ -1,4 +1,3 @@
-import { CreateDiaryDto } from '../dtos/create-diary.dto';
 import BaseEntity from 'src/core/entity/base.entity';
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { Pet } from './pet.entity';

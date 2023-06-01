@@ -32,9 +32,4 @@ export default class DateUtils {
   static stringToDate(date: string): Date {
     return moment(date).tz('Asia/Seoul').toDate();
   }
-
-  // 문자 -> 시간 ex) 2023-05-17T07:54:08.000Z
-  static stringToTime(date: string): Date {
-    return moment(date, 'HH:mm').tz('Asia/Seoul').toDate();
-  }
 }

@@ -1,6 +1,7 @@
 import * as moment from 'moment-timezone';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber } from 'class-validator';
+import DateUtils from 'src/utils/date-utils';
 
 export class CreatePetWeightDto {
   @ApiProperty({
@@ -15,9 +16,9 @@ export class CreatePetWeightDto {
 
   @ApiProperty({
     description: '날짜',
-    default: moment().format('YYYY-MM-DD'),
-    type: 'string',
-    format: 'YYYY-mm-dd',
+    default: '2023-06-02',
+    type: 'date',
+    format: 'YYYY-MM-dd',
     required: true,
   })
   @IsNotEmpty()
