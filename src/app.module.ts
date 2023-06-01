@@ -28,7 +28,7 @@ import { ScheduleModule } from '@nestjs/schedule';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: false,
       logging: true,
-      timezone: 'local',
+      timezone: 'Asia/Seoul',
       namingStrategy: new SnakeNamingStrategy(),
     }),
     UserModule,

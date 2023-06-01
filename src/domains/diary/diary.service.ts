@@ -19,7 +19,6 @@ import * as uuid from 'uuid';
 import { Diary } from './entities/diary.entity';
 import { DiaryImage } from './entities/diary-image.entity';
 import { DiaryImageRepository } from './repositories/diary-image.repository';
-import { DiaryDetailDto } from './dtos/diary-detail-dto';
 import { CreatePetWeightDto } from './dtos/create-pet-weight.dto';
 import { PetWeight } from './entities/pet-weight.entity';
 import { PetWeightRepository } from './repositories/pet-weight.repository';
@@ -315,11 +314,11 @@ export class DiaryService {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_PET);
     }
 
-    const isDate = await this.petWeightRepository.checkExistDate(
+    const existDate = await this.petWeightRepository.checkExistDate(
       pet.idx,
       dto.date,
     );
-    if (isDate) {
+    if (existDate) {
       throw new ConflictException(HttpErrorConstants.EXIST_DATE);
     }
 
@@ -349,7 +348,7 @@ export class DiaryService {
     }
 
     if (pageRequest.filter === 'year') {
-      const result = await this.petWeightRepository.getMonthAverageByPetIdx(
+      const result = await this.petWeightRepository.getMonthlyAverageInYear(
         petIdx,
       );
       return result;
