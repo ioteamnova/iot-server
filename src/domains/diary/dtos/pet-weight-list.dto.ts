@@ -9,10 +9,17 @@ export class PetWeightListDto extends PartialType(CreatePetWeightDto) {
   })
   idx: number;
 
-  constructor(petWeight: PetWeight) {
+  @ApiProperty({
+    description: '인덱스',
+    default: 1,
+  })
+  weightChange: number;
+
+  constructor(petWeight: PetWeight, weightChange: number) {
     super();
     this.idx = petWeight.idx;
     this.weight = petWeight.weight;
     this.date = petWeight.date;
+    this.weightChange = weightChange;
   }
 }

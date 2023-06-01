@@ -355,7 +355,11 @@ export class DiaryService {
     }
     const [weights, totalCount] =
       await this.petWeightRepository.findAndCountByPetIdx(petIdx, pageRequest);
-    const items = weights.map((weight) => new PetWeightListDto(weight));
+    const items = weights.map((weight, index) => {
+      const prevWeight = weights[index + 1]?.weight;
+      const weightChange = prevWeight ? weight.weight - prevWeight : 0;
+      return new PetWeightListDto(weight, weightChange);
+    });
     return new Page<PetWeightListDto>(totalCount, items, pageRequest);
   }
 
@@ -375,12 +379,15 @@ export class DiaryService {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_WEIGHT);
     }
 
-    const isDate = await this.petWeightRepository.checkExistDate(
-      petWeight.petIdx,
-      dto.date,
-    );
-    if (isDate) {
-      throw new ConflictException(HttpErrorConstants.EXIST_DATE);
+    // dto.date가 없으면 date는 그대로이므로, 체중값만 바꿔주면 됨.
+    if (dto.date) {
+      const existDate = await this.petWeightRepository.checkExistDate(
+        petWeight.petIdx,
+        dto.date,
+      );
+      if (existDate) {
+        throw new ConflictException(HttpErrorConstants.EXIST_DATE);
+      }
     }
 
     petWeight.updateFromDto(dto);
