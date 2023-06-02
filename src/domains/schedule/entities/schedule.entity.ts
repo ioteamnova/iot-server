@@ -3,6 +3,7 @@ import { User } from 'src/domains/user/entities/user.entity';
 import BaseEntity from 'src/core/entity/base.entity';
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { UpdateScheduleDto } from '../dtos/update-schedule.dto';
+import { SchedulesType } from '../helper/constants';
 
 @Entity()
 export class Schedule extends BaseEntity {
@@ -26,17 +27,41 @@ export class Schedule extends BaseEntity {
   })
   repeat: string;
 
+  @Column()
+  type: SchedulesType;
+
+  @Column({
+    type: 'date',
+    transformer: { to: (value) => value, from: (value) => value },
+  })
+  date: Date;
+
   @ManyToOne(() => User, (user) => user.schedules)
   @JoinColumn({ name: 'user_idx' })
   user: User;
 
-  static from(dto: CreateScheduleDto) {
+  static from({
+    title,
+    memo,
+    alarmTime,
+    repeat,
+    type,
+    date,
+  }: {
+    title: string;
+    memo: string;
+    alarmTime: string;
+    repeat: string;
+    type: SchedulesType;
+    date: Date;
+  }) {
     const schedule = new Schedule();
-    schedule.title = dto.title;
-    schedule.memo = dto.memo;
-    schedule.alarmTime = dto.alarmTime;
-    schedule.repeat = dto.repeat;
-    // schedule.repeat = JSON.stringify(dto.repeat);
+    schedule.title = title;
+    schedule.memo = memo;
+    schedule.alarmTime = alarmTime;
+    schedule.repeat = repeat;
+    schedule.type = type;
+    schedule.date = date;
 
     return schedule;
   }

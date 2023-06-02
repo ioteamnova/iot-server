@@ -17,6 +17,20 @@ export class ScheduleRepository extends Repository<Schedule> {
       .getManyAndCount();
   }
 
+  async findAndCountByUserIdxAndDate(
+    userIdx: number,
+    date: Date,
+    pageRequest: PageRequest,
+  ) {
+    return await this.createQueryBuilder('schedule')
+      .where('schedule.userIdx = :userIdx', { userIdx })
+      .andWhere('schedule.date = :date', { date })
+      .orderBy('schedule.idx', pageRequest.order)
+      .take(pageRequest.limit)
+      .skip(pageRequest.offset)
+      .getManyAndCount();
+  }
+
   async findByScheduleIdx(scheduleIdx: number): Promise<Schedule> {
     return await this.findOne({
       where: {

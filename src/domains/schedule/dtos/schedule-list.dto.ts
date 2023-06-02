@@ -1,5 +1,6 @@
 import { Schedule } from '../entities/schedule.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { SchedulesType } from '../helper/constants';
 
 export class ScheduleListDto {
   @ApiProperty({
@@ -32,6 +33,25 @@ export class ScheduleListDto {
   })
   repeat: string;
 
+  @ApiProperty({
+    description: `스케줄링 종류
+    - 달력: CALENDAR
+    - 알람: REPETITION
+    `,
+    enum: SchedulesType,
+    default: SchedulesType.CALENDAR,
+    required: true,
+  })
+  type: string;
+
+  @ApiProperty({
+    description: '달력 날짜',
+    type: 'date',
+    default: '2023-06-02',
+    required: false,
+  })
+  date: Date;
+
   constructor(schedule: Schedule) {
     // let repeat = [];
     // if (schedule.repeat) {
@@ -42,5 +62,7 @@ export class ScheduleListDto {
     this.memo = schedule.memo;
     this.alarmTime = schedule.alarmTime;
     this.repeat = schedule.repeat;
+    this.type = schedule.type;
+    this.date = schedule.date;
   }
 }

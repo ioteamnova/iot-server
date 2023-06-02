@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
+import { SchedulesType } from '../helper/constants';
 
 export class CreateScheduleDto {
   @ApiProperty({
@@ -25,7 +26,7 @@ export class CreateScheduleDto {
     default: '0, 0, 0, 0, 0, 0, 0',
     required: false,
   })
-  @IsNotEmpty()
+  @IsOptional()
   repeat: string;
 
   @ApiProperty({
@@ -35,4 +36,25 @@ export class CreateScheduleDto {
   })
   @IsOptional()
   memo: string;
+
+  @ApiProperty({
+    description: `스케줄링 종류
+    - 달력: CALENDAR
+    - 알람: REPETITION
+    `,
+    enum: SchedulesType,
+    default: SchedulesType.CALENDAR,
+    required: true,
+  })
+  @IsNotEmpty()
+  type: SchedulesType;
+
+  @ApiProperty({
+    description: '달력 날짜',
+    type: 'date',
+    default: '2023-06-02',
+    required: false,
+  })
+  @IsOptional()
+  date: Date;
 }
