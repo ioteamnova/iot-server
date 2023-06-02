@@ -54,6 +54,26 @@ export class ScheduleService {
     return new Page<ScheduleListDto>(totalCount, items, pageRequest);
   }
 
+  async findScheduleByDate(
+    userIdx: number,
+    date: Date,
+    pageRequest: PageRequest,
+  ): Promise<Page<ScheduleListDto>> {
+    const user = await this.userRepository.findByUserIdx(userIdx);
+    if (!user) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
+    }
+
+    const [schedules, totalCount] =
+      await this.scheduleRepository.findAndCountByUserIdxAndDate(
+        userIdx,
+        date,
+        pageRequest,
+      );
+    const items = schedules.map((schedule) => new ScheduleListDto(schedule));
+    return new Page<ScheduleListDto>(totalCount, items, pageRequest);
+  }
+
   async update(scheduleIdx: number, dto: UpdateScheduleDto) {
     const schedule = await this.scheduleRepository.findByScheduleIdx(
       scheduleIdx,

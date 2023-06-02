@@ -62,13 +62,34 @@ export class ScheduleController {
   })
   @ApiOkPaginationResponseTemplate({ type: ScheduleListDto })
   @UseAuthGuards()
-  @Get()
+  @Get('/:')
   async findAll(
     @Res() res,
     @AuthUser() user: User,
     @Query() pageRequest: PageRequest,
   ) {
     const result = await this.scheduleService.findAll(user.idx, pageRequest);
+    return HttpResponse.ok(res, result);
+  }
+
+  @ApiOperation({
+    summary: '특정 날짜 스케줄 조회',
+    description: '특정 날짜의 스케줄을 조회한다.',
+  })
+  @ApiOkPaginationResponseTemplate({ type: ScheduleListDto })
+  @UseAuthGuards()
+  @Get('/:date')
+  async find(
+    @Res() res,
+    @AuthUser() user: User,
+    @Param('date') date: Date,
+    @Query() pageRequest: PageRequest,
+  ) {
+    const result = await this.scheduleService.findScheduleByDate(
+      user.idx,
+      date,
+      pageRequest,
+    );
     return HttpResponse.ok(res, result);
   }
 
