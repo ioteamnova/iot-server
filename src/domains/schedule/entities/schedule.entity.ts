@@ -72,5 +72,6 @@ export class Schedule extends BaseEntity {
     this.alarmTime = dto.alarmTime;
     // this.repeat = JSON.stringify(dto.repeat);
     this.repeat = dto.repeat;
+    this.date = dto.date;
   }
 }

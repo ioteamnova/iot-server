@@ -62,7 +62,7 @@ export class ScheduleController {
   })
   @ApiOkPaginationResponseTemplate({ type: ScheduleListDto })
   @UseAuthGuards()
-  @Get('/:')
+  @Get()
   async findAll(
     @Res() res,
     @AuthUser() user: User,
