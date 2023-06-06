@@ -14,6 +14,7 @@ export const asyncUploadToS3 = async (
   file: Buffer,
 ): Promise<ManagedUpload.SendData> => {
   const bucket = process.env.AWS_BUCKET_NAME;
+
   return await s3
     .upload(
       {

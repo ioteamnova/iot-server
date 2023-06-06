@@ -55,7 +55,7 @@ export class BoardService {
   ): Promise<BoardImage[]> {
     const images: BoardImage[] = [];
     for (let i = 0; i < files.length; i++) {
-      const url = await this.uploadImageToS3(files[i], S3FolderName.DIARY);
+      const url = await this.uploadImageToS3(files[i], S3FolderName.BOARD);
       const image = new BoardImage();
       image.board_idx = boardIdx;
       image.media_sequence = i;
