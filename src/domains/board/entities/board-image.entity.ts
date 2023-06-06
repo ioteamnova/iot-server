@@ -5,19 +5,16 @@ import { Board } from './board.entity';
 @Entity()
 export class BoardImage extends BaseEntity {
   @Column()
-  idx: number;
-
-  @Column()
-  board_idx: number;
+  boardIdx: number;
 
   @Column()
   category: string;
 
   @Column()
-  media_sequence: number;
+  mediaSequence: number;
 
   @Column()
-  Path: string;
+  path: string;
 
   @ManyToOne(() => Board, (board) => board.images)
   @JoinColumn({ name: 'board_idx' })
