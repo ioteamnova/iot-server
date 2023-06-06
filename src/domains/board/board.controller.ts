@@ -36,7 +36,7 @@ export class Boardcontroller {
   @ApiErrorResponseTemplate([
     {
       status: StatusCodes.NOT_FOUND,
-      errorFormatList: [HttpErrorConstants.CANNOT_FIND_PET],
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_USER],
     },
   ])
   @ApiBody({ type: createBoardDto })
@@ -49,11 +49,7 @@ export class Boardcontroller {
     @AuthUser() user: User,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    const returnThing = await this.boardService.createBoard(
-      dto,
-      user.idx,
-      files,
-    );
-    return HttpResponse.created(res, { body: returnThing });
+    const result = await this.boardService.createBoard(dto, user.idx, files);
+    return HttpResponse.created(res, { body: result });
   }
 }
