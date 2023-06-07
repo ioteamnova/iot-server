@@ -1,3 +1,4 @@
+import * as moment from 'moment-timezone';
 import { Schedule } from './entities/schedule.entity';
 import { ScheduleRepository } from './repositories/schedule.repository';
 import { Injectable, NotFoundException } from '@nestjs/common';
@@ -10,6 +11,7 @@ import { ScheduleListDto } from './dtos/schedule-list.dto';
 import * as admin from 'firebase-admin';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import DateUtils from 'src/utils/date-utils';
+import { SchedulesType } from './helper/constants';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const serviceAccount = require('../../../firebase-adminsdk.json');
 
@@ -97,12 +99,18 @@ export class ScheduleService {
     await this.scheduleRepository.softDelete(scheduleIdx);
   }
 
+  /** 1분마다 사용자의 스케줄을 체크하는 기능.
+   * 현재 시간과 일치하는 스케줄들을 가져와서 타입을 체크한다.
+    타입이 캘린더면 날짜와 시간을 체크
+    타입이 반복이면 시간과 요일을 체크
+   */
   @Cron(CronExpression.EVERY_MINUTE)
-  async sendPushMessages() {
+  async checkSchedules() {
     const currentTime = DateUtils.momentTime();
-    console.log('currentTime::', currentTime);
-    // const testTime = '18:00'; // 테스트용
-    const day = DateUtils.momentDay();
+    // const testTime = '19:00'; // 테스트용
+    const currentDay = DateUtils.momentDay();
+    const currentDate = DateUtils.momentNowSubtractTime();
+    // console.log('currentDate::', currentDate);
 
     const schedules = await this.scheduleRepository.findSchedulesByTime(
       currentTime,
@@ -113,15 +121,29 @@ export class ScheduleService {
     }
 
     const matchingSchedules = schedules.filter((schedule) => {
-      const repeatArray = schedule.repeat.split(',');
-      const isRepeat: boolean = repeatArray[day] === '1';
-      return isRepeat;
+      if (
+        schedule.type === SchedulesType.CALENDAR &&
+        schedule.date === currentDate
+      ) {
+        return true;
+      }
+
+      if (schedule.type === SchedulesType.REPETITION) {
+        const repeatArray = schedule.repeat.split(',');
+        const sameDay: boolean = repeatArray[currentDay] === '1';
+        return sameDay;
+      }
     });
 
     if (matchingSchedules.length === 0) {
       console.log('No matchingSchedules to send alerts.');
       return;
     }
+    /**
+     * 유저의 토큰과 스케줄을 Map에 담는다.
+     * 같은 유저(같은 토큰값)가 여러개의 스케줄을 갖고 있는 경우를 고려하여 Map을 사용.
+     * */
+
     const userTokensMap = new Map();
     for (const matchingSchedule of matchingSchedules) {
       const userToken = matchingSchedule.user.fbToken;
@@ -140,10 +162,16 @@ export class ScheduleService {
           body: schedule.memo,
         };
       });
+
       await this.sendNotifications(notifications, userToken);
     }
   }
 
+  /**
+   * FCM 서버로 유저의 토큰과 발송할 메세지를 전송
+   * @param notifications 사용자가 입력한 스케줄 제목, 내용
+   * @param token 사용자 디바이스 FCM 토큰
+   */
   async sendNotifications(notifications, token) {
     try {
       const responses = await Promise.all(
