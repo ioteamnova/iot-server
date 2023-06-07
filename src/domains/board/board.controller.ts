@@ -11,7 +11,12 @@ import { BoardService } from './board.service';
 import {
   Body,
   Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
   Post,
+  Query,
   Res,
   UploadedFile,
   UploadedFiles,
@@ -21,6 +26,11 @@ import { createBoardDto } from './dtos/create-board.dto';
 import { ApiErrorResponseTemplate } from 'src/core/swagger/apt-error-response';
 import { StatusCodes } from 'http-status-codes';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
+import { ApiOkPaginationResponseTemplate } from 'src/core/swagger/api-ok-pagination-response';
+import { BoardInfoDto } from './dtos/boardInfo.dto';
+import { PageRequest } from 'src/core/page';
+import { ApiOkResponseTemplate } from 'src/core/swagger/api-ok-response';
+import { BoardDetailDto } from './dtos/board-detail-dto';
 
 @ApiTags(SwaggerTag.BOARD)
 @ApiCommonErrorResponseTemplate()
@@ -51,5 +61,56 @@ export class Boardcontroller {
   ) {
     const result = await this.boardService.createBoard(dto, user.idx, files);
     return HttpResponse.created(res, { body: result });
+  }
+  @ApiOperation({
+    summary: '게시판 조회',
+    description: '게시판 카테고리에 따라 최신 정보를 조회합니다.',
+  })
+  @ApiOkPaginationResponseTemplate({ type: BoardInfoDto })
+  @Get('/all')
+  async getBoard(@Res() res, @Query() pageRequest: PageRequest) {
+    const boards = await this.boardService.findAllBoard(pageRequest);
+    return HttpResponse.ok(res, boards);
+  }
+  @ApiOperation({
+    summary: '게시판 상세조회',
+    description: '게시판을 상세 조회 기능입니다.',
+  })
+  @ApiOkResponseTemplate({ type: BoardDetailDto })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [
+        HttpErrorConstants.CANNOT_FIND_PET,
+        HttpErrorConstants.CANNOT_FIND_DIARY,
+      ],
+    },
+  ])
+  @UseAuthGuards()
+  @Get('/:boardIdx')
+  async findBoard(@Res() res, @Param('boardIdx') boardIdx: number) {
+    const board = await this.boardService.findDiary(boardIdx);
+    return HttpResponse.ok(res, board);
+  }
+  @ApiOperation({
+    summary: '게시글 삭제',
+    description: '게시글을 삭제한다.',
+  })
+  @ApiOkResponseTemplate()
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_BOARD],
+    },
+  ])
+  @UseAuthGuards()
+  @Delete('/:boardIdx')
+  async removeBoard(
+    @Res() res,
+    @Param('boardIdx') boardIdx: number,
+    @AuthUser() user: User,
+  ) {
+    await this.boardService.removeBoard(boardIdx, user.idx);
+    return HttpResponse.ok(res);
   }
 }

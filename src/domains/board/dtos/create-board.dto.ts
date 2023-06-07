@@ -33,10 +33,4 @@ export class createBoardDto {
   @IsString()
   @IsNotEmpty()
   description: string;
-
-  @ApiProperty({
-    description: '썸네일 주소입니다.',
-  })
-  @IsString()
-  thumbnail: string;
 }

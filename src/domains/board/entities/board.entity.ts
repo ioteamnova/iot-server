@@ -31,20 +31,17 @@ export class Board extends BaseEntity {
     title,
     category,
     description,
-    thumbnail,
   }: {
     userIdx: number;
     title: string;
     category: string;
     description: string;
-    thumbnail: string;
   }) {
     const board = new Board();
     board.userIdx = userIdx;
     board.title = title;
     board.category = category;
     board.description = description;
-    board.thumbnail = thumbnail;
     return board;
   }
 }
