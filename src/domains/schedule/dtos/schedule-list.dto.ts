@@ -46,11 +46,11 @@ export class ScheduleListDto {
 
   @ApiProperty({
     description: '달력 날짜',
-    type: 'date',
+    type: 'string',
     default: '2023-06-02',
     required: false,
   })
-  date: Date;
+  date: string;
 
   constructor(schedule: Schedule) {
     // let repeat = [];

@@ -23,7 +23,7 @@ export class CreateScheduleDto {
     description: `푸시 알림 반복할 요일
     일~월요일에서 알림을 설정한 날을 1과 0으로 표현한다.
     ex) 월,수,금 반복인경우 0,1,0,1,0,1,0`,
-    default: '0, 0, 0, 0, 0, 0, 0',
+    default: '0,0,0,0,0,0,0',
     required: false,
   })
   @IsOptional()
@@ -51,10 +51,10 @@ export class CreateScheduleDto {
 
   @ApiProperty({
     description: '달력 날짜',
-    type: 'date',
+    type: 'string',
     default: '2023-06-02',
     required: false,
   })
   @IsOptional()
-  date: Date;
+  date: string;
 }

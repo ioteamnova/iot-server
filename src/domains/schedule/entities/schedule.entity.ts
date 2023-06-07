@@ -30,11 +30,8 @@ export class Schedule extends BaseEntity {
   @Column()
   type: SchedulesType;
 
-  @Column({
-    type: 'date',
-    transformer: { to: (value) => value, from: (value) => value },
-  })
-  date: Date;
+  @Column()
+  date: string;
 
   @ManyToOne(() => User, (user) => user.schedules)
   @JoinColumn({ name: 'user_idx' })
@@ -53,7 +50,7 @@ export class Schedule extends BaseEntity {
     alarmTime: string;
     repeat: string;
     type: SchedulesType;
-    date: Date;
+    date: string;
   }) {
     const schedule = new Schedule();
     schedule.title = title;

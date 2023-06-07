@@ -8,9 +8,14 @@ export default class DateUtils {
     return moment().tz('Asia/Seoul').format(timeFormat);
   }
 
-  // ex) 2023-05-17T06:40:08.000Z
+  // ex) 2023-05-17T15:40:08.000Z
   static momentNowDate(): Date {
-    return moment().tz('Asia/Seoul').toDate();
+    return new Date(DateUtils.momentNow());
+  }
+
+  // ex) 2023-05-17 18:00
+  static momentNowSubtractTime(): string {
+    return moment().tz('Asia/Seoul').format('YYYY-MM-DD');
   }
 
   // ex) 20230517165408
