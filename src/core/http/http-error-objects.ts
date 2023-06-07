@@ -79,4 +79,19 @@ export const HttpErrorConstants = {
     errorCode: 'AUTH_TYPE_INVALID',
     message: '이메일 인증 유형이 유효하지 않습니다.',
   } as HttpErrorFormat,
+
+  CANNOT_FIND_BOARD: {
+    errorCode: 'CANNOT_FIND_BOARD',
+    message: '게시글을 찾을 수 없습니다.',
+  } as HttpErrorFormat,
+
+  BOARD_PRIVATE: {
+    errorCode: 'BOARD_PRIVATE',
+    message: '해당 게시글은 비공개 상태입니다.',
+  } as HttpErrorFormat,
+
+  BOARD_NOT_WRITER: {
+    errorCode: 'BOARD_NOT_WRITER',
+    message: '게시글 작성자가 아닙니다.',
+  } as HttpErrorFormat,
 };
