@@ -2,12 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsEmail,
+  IsEmpty,
   IsNotEmpty,
   IsOptional,
   IsString,
   Matches,
   MaxLength,
 } from 'class-validator';
+import { SocialMethodType } from 'src/domains/auth/helpers/constants';
 import { PasswordRegex } from 'src/utils/password.utils';
 
 export class CreateUserDto {
@@ -16,6 +18,7 @@ export class CreateUserDto {
     default: 'asd123@gmail.com',
   })
   @IsNotEmpty()
+  @MaxLength(64)
   @IsEmail()
   email: string;
 
@@ -45,15 +48,6 @@ ex) HakWon123#, hakwon123#
   @MaxLength(32)
   nickname: string;
 
-  // @ApiProperty({
-  //   description: '파이어베이스 토큰',
-  //   default: 'firebase_token',
-  //   required: false,
-  // })
-  // @IsString()
-  // @IsOptional()
-  // fbToken: string;
-
   @ApiProperty({
     description: '구독 여부',
     default: false,
@@ -69,4 +63,28 @@ ex) HakWon123#, hakwon123#
   @IsBoolean()
   @IsNotEmpty()
   agreeWithMarketing: boolean;
+
+  @ApiProperty({
+    description: '프로필 이미지 사진(회원가입시에는 이미지 설정X, 기본이미지)',
+    default: null,
+  })
+  @IsOptional()
+  @IsEmpty()
+  profilePath: string;
+
+  @ApiProperty({
+    description: '소셜 로그인 메서드(자체 회원가입인 경우 null)',
+    default: null,
+  })
+  @IsOptional()
+  @IsEmpty()
+  loginMethod: SocialMethodType;
+
+  @ApiProperty({
+    description: '파이어베이스 토큰(회원가입할 때가 아닌 로그인시에 저장)',
+    default: null,
+  })
+  @IsOptional()
+  @IsEmpty()
+  fbToken: string;
 }

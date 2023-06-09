@@ -11,7 +11,7 @@ import { Pet } from 'src/domains/diary/entities/pet.entity';
 export class User extends BaseEntity {
   @Column({
     nullable: false,
-    length: 60,
+    length: 64,
   })
   email: string;
 
@@ -22,23 +22,39 @@ export class User extends BaseEntity {
   password: string;
 
   @Column({
+    nullable: false,
     length: 32,
   })
   nickname: string;
 
-  @Column()
+  @Column({
+    nullable: true,
+    default: null,
+  })
   profilePath: string;
 
-  @Column()
+  @Column({
+    nullable: true,
+    default: 0,
+  })
   isPremium: boolean;
 
-  @Column()
+  @Column({
+    nullable: true,
+    default: 0,
+  })
   agreeWithMarketing: boolean;
 
-  @Column()
+  @Column({
+    nullable: true,
+    default: null,
+  })
   loginMethod: SocialMethodType;
 
-  @Column()
+  @Column({
+    nullable: true,
+    default: null,
+  })
   fbToken: string;
 
   @OneToMany(() => Pet, (pet) => pet.user)
@@ -55,6 +71,7 @@ export class User extends BaseEntity {
     isPremium,
     agreeWithMarketing,
     loginMethod,
+    fbToken,
   }: {
     email: string;
     password: string;
@@ -63,25 +80,17 @@ export class User extends BaseEntity {
     isPremium: boolean;
     agreeWithMarketing: boolean;
     loginMethod: SocialMethodType;
+    fbToken: string;
   }) {
     const user = new User();
     user.email = email;
-    user.password = password;
+    user.password = hashPassword(password);
     user.nickname = nickname;
     user.profilePath = profilePath;
     user.isPremium = isPremium;
     user.agreeWithMarketing = agreeWithMarketing;
     user.loginMethod = loginMethod;
-    return user;
-  }
-
-  static fromDto(dto: CreateUserDto) {
-    const user = new User();
-    user.email = dto.email;
-    user.nickname = dto.nickname;
-    user.isPremium = dto.isPremium;
-    user.agreeWithMarketing = dto.agreeWithMarketing;
-    user.password = hashPassword(dto.password);
+    user.fbToken = fbToken;
     return user;
   }
 

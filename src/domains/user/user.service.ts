@@ -33,7 +33,7 @@ export class UserService {
     await this.checkExistEmail(dto.email);
     await this.checkExistNickname(dto.nickname);
 
-    const user = User.fromDto(dto);
+    const user = User.from(dto);
 
     return await this.userRepository.save(user);
   }
