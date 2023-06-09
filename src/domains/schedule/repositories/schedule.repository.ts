@@ -2,6 +2,7 @@ import { CustomRepository } from 'src/core/decorators/typeorm-ex.decorator';
 import { PageRequest } from 'src/core/page';
 import { Repository } from 'typeorm';
 import { Schedule } from '../entities/schedule.entity';
+import { SchedulesType } from '../helper/constants';
 
 @CustomRepository(Schedule)
 export class ScheduleRepository extends Repository<Schedule> {
@@ -11,6 +12,7 @@ export class ScheduleRepository extends Repository<Schedule> {
   ): Promise<[Schedule[], number]> {
     return await this.createQueryBuilder('schedule')
       .where('schedule.userIdx = :userIdx', { userIdx })
+      .andWhere('schedule.type = :type', { type: SchedulesType.REPETITION })
       .orderBy('schedule.idx', pageRequest.order)
       .take(pageRequest.limit)
       .skip(pageRequest.offset)
@@ -19,7 +21,7 @@ export class ScheduleRepository extends Repository<Schedule> {
 
   async findAndCountByUserIdxAndDate(
     userIdx: number,
-    date: Date,
+    date: string,
     pageRequest: PageRequest,
   ) {
     return await this.createQueryBuilder('schedule')

@@ -58,7 +58,7 @@ export class ScheduleService {
 
   async findScheduleByDate(
     userIdx: number,
-    date: Date,
+    date: string,
     pageRequest: PageRequest,
   ): Promise<Page<ScheduleListDto>> {
     const user = await this.userRepository.findByUserIdx(userIdx);
@@ -110,7 +110,6 @@ export class ScheduleService {
     // const testTime = '19:00'; // 테스트용
     const currentDay = DateUtils.momentDay();
     const currentDate = DateUtils.momentNowSubtractTime();
-    // console.log('currentDate::', currentDate);
 
     const schedules = await this.scheduleRepository.findSchedulesByTime(
       currentTime,
