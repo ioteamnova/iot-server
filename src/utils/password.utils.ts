@@ -2,6 +2,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
 
+// 비밀번호 암호화
 export const hashPassword = (plainText: string): string => {
   const salt = bcrypt.genSaltSync();
   return bcrypt.hashSync(plainText, salt);
@@ -14,12 +15,13 @@ export const validatePassword = async (
 ): Promise<void> => {
   const equalsPassword = await comparePassword(password, hashedPassword);
 
-  // 비밀번호 틀릴 떄,
+  // 비밀번호 틀렸을 때
   if (!equalsPassword) {
     throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
   }
 };
 
+// 사용자가 입력한 비밀번호와 저장되어있는 비밀번호 비교
 export const comparePassword = async (
   password: string,
   hashedPassword: string,
