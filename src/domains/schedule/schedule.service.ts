@@ -28,6 +28,12 @@ export class ScheduleService {
     });
     this.fcm = admin.messaging();
   }
+  /**
+   * 스캐줄 생성
+   * @param dto
+   * @param userIdx
+   * @returns 생성된 스케줄
+   */
   async create(dto: CreateScheduleDto, userIdx: number) {
     const user = await this.userRepository.findByUserIdx(userIdx);
     if (!user) {
@@ -41,6 +47,12 @@ export class ScheduleService {
     return result;
   }
 
+  /**
+   * 스케줄 목록 조회 (반복 알림 스케줄링 조회)
+   * @param userIdx
+   * @param pageRequest
+   * @returns 타입이 반복인 스케줄 목록
+   */
   async findAll(
     userIdx: number,
     pageRequest: PageRequest,
@@ -56,6 +68,13 @@ export class ScheduleService {
     return new Page<ScheduleListDto>(totalCount, items, pageRequest);
   }
 
+  /**
+   * 해당날짜의 스케줄 목록 조회 (캘린더 스케줄링 조회)
+   * @param userIdx
+   * @param date
+   * @param pageRequest
+   * @returns 타입이 캘린더인 스케줄 목록
+   */
   async findScheduleByDate(
     userIdx: number,
     date: string,
@@ -76,6 +95,12 @@ export class ScheduleService {
     return new Page<ScheduleListDto>(totalCount, items, pageRequest);
   }
 
+  /**
+   * 스케줄링 수정
+   * @param scheduleIdx
+   * @param dto
+   * @returns 수정된 스케줄
+   */
   async update(scheduleIdx: number, dto: UpdateScheduleDto) {
     const schedule = await this.scheduleRepository.findByScheduleIdx(
       scheduleIdx,
@@ -88,6 +113,10 @@ export class ScheduleService {
     return result;
   }
 
+  /**
+   * 스케줄 삭제
+   * @param scheduleIdx
+   */
   async remove(scheduleIdx: number) {
     const schedule = await this.scheduleRepository.findByScheduleIdx(
       scheduleIdx,
