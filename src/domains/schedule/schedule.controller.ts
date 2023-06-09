@@ -82,7 +82,7 @@ export class ScheduleController {
   async find(
     @Res() res,
     @AuthUser() user: User,
-    @Param('date') date: Date,
+    @Param('date') date: string,
     @Query() pageRequest: PageRequest,
   ) {
     const result = await this.scheduleService.findScheduleByDate(
