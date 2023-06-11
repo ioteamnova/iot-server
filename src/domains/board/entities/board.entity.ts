@@ -2,6 +2,7 @@ import BaseEntity from 'src/core/entity/base.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { BoardStatus } from '../board-status.enum';
 import { BoardImage } from './board-image.entity';
+import { UpdateBoardDto } from '../dtos/update-diary.dto';
 
 @Entity()
 export class Board extends BaseEntity {
@@ -43,5 +44,9 @@ export class Board extends BaseEntity {
     board.category = category;
     board.description = description;
     return board;
+  }
+  updateFromDto(dto: UpdateBoardDto) {
+    this.title = dto.title;
+    this.description = dto.description;
   }
 }

@@ -97,7 +97,7 @@ export class ScheduleService {
     await this.scheduleRepository.softDelete(scheduleIdx);
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  // @Cron(CronExpression.EVERY_MINUTE)
   async sendPushMessages() {
     const currentTime = DateUtils.momentTime();
     console.log('currentTime::', currentTime);

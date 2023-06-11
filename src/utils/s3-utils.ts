@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import AWS, { S3 } from 'aws-sdk';
+import { S3 } from 'aws-sdk';
 import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
 import { logger } from './logger';
 import DateUtils from './date-utils';

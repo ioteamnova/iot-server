@@ -7,6 +7,10 @@ import { BoardImageRepository } from './repositories/board-image.repository';
 import { Board } from './entities/board.entity';
 import { Page, PageRequest } from 'src/core/page';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
+import { BoardDetailDto } from './dtos/board-detail-dto';
+import { UpdateBoardDto } from './dtos/update-diary.dto';
+import AuthUser from 'src/core/decorators/auth-user.decorator';
+import { User } from 'src/domains/user/entities/user.entity';
 
 @Injectable()
 export class BoardService {
@@ -95,7 +99,6 @@ export class BoardService {
       },
       relations: ['images'],
     });
-    console.log('board', board);
 
     if (!board) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
@@ -112,5 +115,72 @@ export class BoardService {
     for (const image of images) {
       this.boardImageRepository.softRemove(image);
     }
+  }
+  /**
+   * 다이어리 수정
+   * @param diaryIdx 다이어리 인덱스
+   * @param dto UpdateDiaryDto
+   * @returns
+   */
+  async updateBoard(
+    boardIdx: number,
+    dto: UpdateBoardDto,
+    @AuthUser() user: User,
+    files: Array<Express.Multer.File>,
+  ) {
+    const deleteArr = dto.deleteIdxArr;
+    const modifySqenceArr = dto.modifySqenceArr;
+    const fileIdxArr = dto.FileIdx;
+    for (let i = 0; i < deleteArr.length; i++) {
+      // 기존 이미지 삭제
+      await this.boardImageRepository.softDelete(deleteArr[i]);
+    }
+    const board = await this.boardRepository.findOne({
+      where: {
+        idx: boardIdx,
+      },
+      relations: ['images'],
+    });
+
+    if (!board) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
+    }
+
+    for (let i = 0; i < modifySqenceArr.length; i++) {
+      //미디어 순서(media_squence) 바꾸는 코드
+      for (let j = 0; j < board.images.length; j++) {
+        if (modifySqenceArr[i] == board.images[j].mediaSequence) {
+          //기존 이미지 인덱스 수정
+          board.images[j].mediaSequence = i;
+          await this.boardImageRepository.save(board.images[j]);
+          break;
+        } else if (files && j == board.images.length - 1) {
+          const url = await mediaUpload(
+            files[fileIdxArr.lastIndexOf(modifySqenceArr[i])],
+            S3FolderName.BOARD,
+          );
+          const image = new BoardImage();
+          image.boardIdx = boardIdx;
+          image.mediaSequence = i;
+          image.category = 'img';
+          image.path = url;
+          await this.boardImageRepository.save(image);
+        }
+      }
+    }
+    const boardInfo = new Board();
+    boardInfo.userIdx = user.idx;
+    boardInfo.category = dto.category;
+    boardInfo.idx = boardIdx;
+    boardInfo.title = dto.title;
+    boardInfo.description = dto.description;
+    await this.boardRepository.save(boardInfo);
+    const returnBoard = await this.boardRepository.findOne({
+      where: {
+        idx: boardIdx,
+      },
+      relations: ['images'],
+    });
+    return returnBoard;
   }
 }

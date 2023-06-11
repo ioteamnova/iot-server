@@ -1,4 +1,4 @@
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiCreatedResponseTemplate } from 'src/core/swagger/api-created-response';
 import { ApiCommonErrorResponseTemplate } from 'src/core/swagger/api-error-common-response';
@@ -14,11 +14,10 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
+  Patch,
   Post,
   Query,
   Res,
-  UploadedFile,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
@@ -31,6 +30,7 @@ import { BoardInfoDto } from './dtos/boardInfo.dto';
 import { PageRequest } from 'src/core/page';
 import { ApiOkResponseTemplate } from 'src/core/swagger/api-ok-response';
 import { BoardDetailDto } from './dtos/board-detail-dto';
+import { UpdateBoardDto } from './dtos/update-diary.dto';
 
 @ApiTags(SwaggerTag.BOARD)
 @ApiCommonErrorResponseTemplate()
@@ -52,7 +52,7 @@ export class Boardcontroller {
   @ApiBody({ type: createBoardDto })
   @UseAuthGuards()
   @UseInterceptors(FilesInterceptor('files', 5))
-  @Post('/upload')
+  @Post('')
   async createPet(
     @Res() res,
     @Body() dto: createBoardDto,
@@ -67,7 +67,7 @@ export class Boardcontroller {
     description: '게시판 카테고리에 따라 최신 정보를 조회합니다.',
   })
   @ApiOkPaginationResponseTemplate({ type: BoardInfoDto })
-  @Get('/all')
+  @Get('')
   async getBoard(@Res() res, @Query() pageRequest: PageRequest) {
     const boards = await this.boardService.findAllBoard(pageRequest);
     return HttpResponse.ok(res, boards);
@@ -112,5 +112,37 @@ export class Boardcontroller {
   ) {
     await this.boardService.removeBoard(boardIdx, user.idx);
     return HttpResponse.ok(res);
+  }
+  @ApiOperation({
+    summary: '게시글 수정',
+    description: '게시글을 수정한다.',
+  })
+  @ApiOkResponseTemplate({ type: BoardDetailDto })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_BOARD],
+    },
+  ])
+  @UseAuthGuards()
+  @UseInterceptors(FilesInterceptor('files', 5))
+  @Patch('/:boardIdx')
+  async updateBoard(
+    @Res() res,
+    @Param('boardIdx') boardIdx: number,
+    @AuthUser() user: User,
+    @Body() dto: UpdateBoardDto,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    dto.deleteIdxArr = [148, 150];
+    dto.modifySqenceArr = [5, 6, 2, 4, 0];
+    dto.FileIdx = [5, 6];
+    const board = await this.boardService.updateBoard(
+      boardIdx,
+      dto,
+      user,
+      files,
+    );
+    return HttpResponse.ok(res, board);
   }
 }
