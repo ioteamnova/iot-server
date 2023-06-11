@@ -40,15 +40,6 @@ export class PageRequest {
   size?: number = 20;
 
   @ApiProperty({
-    description: 'free',
-    nullable: true,
-    required: false,
-    default: 'fdsaf',
-  })
-  @IsOptional()
-  category?: string;
-
-  @ApiProperty({
     description: '정렬',
     required: false,
     default: 'DESC',

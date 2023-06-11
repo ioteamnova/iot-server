@@ -1,5 +1,5 @@
 import BaseEntity from 'src/core/entity/base.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BoardStatus } from '../board-status.enum';
 import { BoardImage } from './board-image.entity';
 import { UpdateBoardDto } from '../dtos/update-diary.dto';

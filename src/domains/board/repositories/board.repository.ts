@@ -5,8 +5,11 @@ import { PageRequest } from 'src/core/page';
 
 @CustomRepository(Board)
 export class BoardRepository extends Repository<Board> {
-  findAndCountByCategory(pageRequest: PageRequest): Promise<[Board[], number]> {
-    const category = pageRequest.category;
+  findAndCountByCategory(
+    pageRequest: PageRequest,
+    category: string,
+  ): Promise<[Board[], number]> {
+    // const category = pageRequest.category;
     return this.createQueryBuilder('board')
       .leftJoinAndSelect('board.images', 'image')
       .where('board.category = :category', { category })

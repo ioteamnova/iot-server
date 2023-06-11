@@ -1,4 +1,4 @@
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiCreatedResponseTemplate } from 'src/core/swagger/api-created-response';
 import { ApiCommonErrorResponseTemplate } from 'src/core/swagger/api-error-common-response';
@@ -18,10 +18,10 @@ import {
   Post,
   Query,
   Res,
+  UploadedFile,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { createBoardDto } from './dtos/create-board.dto';
 import { ApiErrorResponseTemplate } from 'src/core/swagger/apt-error-response';
 import { StatusCodes } from 'http-status-codes';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
@@ -31,6 +31,9 @@ import { PageRequest } from 'src/core/page';
 import { ApiOkResponseTemplate } from 'src/core/swagger/api-ok-response';
 import { BoardDetailDto } from './dtos/board-detail-dto';
 import { UpdateBoardDto } from './dtos/update-diary.dto';
+import { ReplyDto } from './dtos/reply.dto';
+import { createBoardDto } from './dtos/create-board.dto';
+import BoardReply from './entities/board-reply.entity';
 
 @ApiTags(SwaggerTag.BOARD)
 @ApiCommonErrorResponseTemplate()
@@ -52,8 +55,8 @@ export class Boardcontroller {
   @ApiBody({ type: createBoardDto })
   @UseAuthGuards()
   @UseInterceptors(FilesInterceptor('files', 5))
-  @Post('')
-  async createPet(
+  @Post('/')
+  async createBoard(
     @Res() res,
     @Body() dto: createBoardDto,
     @AuthUser() user: User,
@@ -68,8 +71,12 @@ export class Boardcontroller {
   })
   @ApiOkPaginationResponseTemplate({ type: BoardInfoDto })
   @Get('')
-  async getBoard(@Res() res, @Query() pageRequest: PageRequest) {
-    const boards = await this.boardService.findAllBoard(pageRequest);
+  async getBoard(
+    @Res() res,
+    @Query() pageRequest: PageRequest,
+    @Query('category') category: string,
+  ) {
+    const boards = await this.boardService.findAllBoard(pageRequest, category);
     return HttpResponse.ok(res, boards);
   }
   @ApiOperation({
@@ -144,5 +151,63 @@ export class Boardcontroller {
       files,
     );
     return HttpResponse.ok(res, board);
+  }
+  @ApiOperation({
+    summary: '댓글 등록',
+    description: '댓글을 등록한다.',
+  })
+  @ApiCreatedResponseTemplate({ type: ReplyDto })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_USER],
+    },
+  ])
+  @ApiBody({ type: ReplyDto })
+  @UseInterceptors(FileInterceptor('file'))
+  @UseAuthGuards()
+  @Post('/reply')
+  async createReply(
+    @Res() res,
+    @Body() dto: ReplyDto,
+    @AuthUser() user: User,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const result = await this.boardService.createReply(dto, user.idx, file);
+    return HttpResponse.created(res, { body: result });
+  }
+  @UseAuthGuards()
+  @Delete('/reply/:boardIdx')
+  async removeReply(
+    @Res() res,
+    @Query('boardIdx') boardIdx: number,
+    @Query('replyIdx') replyIdx: number,
+    @AuthUser() user: User,
+  ) {
+    console.log(user.idx);
+    console.log(replyIdx);
+    const result = await this.boardService.removeReply(
+      replyIdx,
+      boardIdx,
+      user.idx,
+    );
+    return HttpResponse.ok(res, { body: result });
+  }
+  @ApiOperation({
+    summary: '댓글 조회',
+    description: '게시글에 달린 댓글 정보를 최신순에 최대 20개씩 조회합니다.',
+  })
+  @ApiOkPaginationResponseTemplate({ type: BoardReply })
+  @Get('/reply/findReply')
+  async getReply(
+    @Res() res,
+    @Query() pageRequest: PageRequest,
+    @Query('boardIdx') boardIdx: number,
+  ) {
+    const replys = await this.boardService.findBoardReply(
+      pageRequest,
+      boardIdx,
+    );
+    return HttpResponse.ok(res, replys);
   }
 }
