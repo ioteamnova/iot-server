@@ -62,6 +62,7 @@ export class DiaryController {
     @AuthUser() user: User,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    console.log(file);
     const pet = await this.diaryService.createPet(dto, user.idx, file);
     return HttpResponse.created(res, { body: pet });
   }
