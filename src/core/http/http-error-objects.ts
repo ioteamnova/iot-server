@@ -94,4 +94,14 @@ export const HttpErrorConstants = {
     errorCode: 'BOARD_NOT_WRITER',
     message: '게시글 작성자가 아닙니다.',
   } as HttpErrorFormat,
+
+  REPLY_NOT_WRITER: {
+    errorCode: 'REPLY_NOT_WRITER',
+    message: '댓글 작성자가 아닙니다.',
+  } as HttpErrorFormat,
+
+  CANNOT_FIND_REPLY: {
+    errorCode: 'CANNOT_FIND_REPLY',
+    message: '댓글을 찾을 수 없습니다.',
+  } as HttpErrorFormat,
 };

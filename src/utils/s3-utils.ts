@@ -44,6 +44,7 @@ export enum S3FolderName {
   PET = 'pet',
   BOARD = 'board',
   DIARY = 'diary',
+  REPLY = 'reply',
 }
 
 export const mediaUpload = async (

@@ -4,12 +4,14 @@ import { Boardcontroller } from './board.controller';
 import { BoardService } from './board.service';
 import { BoardRepository } from './repositories/board.repository';
 import { BoardImageRepository } from './repositories/board-image.repository';
+import { BoardReplyRepository } from './repositories/board-reply.repository';
 
 @Module({
   imports: [
     TypeOrmExModule.forCustomRepository([
       BoardRepository,
       BoardImageRepository,
+      BoardReplyRepository,
     ]),
   ],
   controllers: [Boardcontroller],

@@ -3,20 +3,25 @@ import { createBoardDto } from './dtos/create-board.dto';
 import { S3FolderName, mediaUpload } from 'src/utils/s3-utils';
 import { BoardRepository } from './repositories/board.repository';
 import { BoardImage } from './entities/board-image.entity';
-import { BoardImageRepository } from './repositories/board-image.repository';
 import { Board } from './entities/board.entity';
 import { Page, PageRequest } from 'src/core/page';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
-import { BoardDetailDto } from './dtos/board-detail-dto';
 import { UpdateBoardDto } from './dtos/update-diary.dto';
 import AuthUser from 'src/core/decorators/auth-user.decorator';
 import { User } from 'src/domains/user/entities/user.entity';
+import { ReplyDto } from './dtos/reply.dto';
+import Reply from './entities/board-reply.entity';
+import { BoardReplyRepository } from './repositories/board-reply.repository';
+import { BoardImageRepository } from './repositories/board-image.repository';
+import { IsNull, Not } from 'typeorm';
+import BoardReply from './entities/board-reply.entity';
 
 @Injectable()
 export class BoardService {
   constructor(
     private boardRepository: BoardRepository,
     private boardImageRepository: BoardImageRepository,
+    private replyRepository: BoardReplyRepository,
   ) {}
   /**
    * 게시판 다중 이미지 업로드
@@ -38,14 +43,17 @@ export class BoardService {
     return boardInfo;
   }
   /**
-   * 반려동물 목록 조회
+   * 게시판 조회
    * @param userIdx 유저인덱스
    * @param pageRequest 페이징객체
-   * @returns 반려동물 목록
+   * @returns 게시판 목록
    */
-  async findAllBoard(pageRequest: PageRequest): Promise<Page<Board>> {
+  async findAllBoard(
+    pageRequest: PageRequest,
+    category: string,
+  ): Promise<Page<Board>> {
     const [boards, totalCount] =
-      await this.boardRepository.findAndCountByCategory(pageRequest);
+      await this.boardRepository.findAndCountByCategory(pageRequest, category);
     console.log(boards);
     return new Page<Board>(totalCount, boards, pageRequest);
   }
@@ -182,5 +190,71 @@ export class BoardService {
       relations: ['images'],
     });
     return returnBoard;
+  }
+  /**
+   * 댓글 이미지 업로드(영상x, 이미지만 1장 제한)
+   * @param file 이미지 파일
+   */
+  async createReply(dto: ReplyDto, userIdx: number, file: Express.Multer.File) {
+    const reply = Reply.from(dto);
+    reply.userIdx = userIdx;
+    if (file) {
+      const url = await mediaUpload(file, S3FolderName.REPLY);
+      reply.filePath = url;
+    }
+    const replyInfo = await this.replyRepository.save(reply);
+    return replyInfo;
+  }
+  async removeReply(
+    replyIdx: number,
+    boardIdx: number,
+    userIdx: number,
+  ): Promise<number> {
+    const relpy = await this.replyRepository.findOne({
+      where: {
+        idx: replyIdx,
+      },
+    });
+
+    if (!relpy) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
+    } else if (relpy.userIdx != userIdx) {
+      throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
+    }
+    await this.replyRepository.softDelete(replyIdx);
+    const count = await this.countReply('reply', boardIdx);
+    return count;
+  }
+  async countReply(table: string, boardIdx: number): Promise<number> {
+    if (table == 'reply') {
+      const replyCnt = await this.replyRepository.count({
+        where: {
+          boardIdx: boardIdx,
+        },
+      });
+      return replyCnt;
+    } else if (table == 'rereply') {
+      const replyCnt = await this.replyRepository.count({
+        where: {
+          boardIdx: boardIdx,
+          deletedAt: Not(IsNull()),
+        },
+      });
+      return replyCnt;
+    }
+  }
+  /**
+   * 게시글에 달린 댓글 조회
+   * @param pageRequest 페이징객체
+   * @returns 댓글 목록
+   */
+  async findBoardReply(
+    pageRequest: PageRequest,
+    boardIdx: number,
+  ): Promise<Page<BoardReply>> {
+    const [replys, totalCount] =
+      await this.replyRepository.findAndCountByBoardIdx(pageRequest, boardIdx);
+    console.log(replys);
+    return new Page<Reply>(totalCount, replys, pageRequest);
   }
 }
