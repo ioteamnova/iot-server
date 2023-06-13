@@ -21,7 +21,7 @@ import { AuthService } from '../auth/auth.service';
 import UseAuthGuards from '../auth/auth-guards/use-auth';
 import AuthUser from 'src/core/decorators/auth-user.decorator';
 import HttpResponse from 'src/core/http/http-response';
-import DeleteUserDto from './dtos/delete-user.dto';
+import { DeleteUserDto } from './dtos/delete-user.dto';
 import { CheckNicknameDto } from './dtos/check-nickname.dto';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
 import { FileInterceptor } from '@nestjs/platform-express';

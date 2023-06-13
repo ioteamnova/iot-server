@@ -1,6 +1,6 @@
+import { UserInfoResponseDto } from './dtos/user-info-response.dto';
 import { UpdatePasswordDto } from './dtos/update-password.dto';
 import {
-  BadGatewayException,
   BadRequestException,
   ConflictException,
   Injectable,
@@ -13,7 +13,7 @@ import { User } from './entities/user.entity';
 import { UserRepository } from './repositories/user.repository';
 import * as uuid from 'uuid';
 import { EmailService } from '../email/email.service';
-import DeleteUserDto from './dtos/delete-user.dto';
+import { DeleteUserDto } from './dtos/delete-user.dto';
 import { hashPassword, validatePassword } from 'src/utils/password.utils';
 import { asyncUploadToS3, S3FolderName } from 'src/utils/s3-utils';
 import DateUtils from 'src/utils/date-utils';
@@ -50,7 +50,7 @@ export class UserService {
     email: string,
     nickname: string,
     socialType: SocialMethodType,
-  ) {
+  ): Promise<User> {
     const password = hashPassword(uuid.v1());
     const user = new User();
     user.email = email;
@@ -103,18 +103,7 @@ export class UserService {
     if (!userInfo) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
     }
-    return {
-      idx: userInfo.idx,
-      email: userInfo.email,
-      nickname: userInfo.nickname,
-      profilePath: userInfo.profilePath,
-      isPremium: userInfo.isPremium,
-      agreeWithMarketing: userInfo.agreeWithMarketing,
-      createdAt: userInfo.createdAt,
-      updatedAt: userInfo.updatedAt,
-      loginMethod: userInfo.loginMethod,
-      fbToken: userInfo.fbToken,
-    };
+    return new UserInfoResponseDto(userInfo);
   }
 
   /**
@@ -139,7 +128,7 @@ export class UserService {
 
     // 소셜로그인 유저이면 이메일 변경 불가
     if (user.loginMethod && dto.email) {
-      throw new BadGatewayException(
+      throw new BadRequestException(
         HttpErrorConstants.CANNOT_UPDATE_SOCIAL_USER,
       );
     }
@@ -155,9 +144,9 @@ export class UserService {
       dto.profilePath = result.Location;
     }
 
-    const result = user.updateFromDto(dto);
+    const updateUserInfo = user.updateFromDto(dto);
     await this.userRepository.save(user);
-    return result;
+    return updateUserInfo;
   }
 
   /**
@@ -165,7 +154,7 @@ export class UserService {
    * @param dto.nickname 설정할 닉네임
    * @returns boolean
    */
-  async checkExistNickname(nickname: string) {
+  async checkExistNickname(nickname: string): Promise<boolean> {
     const isExistNickname = await this.userRepository.existByNickname(nickname);
 
     if (isExistNickname) {
