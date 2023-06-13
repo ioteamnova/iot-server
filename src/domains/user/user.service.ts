@@ -1,5 +1,7 @@
 import { UpdatePasswordDto } from './dtos/update-password.dto';
 import {
+  BadGatewayException,
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -135,6 +137,13 @@ export class UserService {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
     }
 
+    // 소셜로그인 유저이면 이메일 변경 불가
+    if (user.loginMethod && dto.email) {
+      throw new BadGatewayException(
+        HttpErrorConstants.CANNOT_UPDATE_SOCIAL_USER,
+      );
+    }
+
     if (file) {
       const folder = S3FolderName.PROFILE;
       const fileName = `${userIdx}-${DateUtils.momentFile()}-${uuid.v4()}-${
@@ -173,13 +182,17 @@ export class UserService {
    */
   async updatePassword(userIdx: number, dto: UpdatePasswordDto) {
     const user = await this.userRepository.findByUserIdx(userIdx);
-
     if (!user) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
     }
-    // 유저가 입력한 현재 비밀번호와 db에 저장되어있는 비밀번호를 비교
-    await validatePassword(dto.currentPassword, user.password);
+    // 소셜로그인 유저는 비밀번호 변경 불가
+    if (user.loginMethod) {
+      throw new BadRequestException(
+        HttpErrorConstants.CANNOT_UPDATE_SOCIAL_USER,
+      );
+    }
 
+    await validatePassword(dto.currentPassword, user.password);
     const newPassword = hashPassword(dto.newPassword);
     await this.userRepository.updatePasswordByUserIdx(user.idx, newPassword);
   }
@@ -194,7 +207,13 @@ export class UserService {
     if (!user) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
     }
-    // 유저가 입력한 새 비밀번호 암호화
+
+    if (user.loginMethod) {
+      throw new BadRequestException(
+        HttpErrorConstants.CANNOT_UPDATE_SOCIAL_USER,
+      );
+    }
+
     const newPassword = hashPassword(dto.password);
     await this.userRepository.updatePasswordByUserIdx(user.idx, newPassword);
   }
@@ -207,13 +226,11 @@ export class UserService {
     const password = dto.password;
 
     const user = await this.userRepository.findByUserIdx(userIdx);
-
     if (!user) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
     }
 
     await validatePassword(password, user.password);
-
     await this.userRepository.softDelete(userIdx);
   }
 }

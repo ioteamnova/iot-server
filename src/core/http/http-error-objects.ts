@@ -79,4 +79,9 @@ export const HttpErrorConstants = {
     errorCode: 'AUTH_TYPE_INVALID',
     message: '이메일 인증 유형이 유효하지 않습니다.',
   } as HttpErrorFormat,
+
+  CANNOT_UPDATE_SOCIAL_USER: {
+    errorCode: 'CANNOT_UPDATE_SOCIAL_USER',
+    message: '소셜로그인 유저는 이메일 및 비밀번호를 변경할 수 없습니다.',
+  } as HttpErrorFormat,
 };
