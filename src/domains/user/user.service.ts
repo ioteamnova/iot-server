@@ -97,9 +97,7 @@ export class UserService {
    * @returns 조회한 유저 정보
    */
   async getUserInfo(userIdx: number) {
-    const userInfo = await this.userRepository.findOne({
-      where: { idx: userIdx },
-    });
+    const userInfo = await this.userRepository.findByUserIdx(userIdx);
 
     if (!userInfo) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
@@ -112,7 +110,9 @@ export class UserService {
       isPremium: userInfo.isPremium,
       agreeWithMarketing: userInfo.agreeWithMarketing,
       createdAt: userInfo.createdAt,
+      updatedAt: userInfo.updatedAt,
       loginMethod: userInfo.loginMethod,
+      fbToken: userInfo.fbToken,
     };
   }
 
