@@ -17,7 +17,6 @@ import { asyncUploadToS3, S3FolderName } from 'src/utils/s3-utils';
 import DateUtils from 'src/utils/date-utils';
 import { SocialMethodType } from '../auth/helpers/constants';
 import { FindPasswordDto } from './dtos/find-password.dto';
-import { UserInfoResponseDto } from './dtos/user-info-response.dto';
 import { VerifyEmailResponseDto } from './dtos/verify-email-response.dto';
 
 @Injectable()
@@ -28,7 +27,7 @@ export class UserService {
   ) {}
   /**
    *  회원가입
-   * @param dto 유저 dto
+   * @param dto CreateUserDto
    * @returns user
    */
   async createUser(dto: CreateUserDto): Promise<User> {
@@ -94,7 +93,7 @@ export class UserService {
   /**
    * 내 정보 조회
    * @param userIdx 유저 인덱스
-   * @returns 조회한 유저 정보
+   * @returns 패스워드, 삭제일 제외한 유저 정보
    */
   async getUserInfo(userIdx: number) {
     const userInfo = await this.userRepository.findByUserIdx(userIdx);
@@ -117,9 +116,9 @@ export class UserService {
   }
 
   /**
-   * 유저 정보 수정
+   * 유저 정보 수정 (비밀번호 수정은 해당 API 사용 X)
    * @param userIdx 유저 인덱스
-   * @param dto 업데이트 dto
+   * @param dto UpdateUserDto
    * @returns 업데이트한 유저 정보
    */
   async update(file: Express.Multer.File, dto: UpdateUserDto, userIdx: number) {
@@ -130,11 +129,7 @@ export class UserService {
     if (dto.nickname) {
       await this.checkExistNickname(dto.nickname);
     }
-    const user = await this.userRepository.findOne({
-      where: {
-        idx: userIdx,
-      },
-    });
+    const user = await this.userRepository.findByUserIdx(userIdx);
 
     if (!user) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
@@ -174,14 +169,10 @@ export class UserService {
   /**
    * 비밀번호 변경
    * @param userIdx 유저인덱스
-   * @param dto 비밀번호 변경 dto
+   * @param dto UpdatePasswordDto
    */
   async updatePassword(userIdx: number, dto: UpdatePasswordDto) {
-    const user = await this.userRepository.findOne({
-      where: {
-        idx: userIdx,
-      },
-    });
+    const user = await this.userRepository.findByUserIdx(userIdx);
 
     if (!user) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
@@ -189,48 +180,33 @@ export class UserService {
     // 유저가 입력한 현재 비밀번호와 db에 저장되어있는 비밀번호를 비교
     await validatePassword(dto.currentPassword, user.password);
 
-    user.password = hashPassword(dto.newPassword);
-    await this.userRepository.save(user);
+    const newPassword = hashPassword(dto.newPassword);
+    await this.userRepository.updatePasswordByUserIdx(user.idx, newPassword);
   }
 
   /**
    * 비밀번호 찾기
-   * @param dto 비밀번호 찾기 dto
+   * @param dto FindPasswordDto
    */
   async findPassword(dto: FindPasswordDto) {
-    const user = await this.userRepository.findOne({
-      where: { email: dto.email },
-    });
+    const user = await this.userRepository.findByEmail(dto.email);
 
     if (!user) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
     }
     // 유저가 입력한 새 비밀번호 암호화
     const newPassword = hashPassword(dto.password);
-    user.password = newPassword;
-    await this.userRepository.update(
-      {
-        idx: user.idx,
-      },
-      {
-        password: newPassword,
-      },
-    );
+    await this.userRepository.updatePasswordByUserIdx(user.idx, newPassword);
   }
 
   /**
    * 회원 탈퇴
-   * @param DeleteUserDto
-   * @returns
+   * @param dto DeleteUserDto
    */
   async removeByPassword(dto: DeleteUserDto, userIdx: number) {
-    const { password } = dto;
+    const password = dto.password;
 
-    const user = await this.userRepository.findOne({
-      where: {
-        idx: userIdx,
-      },
-    });
+    const user = await this.userRepository.findByUserIdx(userIdx);
 
     if (!user) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);

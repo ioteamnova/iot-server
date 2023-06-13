@@ -41,7 +41,11 @@ export class UserRepository extends Repository<User> {
   }
 
   async updateFirebaseTokenByUserIdx(userIdx: number, fbToken: string) {
-    const user = await this.update(userIdx, { fbToken: fbToken });
+    await this.update({ idx: userIdx }, { fbToken: fbToken });
+  }
+
+  async updatePasswordByUserIdx(userIdx: number, newPassword: string) {
+    await this.update({ idx: userIdx }, { password: newPassword });
   }
 
   // async findByfbTokens(tokens: string[]): Promise<User[]> {
