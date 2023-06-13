@@ -101,7 +101,7 @@ export class UserController {
     summary: '회원 정보 수정',
     description: '현재 로그인 중인 회원의 정보를 수정한다.',
   })
-  @ApiOkResponseTemplate({ type: UserInfoResponseDto })
+  @ApiOkResponseTemplate({ type: UpdateUserDto })
   @ApiErrorResponseTemplate([
     {
       status: StatusCodes.NOT_FOUND,
