@@ -17,6 +17,8 @@ import { asyncUploadToS3, S3FolderName } from 'src/utils/s3-utils';
 import DateUtils from 'src/utils/date-utils';
 import { SocialMethodType } from '../auth/helpers/constants';
 import { FindPasswordDto } from './dtos/find-password.dto';
+import { UserInfoResponseDto } from './dtos/user-info-response.dto';
+import { VerifyEmailResponseDto } from './dtos/verify-email-response.dto';
 
 @Injectable()
 export class UserService {
@@ -83,7 +85,7 @@ export class UserService {
    * @param email 이메일
    * @returns 이메일 인증 토큰
    */
-  async sendMemberJoinEmail(email: string) {
+  async sendMemberJoinEmail(email: string): Promise<VerifyEmailResponseDto> {
     const signupVerifyToken = uuid.v1();
     await this.emailService.sendVerificationEmail(email, signupVerifyToken);
     return { signupVerifyToken: signupVerifyToken };
