@@ -13,10 +13,10 @@ import { ConfigService } from '@nestjs/config';
   imports: [
     JwtModule.registerAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET'),
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: '365 days',
+          expiresIn: '2h',
           issuer: 'reptimate.store',
           subject: 'userInfo',
         },

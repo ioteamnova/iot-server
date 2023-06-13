@@ -26,30 +26,4 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
     return user;
   }
-
-  // private printRequestLogs(userIdx: number, req: Request, user: User) {
-  //   let logMessageContent: any = {
-  //     userInfo: user,
-  //     userToken: req.headers['authorization'],
-  //   };
-
-  //   if (Object.keys(req.query).length) {
-  //     logMessageContent = {
-  //       ...logMessageContent,
-  //       type: 'requestQuery',
-  //       query: JSON.stringify(req.query),
-  //     };
-  //   }
-
-  //   if (Object.keys(req.body).length) {
-  //     logMessageContent = {
-  //       ...logMessageContent,
-  //       type: 'requestBody',
-  //       body: JSON.stringify(req.body),
-  //     };
-  //   }
-  //   httpContext.set('userIdx', user.idx);
-
-  //   logger.info(logMessageContent);
-  // }
 }

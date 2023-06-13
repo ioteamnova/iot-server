@@ -1,3 +1,4 @@
+import { User } from 'src/domains/user/entities/user.entity';
 import { ApiCreatedResponseTemplate } from './../../core/swagger/api-created-response';
 import HttpResponse from 'src/core/http/http-response';
 import { AuthService } from './auth.service';
@@ -8,6 +9,7 @@ import { LoginUserDto } from './dtos/login-user.dto';
 import { SocialLoginUserDto } from './dtos/social-login-user.dto';
 import { ApiCommonErrorResponseTemplate } from 'src/core/swagger/api-error-common-response';
 import { LoginResponseDto } from './dtos/login-response.dto';
+import AuthUser from 'src/core/decorators/auth-user.decorator';
 
 @ApiTags(SwaggerTag.AUTH)
 @ApiCommonErrorResponseTemplate()
@@ -43,6 +45,20 @@ export class AuthController {
   @Post('/social')
   async socialLogin(@Res() res, @Body() dto: SocialLoginUserDto) {
     const result = await this.authService.socialLogin(dto);
+    return HttpResponse.created(res, { body: result });
+  }
+
+  @ApiOperation({
+    summary: '액세스 토큰 재발급',
+    description: `JWT 리프레시 토큰으로 액세스 토큰을 재발급 한다.`,
+  })
+  @Post('/token')
+  async getNewAccessToken(
+    @Res() res,
+    @Body() dto: { refreshToken: string },
+    @AuthUser() user: User,
+  ) {
+    const result = await this.authService.generateRefreshToken(user.idx);
     return HttpResponse.created(res, { body: result });
   }
 }
