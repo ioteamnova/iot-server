@@ -37,7 +37,10 @@ export class AuthService {
     await validatePassword(password, user.password);
 
     const firebaseToken = dto.fbToken;
-    await this.userRepository.update(user.idx, { fbToken: firebaseToken });
+    await this.userRepository.updateFirebaseTokenByUserIdx(
+      user.idx,
+      firebaseToken,
+    );
 
     const accessToken = await this.generateAccessToken(user.idx);
     return {
@@ -74,7 +77,11 @@ export class AuthService {
       }
     }
     const firebaseToken = dto.fbToken;
-    await this.userRepository.update(user.idx, { fbToken: firebaseToken });
+    await this.userRepository.updateFirebaseTokenByUserIdx(
+      user.idx,
+      firebaseToken,
+    );
+
     const accessToken = await this.generateAccessToken(user.idx);
     return {
       accessToken: accessToken,
