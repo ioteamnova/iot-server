@@ -17,8 +17,21 @@ export class ReplyDto {
   @MaxLength(500)
   description: string;
 }
+export class RereplyDto extends ReplyDto {
+  @ApiProperty({
+    description: '댓글 인덱스 번호',
+    default: 1,
+  })
+  replyIdx: number;
+}
 
-// export class createReplyDto extends postReplyDto {
+// export class createReplyDto extends ReplyDto {
+//   @ApiProperty({
+//     description: '댓글 인덱스 번호',
+//     default: 1,
+//   })
+//   Idx: number;
+
 //   @ApiProperty({
 //     description: '유저 번호',
 //     default: 1,

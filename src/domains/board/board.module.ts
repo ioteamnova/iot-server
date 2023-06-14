@@ -5,6 +5,8 @@ import { BoardService } from './board.service';
 import { BoardRepository } from './repositories/board.repository';
 import { BoardImageRepository } from './repositories/board-image.repository';
 import { BoardReplyRepository } from './repositories/board-reply.repository';
+import { BoardRereplyRepository } from './repositories/board-rereply.repository';
+import { BoardBookmarkRepository } from './repositories/board-bookmark.repository';
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { BoardReplyRepository } from './repositories/board-reply.repository';
       BoardRepository,
       BoardImageRepository,
       BoardReplyRepository,
+      BoardRereplyRepository,
+      BoardBookmarkRepository,
     ]),
   ],
   controllers: [Boardcontroller],

@@ -22,6 +22,9 @@ export class Board extends BaseEntity {
   description: string;
 
   @Column()
+  replyCnt: number;
+
+  @Column()
   status: BoardStatus;
 
   @OneToMany(() => BoardImage, (image) => image.board)

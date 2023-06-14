@@ -9,12 +9,16 @@ import { HttpErrorConstants } from 'src/core/http/http-error-objects';
 import { UpdateBoardDto } from './dtos/update-diary.dto';
 import AuthUser from 'src/core/decorators/auth-user.decorator';
 import { User } from 'src/domains/user/entities/user.entity';
-import { ReplyDto } from './dtos/reply.dto';
+import { ReplyDto, RereplyDto } from './dtos/reply.dto';
 import Reply from './entities/board-reply.entity';
+import Rereply from './entities/board-rereply.entity';
 import { BoardReplyRepository } from './repositories/board-reply.repository';
 import { BoardImageRepository } from './repositories/board-image.repository';
-import { IsNull, Not } from 'typeorm';
 import BoardReply from './entities/board-reply.entity';
+import BoardRereply from './entities/board-rereply.entity';
+import { BoardRereplyRepository } from './repositories/board-rereply.repository';
+import { BoardBookmarkRepository } from './repositories/board-bookmark.repository';
+import { Bookmark } from './entities/board-bookmark.entity';
 
 @Injectable()
 export class BoardService {
@@ -22,6 +26,8 @@ export class BoardService {
     private boardRepository: BoardRepository,
     private boardImageRepository: BoardImageRepository,
     private replyRepository: BoardReplyRepository,
+    private rereplyRepository: BoardRereplyRepository,
+    private boardBookmarkRepository: BoardBookmarkRepository,
   ) {}
   /**
    * 게시판 다중 이미지 업로드
@@ -39,7 +45,6 @@ export class BoardService {
     if (files) {
       await this.uploadBoardImages(files, boardInfo.idx);
     }
-
     return boardInfo;
   }
   /**
@@ -54,7 +59,6 @@ export class BoardService {
   ): Promise<Page<Board>> {
     const [boards, totalCount] =
       await this.boardRepository.findAndCountByCategory(pageRequest, category);
-    console.log(boards);
     return new Page<Board>(totalCount, boards, pageRequest);
   }
 
@@ -88,7 +92,6 @@ export class BoardService {
    */
   async findDiary(boardIdx: number) {
     const board = await this.boardRepository.findBoadDetailByBoardIdx(boardIdx);
-    console.log(board);
     if (!board) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
     } else if (board.status == 'PRIVATE') {
@@ -125,7 +128,7 @@ export class BoardService {
     }
   }
   /**
-   * 다이어리 수정
+   * 게시글 수정
    * @param diaryIdx 다이어리 인덱스
    * @param dto UpdateDiaryDto
    * @returns
@@ -195,7 +198,11 @@ export class BoardService {
    * 댓글 이미지 업로드(영상x, 이미지만 1장 제한)
    * @param file 이미지 파일
    */
-  async createReply(dto: ReplyDto, userIdx: number, file: Express.Multer.File) {
+  async createReply(
+    dto: ReplyDto,
+    userIdx: number,
+    file: Express.Multer.File,
+  ): Promise<Reply> {
     const reply = Reply.from(dto);
     reply.userIdx = userIdx;
     if (file) {
@@ -203,6 +210,8 @@ export class BoardService {
       reply.filePath = url;
     }
     const replyInfo = await this.replyRepository.save(reply);
+    const count = await this.countReply('all', dto.boardIdx);
+    await this.boardRepository.updateReplyCnt(dto.boardIdx, count);
     return replyInfo;
   }
   async removeReply(
@@ -222,7 +231,8 @@ export class BoardService {
       throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
     }
     await this.replyRepository.softDelete(replyIdx);
-    const count = await this.countReply('reply', boardIdx);
+    const count = await this.countReply('all', boardIdx);
+    await this.boardRepository.updateReplyCnt(boardIdx, count);
     return count;
   }
   async countReply(table: string, boardIdx: number): Promise<number> {
@@ -237,10 +247,22 @@ export class BoardService {
       const replyCnt = await this.replyRepository.count({
         where: {
           boardIdx: boardIdx,
-          deletedAt: Not(IsNull()),
         },
       });
       return replyCnt;
+    } else if (table == 'all') {
+      const replyCnt = await this.replyRepository.count({
+        where: {
+          boardIdx: boardIdx,
+        },
+      });
+      const rereplyCnt = await this.rereplyRepository.count({
+        where: {
+          boardIdx: boardIdx,
+        },
+      });
+      const result = replyCnt + rereplyCnt;
+      return result;
     }
   }
   /**
@@ -254,7 +276,155 @@ export class BoardService {
   ): Promise<Page<BoardReply>> {
     const [replys, totalCount] =
       await this.replyRepository.findAndCountByBoardIdx(pageRequest, boardIdx);
-    console.log(replys);
     return new Page<Reply>(totalCount, replys, pageRequest);
+  }
+  /**
+   * 게시글에 달린 댓글 수정
+   * @param pageRequest 페이징객체
+   * @returns 댓글 목록
+   */
+  async updateReply(
+    dto: ReplyDto,
+    replyIdx: number,
+    userIdx: number,
+    file: Express.Multer.File,
+  ): Promise<Reply> {
+    const reply = await this.replyRepository.findOne({
+      where: {
+        idx: replyIdx,
+      },
+    });
+    if (!reply) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
+    } else if (reply.userIdx != userIdx) {
+      throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
+    }
+    reply.description = dto.description;
+    if (file) {
+      const url = await mediaUpload(file, S3FolderName.REPLY);
+      reply.filePath = url;
+    }
+    const replyInfo = await this.replyRepository.save(reply);
+    return replyInfo;
+  }
+  async createRereply(
+    dto: RereplyDto,
+    userIdx: number,
+    file: Express.Multer.File,
+  ): Promise<Reply> {
+    const rereply = BoardRereply.from(dto);
+    rereply.userIdx = userIdx;
+    if (file) {
+      const url = await mediaUpload(file, S3FolderName.REPLY);
+      rereply.filePath = url;
+    }
+    const count = await this.countReply('all', dto.boardIdx);
+    await this.boardRepository.updateReplyCnt(dto.boardIdx, count);
+    const replyInfo = await this.rereplyRepository.save(rereply);
+    return replyInfo;
+  }
+  async removeRereply(
+    rereplyIdx: number,
+    boardIdx: number,
+    userIdx: number,
+  ): Promise<number> {
+    const rerelpy = await this.rereplyRepository.findOne({
+      where: {
+        idx: rereplyIdx,
+      },
+    });
+    if (!rerelpy) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
+    } else if (rerelpy.userIdx != userIdx) {
+      throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
+    }
+    await this.rereplyRepository.softDelete(rereplyIdx);
+    const count = await this.countReply('rereply', boardIdx);
+    await this.boardRepository.updateReplyCnt(boardIdx, count);
+    return count;
+  }
+  async updateRereply(
+    dto: RereplyDto,
+    rereplyIdx: number,
+    userIdx: number,
+    file: Express.Multer.File,
+  ): Promise<Rereply> {
+    const rereply = await this.rereplyRepository.findOne({
+      where: {
+        idx: rereplyIdx,
+      },
+    });
+    if (!rereply) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
+    } else if (rereply.userIdx != userIdx) {
+      throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
+    }
+    rereply.description = dto.description;
+    if (file) {
+      const url = await mediaUpload(file, S3FolderName.REPLY);
+      rereply.filePath = url;
+    }
+    const replyInfo = await this.rereplyRepository.save(rereply);
+    return replyInfo;
+  }
+  /**
+   * 댓글에 달린 대댓글 조회
+   * @param pageRequest 페이징객체
+   * @returns 대댓글 목록
+   */
+  async findBoardRereply(
+    pageRequest: PageRequest,
+    replyIdx: number,
+  ): Promise<Page<BoardRereply>> {
+    const [rereplys, totalCount] =
+      await this.rereplyRepository.findAndCountByBoardIdx(
+        pageRequest,
+        replyIdx,
+      );
+    return new Page<BoardRereply>(totalCount, rereplys, pageRequest);
+  }
+  async RegisterBoardBookmark(boardIdx: number, userIdx: number) {
+    const board = await this.boardRepository.findOne({
+      where: {
+        idx: boardIdx,
+      },
+    });
+
+    if (!board) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
+    }
+    const bookmark = new Bookmark();
+    bookmark.category = 'board';
+    bookmark.userIdx = userIdx;
+    bookmark.postIdx = boardIdx;
+
+    const bookmarkCheck = await this.boardBookmarkRepository.findOne({
+      where: {
+        category: 'board',
+        postIdx: boardIdx,
+        userIdx: userIdx,
+      },
+    });
+    if (bookmarkCheck) {
+      throw new NotFoundException(HttpErrorConstants.BOOKMAEK_EXIST);
+    }
+    const result = await this.boardBookmarkRepository.save(bookmark);
+    return result;
+  }
+  async boardBookmarkRemove(boardIdx: number, userIdx: number) {
+    const bookmarkCheck = await this.boardBookmarkRepository.findOne({
+      where: {
+        category: 'board',
+        postIdx: boardIdx,
+        userIdx: userIdx,
+      },
+    });
+    if (!bookmarkCheck) {
+      throw new NotFoundException(HttpErrorConstants.BOOKMAEK_NOT_EXIST);
+    }
+    const result = await this.boardBookmarkRepository.softDelete(
+      bookmarkCheck.idx,
+    );
+    return result;
   }
 }
