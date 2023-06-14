@@ -1,4 +1,3 @@
-import * as moment from 'moment-timezone';
 import { Schedule } from './entities/schedule.entity';
 import { ScheduleRepository } from './repositories/schedule.repository';
 import { Injectable, NotFoundException } from '@nestjs/common';
