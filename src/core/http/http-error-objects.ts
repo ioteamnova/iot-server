@@ -104,4 +104,14 @@ export const HttpErrorConstants = {
     errorCode: 'CANNOT_FIND_REPLY',
     message: '댓글을 찾을 수 없습니다.',
   } as HttpErrorFormat,
+
+  BOOKMAEK_EXIST: {
+    errorCode: 'BOOKMAEK_EXIST',
+    message: '이미 북마크가 된 게시글 입니다.',
+  } as HttpErrorFormat,
+
+  BOOKMAEK_NOT_EXIST: {
+    errorCode: 'BOOKMAEK_NOT_EXIST',
+    message: '북마크를 찾을 수 없습니다.',
+  } as HttpErrorFormat,
 };

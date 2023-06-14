@@ -27,4 +27,19 @@ export default class BoardReply extends BaseEntity {
     reply.description = description;
     return reply;
   }
+  static updateFrom({
+    boardIdx,
+    idx,
+    description,
+  }: {
+    boardIdx: number;
+    description: string;
+    idx: number;
+  }) {
+    const reply = new BoardReply();
+    reply.boardIdx = boardIdx;
+    reply.description = description;
+    reply.idx = idx;
+    return reply;
+  }
 }

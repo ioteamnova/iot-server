@@ -24,4 +24,11 @@ export class BoardRepository extends Repository<Board> {
       .where('board.idx = :boardIdx', { boardIdx })
       .getOne();
   }
+  updateReplyCnt(boardIdx: number, replyCnt: number) {
+    this.createQueryBuilder()
+      .update(Board)
+      .set({ replyCnt })
+      .where('board.idx = :boardIdx', { boardIdx })
+      .execute();
+  }
 }

@@ -31,7 +31,7 @@ import { PageRequest } from 'src/core/page';
 import { ApiOkResponseTemplate } from 'src/core/swagger/api-ok-response';
 import { BoardDetailDto } from './dtos/board-detail-dto';
 import { UpdateBoardDto } from './dtos/update-diary.dto';
-import { ReplyDto } from './dtos/reply.dto';
+import { ReplyDto, RereplyDto } from './dtos/reply.dto';
 import { createBoardDto } from './dtos/create-board.dto';
 import BoardReply from './entities/board-reply.entity';
 
@@ -184,8 +184,6 @@ export class Boardcontroller {
     @Query('replyIdx') replyIdx: number,
     @AuthUser() user: User,
   ) {
-    console.log(user.idx);
-    console.log(replyIdx);
     const result = await this.boardService.removeReply(
       replyIdx,
       boardIdx,
@@ -209,5 +207,167 @@ export class Boardcontroller {
       boardIdx,
     );
     return HttpResponse.ok(res, replys);
+  }
+  @ApiOperation({
+    summary: '댓글 수정',
+    description: '댓글을 수정한다.',
+  })
+  @ApiCreatedResponseTemplate({ type: ReplyDto })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_USER],
+    },
+  ])
+  @ApiBody({ type: ReplyDto })
+  @UseAuthGuards()
+  @UseInterceptors(FileInterceptor('file'))
+  @Patch('/updateReply/:replyIdx')
+  async updateReply(
+    @Res() res,
+    @Param('replyIdx') replyIdx: number,
+    @AuthUser() user: User,
+    @Body() dto: ReplyDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const result = await this.boardService.updateReply(
+      dto,
+      replyIdx,
+      user.idx,
+      file,
+    );
+    return HttpResponse.created(res, { body: result });
+  }
+  @ApiOperation({
+    summary: '대댓글 등록',
+    description: '대댓글을 등록한다.',
+  })
+  @ApiCreatedResponseTemplate({ type: RereplyDto })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_USER],
+    },
+  ])
+  @ApiBody({ type: RereplyDto })
+  @UseInterceptors(FileInterceptor('file'))
+  @UseAuthGuards()
+  @Post('/rereply')
+  async createRereply(
+    @Res() res,
+    @Body() dto: RereplyDto,
+    @AuthUser() user: User,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const result = await this.boardService.createRereply(dto, user.idx, file);
+    return HttpResponse.created(res, { body: result });
+  }
+  @UseAuthGuards()
+  @Delete('/rereply/remove')
+  async removeRereply(
+    @Res() res,
+    @Query('boardIdx') boardIdx: number,
+    @Query('rereplyIdx') rereplyIdx: number,
+    @AuthUser() user: User,
+  ) {
+    const result = await this.boardService.removeRereply(
+      rereplyIdx,
+      boardIdx,
+      user.idx,
+    );
+    return HttpResponse.ok(res, { body: result });
+  }
+  @ApiOperation({
+    summary: '대댓글 수정',
+    description: '대댓글을 수정한다.',
+  })
+  @ApiCreatedResponseTemplate({ type: ReplyDto })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_USER],
+    },
+  ])
+  @ApiBody({ type: ReplyDto })
+  @UseAuthGuards()
+  @UseInterceptors(FileInterceptor('file'))
+  @Patch('/updateRereply/:rereplyIdx')
+  async updateRereply(
+    @Res() res,
+    @Param('rereplyIdx') rereplyIdx: number,
+    @AuthUser() user: User,
+    @Body() dto: RereplyDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const result = await this.boardService.updateRereply(
+      dto,
+      rereplyIdx,
+      user.idx,
+      file,
+    );
+    return HttpResponse.created(res, { body: result });
+  }
+  @ApiOperation({
+    summary: '대댓글 조회',
+    description: '댓글에 달린 대댓글 정보를 최신순에 최대 8개씩 조회합니다.',
+  })
+  @ApiOkPaginationResponseTemplate({ type: BoardReply })
+  @Get('/rereply/findReply:rereplyIdx')
+  async getRereply(
+    @Res() res,
+    @Query() pageRequest: PageRequest,
+    @Param('rereplyIdx') rereplyIdx: number,
+  ) {
+    const rereplys = await this.boardService.findBoardRereply(
+      pageRequest,
+      rereplyIdx,
+    );
+    return HttpResponse.ok(res, rereplys);
+  }
+  @ApiOperation({
+    summary: '게시글 북마크 등록 등록',
+    description: '게시글에 대한 북마크를 합니다.',
+  })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_USER],
+    },
+  ])
+  @UseAuthGuards()
+  @Post('/boardBookmark:boardIdx')
+  async boardBookmark(
+    @Res() res,
+    @Param('boardIdx') boardIdx: number,
+    @AuthUser() user: User,
+  ) {
+    const result = await this.boardService.RegisterBoardBookmark(
+      boardIdx,
+      user.idx,
+    );
+    return HttpResponse.created(res, { body: result });
+  }
+  @ApiOperation({
+    summary: '북마크 취소',
+    description: '게시글에 대한 북마크를 취소합니다.',
+  })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [HttpErrorConstants.BOOKMAEK_NOT_EXIST],
+    },
+  ])
+  @UseAuthGuards()
+  @Delete('/boardBookmark/Remove:boardIdx')
+  async updateBookmark(
+    @Res() res,
+    @Param('boardIdx') boardIdx: number,
+    @AuthUser() user: User,
+  ) {
+    const board = await this.boardService.boardBookmarkRemove(
+      boardIdx,
+      user.idx,
+    );
+    return HttpResponse.ok(res, board);
   }
 }
