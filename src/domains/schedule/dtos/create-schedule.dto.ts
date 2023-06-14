@@ -27,7 +27,7 @@ export class CreateScheduleDto {
     required: false,
   })
   @IsOptional()
-  repeat: string;
+  repeatDay: string;
 
   @ApiProperty({
     description: '스케줄링 내용',
