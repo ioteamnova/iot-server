@@ -34,9 +34,9 @@ import { ScheduleModule } from '@nestjs/schedule';
     UserModule,
     AuthModule,
     DiaryModule,
-    SchedulerModule, // 스케줄 모듈과 혼동 주의
+    SchedulerModule,
     IotPersonalModule,
-    ScheduleModule.forRoot(),
+    ScheduleModule.forRoot(), // 스케줄 도메인 모듈과 혼동 주의
   ],
   controllers: [AppController],
   providers: [AppService],

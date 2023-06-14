@@ -133,6 +133,10 @@ export class ScheduleController {
     return HttpResponse.ok(res);
   }
 
+  @ApiOperation({
+    summary: '스케줄 푸시알림 테스트',
+    description: '스케줄 푸시알림 테스트용 API. ',
+  })
   @Post('/send')
   async sendNotification(@Res() res) {
     const result = await this.scheduleService.checkSchedules();
