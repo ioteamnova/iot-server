@@ -31,7 +31,7 @@ export class ScheduleListDto {
     description: '알림 반복 요일',
     default: '0, 0, 0, 0, 0, 0, 0',
   })
-  repeat: string;
+  repeatDay: string;
 
   @ApiProperty({
     description: `스케줄링 종류
@@ -61,7 +61,7 @@ export class ScheduleListDto {
     this.title = schedule.title;
     this.memo = schedule.memo;
     this.alarmTime = schedule.alarmTime;
-    this.repeat = schedule.repeat;
+    this.repeatDay = schedule.repeatDay;
     this.type = schedule.type;
     this.date = schedule.date;
   }

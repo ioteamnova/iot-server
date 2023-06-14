@@ -25,7 +25,7 @@ export class Schedule extends BaseEntity {
     comment: `일~월요일에서 알림을 설정한 날을 1과 0으로 표현한다.
     ex) 월,수,금 반복인경우 0,1,0,1,0,1,0`,
   })
-  repeat: string;
+  repeatDay: string;
 
   @Column()
   type: SchedulesType;
@@ -41,14 +41,14 @@ export class Schedule extends BaseEntity {
     title,
     memo,
     alarmTime,
-    repeat,
+    repeatDay,
     type,
     date,
   }: {
     title: string;
     memo: string;
     alarmTime: string;
-    repeat: string;
+    repeatDay: string;
     type: SchedulesType;
     date: string;
   }) {
@@ -56,7 +56,7 @@ export class Schedule extends BaseEntity {
     schedule.title = title;
     schedule.memo = memo;
     schedule.alarmTime = alarmTime;
-    schedule.repeat = repeat;
+    schedule.repeatDay = repeatDay;
     schedule.type = type;
     schedule.date = date;
 
@@ -68,7 +68,7 @@ export class Schedule extends BaseEntity {
     this.memo = dto.memo;
     this.alarmTime = dto.alarmTime;
     // this.repeat = JSON.stringify(dto.repeat);
-    this.repeat = dto.repeat;
+    this.repeatDay = dto.repeatDay;
     this.date = dto.date;
   }
 }

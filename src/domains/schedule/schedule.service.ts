@@ -157,7 +157,7 @@ export class ScheduleService {
       }
 
       if (schedule.type === SchedulesType.REPETITION) {
-        const repeatArray = schedule.repeat.split(',');
+        const repeatArray = schedule.repeatDay.split(',');
         const sameDay: boolean = repeatArray[currentDay] === '1';
         return sameDay;
       }
