@@ -1,7 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, MaxLength } from 'class-validator';
+import { User } from 'src/domains/user/entities/user.entity';
+import { BoardCommercial } from '../entities/board-commercial.entity';
+import { BoardImage } from '../entities/board-image.entity';
 
-export class BoardInfoDto {
+export class BoardListDto {
   @ApiProperty({
     description: '닉네임',
     default: '디노마켓',
@@ -12,24 +15,23 @@ export class BoardInfoDto {
   idx: number;
 
   @ApiProperty({
-    description: '닉네임',
-    default: '디노마켓',
+    description: '유저 인덱스',
+    default: '1',
   })
-  @IsString()
-  @MaxLength(32)
+  @IsNumber()
   @IsNotEmpty()
-  nickname: string;
+  userIdx: number;
 
   @ApiProperty({
     description: '어떤 게시판인가?',
-    default: '자유 게시판',
+    default: 'free',
   })
   @IsString()
   @IsNotEmpty()
   category: string;
 
   @ApiProperty({
-    description: '제목?',
+    description: '제목',
     default: '안녕하세요.',
   })
   @IsString()
@@ -68,4 +70,27 @@ export class BoardInfoDto {
   })
   @IsNotEmpty()
   writeDate: Date;
+
+  images: BoardImage[];
+  boardCommercial: BoardCommercial;
+  UsersInfo: { idx: number; nickname: string; profilePath: string };
+
+  static from({
+    userIdx,
+    title,
+    category,
+    description,
+  }: {
+    userIdx: number;
+    title: string;
+    category: string;
+    description: string;
+  }) {
+    const board = new BoardListDto();
+    board.userIdx = userIdx;
+    board.title = title;
+    board.category = category;
+    board.description = description;
+    return board;
+  }
 }

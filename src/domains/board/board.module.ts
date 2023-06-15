@@ -7,6 +7,8 @@ import { BoardImageRepository } from './repositories/board-image.repository';
 import { BoardReplyRepository } from './repositories/board-reply.repository';
 import { BoardRereplyRepository } from './repositories/board-rereply.repository';
 import { BoardBookmarkRepository } from './repositories/board-bookmark.repository';
+import { BoardCommercialRepository } from './repositories/board-commercial.repository';
+import { UserRepository } from '../user/repositories/user.repository';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { BoardBookmarkRepository } from './repositories/board-bookmark.repositor
       BoardReplyRepository,
       BoardRereplyRepository,
       BoardBookmarkRepository,
+      BoardCommercialRepository,
+      UserRepository,
     ]),
   ],
   controllers: [Boardcontroller],

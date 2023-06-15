@@ -26,7 +26,7 @@ import { ApiErrorResponseTemplate } from 'src/core/swagger/apt-error-response';
 import { StatusCodes } from 'http-status-codes';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
 import { ApiOkPaginationResponseTemplate } from 'src/core/swagger/api-ok-pagination-response';
-import { BoardInfoDto } from './dtos/boardInfo.dto';
+import { BoardListDto } from './dtos/board-list.dto';
 import { PageRequest } from 'src/core/page';
 import { ApiOkResponseTemplate } from 'src/core/swagger/api-ok-response';
 import { BoardDetailDto } from './dtos/board-detail-dto';
@@ -69,7 +69,7 @@ export class Boardcontroller {
     summary: '게시판 조회',
     description: '게시판 카테고리에 따라 최신 정보를 조회합니다.',
   })
-  @ApiOkPaginationResponseTemplate({ type: BoardInfoDto })
+  @ApiOkPaginationResponseTemplate({ type: BoardListDto })
   @Get('')
   async getBoard(
     @Res() res,
@@ -335,7 +335,7 @@ export class Boardcontroller {
     },
   ])
   @UseAuthGuards()
-  @Post('/boardBookmark:boardIdx')
+  @Post('/boardBookmark/:boardIdx')
   async boardBookmark(
     @Res() res,
     @Param('boardIdx') boardIdx: number,
@@ -358,7 +358,7 @@ export class Boardcontroller {
     },
   ])
   @UseAuthGuards()
-  @Delete('/boardBookmark/Remove:boardIdx')
+  @Delete('/boardBookmark/:boardIdx')
   async updateBookmark(
     @Res() res,
     @Param('boardIdx') boardIdx: number,
