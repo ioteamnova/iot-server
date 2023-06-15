@@ -1,7 +1,7 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { BoardInfoDto } from './boardInfo.dto';
+import { BoardListDto } from './board-list.dto';
 
-export class BoardDetailDto extends OmitType(BoardInfoDto, [
+export class BoardDetailDto extends OmitType(BoardListDto, [
   'thumbnail',
 ] as const) {
   @ApiProperty({

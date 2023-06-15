@@ -19,15 +19,21 @@ import BoardRereply from './entities/board-rereply.entity';
 import { BoardRereplyRepository } from './repositories/board-rereply.repository';
 import { BoardBookmarkRepository } from './repositories/board-bookmark.repository';
 import { Bookmark } from './entities/board-bookmark.entity';
+import { BoardCommercial } from './entities/board-commercial.entity';
+import { BoardCommercialRepository } from './repositories/board-commercial.repository';
+import { UserRepository } from '../user/repositories/user.repository';
+import { BoardListDto } from './dtos/board-list.dto';
 
 @Injectable()
 export class BoardService {
   constructor(
     private boardRepository: BoardRepository,
+    private userRepository: UserRepository,
     private boardImageRepository: BoardImageRepository,
     private replyRepository: BoardReplyRepository,
     private rereplyRepository: BoardRereplyRepository,
     private boardBookmarkRepository: BoardBookmarkRepository,
+    private boardCommercialRepository: BoardCommercialRepository,
   ) {}
   /**
    * 게시판 다중 이미지 업로드
@@ -41,6 +47,16 @@ export class BoardService {
     dto.userIdx = userIdx;
     const board = Board.from(dto);
     const boardInfo = await this.boardRepository.save(board);
+
+    if (board.category == 'adoption' || board.category == 'market') {
+      const boardCommercial = new BoardCommercial();
+      boardCommercial.boardIdx = boardInfo.idx;
+      boardCommercial.gender = dto.gender;
+      boardCommercial.price = dto.price;
+      boardCommercial.size = dto.size;
+      boardCommercial.variety = dto.variety;
+      const result = await this.boardCommercialRepository.save(boardCommercial);
+    }
 
     if (files) {
       await this.uploadBoardImages(files, boardInfo.idx);
@@ -56,10 +72,43 @@ export class BoardService {
   async findAllBoard(
     pageRequest: PageRequest,
     category: string,
-  ): Promise<Page<Board>> {
+  ): Promise<Page<BoardListDto>> {
+    //1. 게시글에 대한 정보를 불러온다.
     const [boards, totalCount] =
       await this.boardRepository.findAndCountByCategory(pageRequest, category);
-    return new Page<Board>(totalCount, boards, pageRequest);
+    const result = new Page<BoardListDto>(totalCount, boards, pageRequest);
+    //2. 게시글 작성자에 대한 정보(닉네임, 프로필 사진 주소)를 불러온다.
+    const usersInfoArr = [];
+    for (const board of result.items) {
+      const userInfo = await this.userRepository.findOne({
+        where: {
+          idx: board.userIdx,
+        },
+      });
+      const userDetails = {
+        idx: userInfo.idx,
+        nickname: userInfo.nickname,
+        profilePath: userInfo.profilePath,
+      };
+      board.UsersInfo = userDetails;
+      usersInfoArr.push(board);
+    }
+    result.items = usersInfoArr;
+    if (category == 'adoption' || category == 'market') {
+      //3. 게시판 카테고리가 분양 or 중고 마켓이면 해당 데이터를 조회한다.
+      const commercialInfoArr = [];
+      for (const board of result.items) {
+        const commercialInfo = await this.boardCommercialRepository.findOne({
+          where: {
+            boardIdx: board.idx,
+          },
+        });
+        board.boardCommercial = commercialInfo;
+        commercialInfoArr.push(board);
+      }
+      result.items = commercialInfoArr;
+    }
+    return result;
   }
 
   /**
@@ -116,6 +165,10 @@ export class BoardService {
     } else if (board.userIdx != userIdx) {
       throw new NotFoundException(HttpErrorConstants.BOARD_NOT_WRITER);
     }
+    if (board.category == 'adoption' || board.category == 'market') {
+      //게시판이 분양 or 중고 마켓일 경우 해당 데이터 테이블 삭제하는 함수
+      this.boardCommercialRepository.softDelete({ boardIdx: boardIdx });
+    }
     // 게시판 이미지 같이 삭제
     if (board.images) {
       this.deleteBoardImages(board.images);
@@ -155,6 +208,17 @@ export class BoardService {
 
     if (!board) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
+    }
+    if (board.category == 'adoption' || board.category == 'market') {
+      const boardCommercial = new BoardCommercial();
+      boardCommercial.idx = dto.boardCommercialIdx;
+      boardCommercial.boardIdx = boardIdx;
+      boardCommercial.gender = dto.gender;
+      boardCommercial.price = dto.price;
+      boardCommercial.size = dto.size;
+      boardCommercial.variety = dto.variety;
+      console.log('boardCommercial', boardCommercial);
+      const result = await this.boardCommercialRepository.save(boardCommercial);
     }
 
     for (let i = 0; i < modifySqenceArr.length; i++) {
