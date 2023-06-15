@@ -84,4 +84,14 @@ export const HttpErrorConstants = {
     errorCode: 'CANNOT_UPDATE_SOCIAL_USER',
     message: '소셜로그인 유저는 이메일 및 비밀번호를 변경할 수 없습니다.',
   } as HttpErrorFormat,
+
+  ALLREADY_EXPIRED_TOKEN: {
+    errorCode: 'ALLREADY_EXPIRED_TOKEN',
+    message: '기간인 만료된 토큰입니다.',
+  } as HttpErrorFormat,
+
+  CANNOT_FIND_TOKEN: {
+    errorCode: 'CANNOT_FIND_TOKEN',
+    message: '토큰을 찾을 수 없습니다.',
+  } as HttpErrorFormat,
 };
