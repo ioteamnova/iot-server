@@ -1,7 +1,5 @@
 import { Repository } from 'typeorm';
 import { CustomRepository } from 'src/core/decorators/typeorm-ex.decorator';
-import { PageRequest } from 'src/core/page';
-import BoardReply from '../entities/board-reply.entity';
 import { BoardCommercial } from '../entities/board-commercial.entity';
 
 @CustomRepository(BoardCommercial)

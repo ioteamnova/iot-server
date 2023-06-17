@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
-export class ReplyDto {
+export class CommentDto {
   @ApiProperty({
     description: '게시글 인덱스 번호',
     default: 1,
@@ -17,12 +17,13 @@ export class ReplyDto {
   @MaxLength(500)
   description: string;
 }
-export class RereplyDto extends ReplyDto {
+export class ReplyDto extends CommentDto {
   @ApiProperty({
     description: '댓글 인덱스 번호',
     default: 1,
   })
-  replyIdx: number;
+  commentIdx: number;
+  UserInfo: { idx: number; nickname: string; profilePath: string };
 }
 
 // export class createReplyDto extends ReplyDto {

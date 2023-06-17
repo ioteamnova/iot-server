@@ -24,16 +24,19 @@ export class BoardRepository extends Repository<Board> {
     });
     return [boardListDtoArr, totalCount];
   }
-  findBoadDetailByBoardIdx(boardIdx: number): Promise<Board> {
-    return this.createQueryBuilder('board')
+  async findBoadDetailByBoardIdx(boardIdx: number): Promise<BoardListDto> {
+    const board = await this.createQueryBuilder('board')
       .leftJoinAndSelect('board.images', 'image')
       .where('board.idx = :boardIdx', { boardIdx })
       .getOne();
+    const boardListDto = BoardListDto.from(board);
+    return boardListDto;
   }
-  updateReplyCnt(boardIdx: number, replyCnt: number) {
+  updateReplyCnt(boardIdx: number, commentCnt: number) {
+    console.log('boardIdx', boardIdx);
     this.createQueryBuilder()
       .update(Board)
-      .set({ replyCnt })
+      .set({ commentCnt })
       .where('board.idx = :boardIdx', { boardIdx })
       .execute();
   }

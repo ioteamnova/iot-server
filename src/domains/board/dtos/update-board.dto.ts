@@ -23,8 +23,7 @@ export class UpdateBoardDto extends PartialType(createBoardDto) {
   title: string;
 
   @ValidateIf(
-    (object, value) =>
-      object.category === 'adoption' || object.category === 'market',
+    (object) => object.category === 'adoption' || object.category === 'market',
   )
   @ApiProperty({
     description:
@@ -36,8 +35,7 @@ export class UpdateBoardDto extends PartialType(createBoardDto) {
   boardCommercialIdx: number;
 
   @ValidateIf(
-    (object, value) =>
-      object.category === 'adoption' || object.category === 'market',
+    (object) => object.category === 'adoption' || object.category === 'market',
   )
   @ApiProperty({
     description:
@@ -48,7 +46,7 @@ export class UpdateBoardDto extends PartialType(createBoardDto) {
   @IsNotEmpty()
   price: number;
 
-  @ValidateIf((object, value) => object.category === 'adoption')
+  @ValidateIf((object) => object.category === 'adoption')
   @ApiProperty({
     description:
       '성별 내용 *분양글만 필요, 나머지 게시판은 빈값으로 보내주세요.',
@@ -58,7 +56,7 @@ export class UpdateBoardDto extends PartialType(createBoardDto) {
   @IsNotEmpty()
   gender: string;
 
-  @ValidateIf((object, value) => object.category === 'adoption')
+  @ValidateIf((object) => object.category === 'adoption')
   @ApiProperty({
     description:
       '크기 내용 *분양글에만 필요 나머지 게시판은 빈값으로 보내주세요.',
@@ -68,7 +66,7 @@ export class UpdateBoardDto extends PartialType(createBoardDto) {
   @IsNotEmpty()
   size: string;
 
-  @ValidateIf((object, value) => object.category === 'adoption')
+  @ValidateIf((object) => object.category === 'adoption')
   @ApiProperty({
     description:
       '품종 내용 *분양글만 필요, 나머지 게시판은 빈값으로 보내주세요.',
