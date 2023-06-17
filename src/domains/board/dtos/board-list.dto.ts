@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString, MaxLength } from 'class-validator';
-import { User } from 'src/domains/user/entities/user.entity';
 import { BoardCommercial } from '../entities/board-commercial.entity';
 import { BoardImage } from '../entities/board-image.entity';
 
@@ -73,24 +72,32 @@ export class BoardListDto {
 
   images: BoardImage[];
   boardCommercial: BoardCommercial;
-  UsersInfo: { idx: number; nickname: string; profilePath: string };
+  UserInfo: { idx: number; nickname: string; profilePath: string };
+
+  status: string;
 
   static from({
     userIdx,
     title,
     category,
     description,
+    createdAt,
+    images,
   }: {
     userIdx: number;
     title: string;
     category: string;
     description: string;
+    createdAt: Date;
+    images: BoardImage[];
   }) {
     const board = new BoardListDto();
     board.userIdx = userIdx;
     board.title = title;
     board.category = category;
     board.description = description;
+    board.writeDate = createdAt;
+    board.images = images;
     return board;
   }
 }

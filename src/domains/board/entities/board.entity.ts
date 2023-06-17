@@ -2,7 +2,7 @@ import BaseEntity from 'src/core/entity/base.entity';
 import { Column, Entity, OneToMany } from 'typeorm';
 import { BoardStatus } from '../board-status.enum';
 import { BoardImage } from './board-image.entity';
-import { UpdateBoardDto } from '../dtos/update-diary.dto';
+import { UpdateBoardDto } from '../dtos/update-board.dto';
 
 @Entity()
 export class Board extends BaseEntity {
@@ -22,7 +22,7 @@ export class Board extends BaseEntity {
   description: string;
 
   @Column()
-  replyCnt: number;
+  commentCnt: number;
 
   @Column()
   status: BoardStatus;

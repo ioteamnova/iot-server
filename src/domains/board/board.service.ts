@@ -6,17 +6,17 @@ import { BoardImage } from './entities/board-image.entity';
 import { Board } from './entities/board.entity';
 import { Page, PageRequest } from 'src/core/page';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
-import { UpdateBoardDto } from './dtos/update-diary.dto';
+import { UpdateBoardDto } from './dtos/update-board.dto';
 import AuthUser from 'src/core/decorators/auth-user.decorator';
 import { User } from 'src/domains/user/entities/user.entity';
-import { ReplyDto, RereplyDto } from './dtos/reply.dto';
-import Reply from './entities/board-reply.entity';
-import Rereply from './entities/board-rereply.entity';
-import { BoardReplyRepository } from './repositories/board-reply.repository';
+import { CommentDto, ReplyDto } from './dtos/board-comment.dto';
+import Comment from './entities/board-comment.entity';
+import Reply from './entities/board-comment.entity';
+import { BoardCommentRepository } from './repositories/board-comment.repository';
 import { BoardImageRepository } from './repositories/board-image.repository';
 import BoardReply from './entities/board-reply.entity';
-import BoardRereply from './entities/board-rereply.entity';
-import { BoardRereplyRepository } from './repositories/board-rereply.repository';
+import BoardComment from './entities/board-comment.entity';
+import { BoardReplyRepository } from './repositories/board-reply.repository';
 import { BoardBookmarkRepository } from './repositories/board-bookmark.repository';
 import { Bookmark } from './entities/board-bookmark.entity';
 import { BoardCommercial } from './entities/board-commercial.entity';
@@ -30,8 +30,8 @@ export class BoardService {
     private boardRepository: BoardRepository,
     private userRepository: UserRepository,
     private boardImageRepository: BoardImageRepository,
+    private commentRepository: BoardCommentRepository,
     private replyRepository: BoardReplyRepository,
-    private rereplyRepository: BoardRereplyRepository,
     private boardBookmarkRepository: BoardBookmarkRepository,
     private boardCommercialRepository: BoardCommercialRepository,
   ) {}
@@ -55,7 +55,7 @@ export class BoardService {
       boardCommercial.price = dto.price;
       boardCommercial.size = dto.size;
       boardCommercial.variety = dto.variety;
-      const result = await this.boardCommercialRepository.save(boardCommercial);
+      await this.boardCommercialRepository.save(boardCommercial);
     }
 
     if (files) {
@@ -80,17 +80,8 @@ export class BoardService {
     //2. 게시글 작성자에 대한 정보(닉네임, 프로필 사진 주소)를 불러온다.
     const usersInfoArr = [];
     for (const board of result.items) {
-      const userInfo = await this.userRepository.findOne({
-        where: {
-          idx: board.userIdx,
-        },
-      });
-      const userDetails = {
-        idx: userInfo.idx,
-        nickname: userInfo.nickname,
-        profilePath: userInfo.profilePath,
-      };
-      board.UsersInfo = userDetails;
+      const userDetails = await this.findUserInfo(board);
+      board.UserInfo = userDetails;
       usersInfoArr.push(board);
     }
     result.items = usersInfoArr;
@@ -139,12 +130,25 @@ export class BoardService {
    * @param BoardIdx 게시판 인덱스
    * @returns 게시글 관련 정보 및 미디어(이미지, 영상)
    */
-  async findDiary(boardIdx: number) {
+  async findBoard(boardIdx: number) {
+    //1. 게시글 정보를 조회한다.
     const board = await this.boardRepository.findBoadDetailByBoardIdx(boardIdx);
     if (!board) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
     } else if (board.status == 'PRIVATE') {
       throw new NotFoundException(HttpErrorConstants.BOARD_PRIVATE);
+    }
+    //2. 글 작성자에 대한 정보를 가지고 온다
+    const userDetails = await this.findUserInfo(board);
+    board.UserInfo = userDetails;
+    //3. 게시글에 따라 추가 테이블 정보를 조회한다.
+    if (board.category == 'adoption' || board.category == 'market') {
+      const boardCommercial = await this.boardCommercialRepository.findOne({
+        where: {
+          boardIdx: boardIdx,
+        },
+      });
+      board.boardCommercial = boardCommercial;
     }
     return board;
   }
@@ -217,8 +221,7 @@ export class BoardService {
       boardCommercial.price = dto.price;
       boardCommercial.size = dto.size;
       boardCommercial.variety = dto.variety;
-      console.log('boardCommercial', boardCommercial);
-      const result = await this.boardCommercialRepository.save(boardCommercial);
+      await this.boardCommercialRepository.save(boardCommercial);
     }
 
     for (let i = 0; i < modifySqenceArr.length; i++) {
@@ -262,52 +265,52 @@ export class BoardService {
    * 댓글 이미지 업로드(영상x, 이미지만 1장 제한)
    * @param file 이미지 파일
    */
-  async createReply(
-    dto: ReplyDto,
+  async createComment(
+    dto: CommentDto,
     userIdx: number,
     file: Express.Multer.File,
-  ): Promise<Reply> {
-    const reply = Reply.from(dto);
-    reply.userIdx = userIdx;
+  ): Promise<Comment> {
+    const comment = Comment.from(dto);
+    comment.userIdx = userIdx;
     if (file) {
       const url = await mediaUpload(file, S3FolderName.REPLY);
-      reply.filePath = url;
+      comment.filePath = url;
     }
-    const replyInfo = await this.replyRepository.save(reply);
-    const count = await this.countReply('all', dto.boardIdx);
+    const commentInfo = await this.commentRepository.save(comment);
+    const count = await this.countComment('all', dto.boardIdx);
     await this.boardRepository.updateReplyCnt(dto.boardIdx, count);
-    return replyInfo;
+    return commentInfo;
   }
-  async removeReply(
-    replyIdx: number,
+  async removeComment(
+    commentIdx: number,
     boardIdx: number,
     userIdx: number,
   ): Promise<number> {
-    const relpy = await this.replyRepository.findOne({
+    const comment = await this.commentRepository.findOne({
       where: {
-        idx: replyIdx,
+        idx: commentIdx,
       },
     });
 
-    if (!relpy) {
+    if (!comment) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
-    } else if (relpy.userIdx != userIdx) {
+    } else if (comment.userIdx != userIdx) {
       throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
     }
-    await this.replyRepository.softDelete(replyIdx);
-    const count = await this.countReply('all', boardIdx);
+    await this.commentRepository.softDelete(commentIdx);
+    const count = await this.countComment('all', boardIdx);
     await this.boardRepository.updateReplyCnt(boardIdx, count);
     return count;
   }
-  async countReply(table: string, boardIdx: number): Promise<number> {
-    if (table == 'reply') {
-      const replyCnt = await this.replyRepository.count({
+  async countComment(table: string, boardIdx: number): Promise<number> {
+    if (table == 'comment') {
+      const replyCnt = await this.commentRepository.count({
         where: {
           boardIdx: boardIdx,
         },
       });
       return replyCnt;
-    } else if (table == 'rereply') {
+    } else if (table == 'reply') {
       const replyCnt = await this.replyRepository.count({
         where: {
           boardIdx: boardIdx,
@@ -315,12 +318,12 @@ export class BoardService {
       });
       return replyCnt;
     } else if (table == 'all') {
-      const replyCnt = await this.replyRepository.count({
+      const replyCnt = await this.commentRepository.count({
         where: {
           boardIdx: boardIdx,
         },
       });
-      const rereplyCnt = await this.rereplyRepository.count({
+      const rereplyCnt = await this.replyRepository.count({
         where: {
           boardIdx: boardIdx,
         },
@@ -334,19 +337,93 @@ export class BoardService {
    * @param pageRequest 페이징객체
    * @returns 댓글 목록
    */
-  async findBoardReply(
+  async findBoardComment(
     pageRequest: PageRequest,
     boardIdx: number,
-  ): Promise<Page<BoardReply>> {
-    const [replys, totalCount] =
-      await this.replyRepository.findAndCountByBoardIdx(pageRequest, boardIdx);
-    return new Page<Reply>(totalCount, replys, pageRequest);
+  ): Promise<Page<BoardComment>> {
+    const [comments, totalCount] =
+      await this.commentRepository.findAndCountByBoardIdx(
+        pageRequest,
+        boardIdx,
+      );
+    const result = new Page<BoardComment>(totalCount, comments, pageRequest);
+    const commentData = [];
+    for (const reply of result.items) {
+      const userDetails = await this.findUserInfo(reply);
+      reply.UserInfo = userDetails;
+      commentData.push(reply);
+    }
+    result.items = commentData;
+    return result;
   }
   /**
    * 게시글에 달린 댓글 수정
    * @param pageRequest 페이징객체
    * @returns 댓글 목록
    */
+  async updateComment(
+    dto: CommentDto,
+    commentIdx: number,
+    userIdx: number,
+    file: Express.Multer.File,
+  ): Promise<BoardComment> {
+    const comment = await this.commentRepository.findOne({
+      where: {
+        idx: commentIdx,
+      },
+    });
+    if (!comment) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
+    } else if (comment.userIdx != userIdx) {
+      throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
+    }
+    comment.description = dto.description;
+    if (file) {
+      const url = await mediaUpload(file, S3FolderName.REPLY);
+      comment.filePath = url;
+    }
+    const commentInfo = await this.commentRepository.save(comment);
+    return commentInfo;
+  }
+  async createReply(
+    dto: ReplyDto,
+    userIdx: number,
+    file: Express.Multer.File,
+  ): Promise<Reply> {
+    const reply = BoardReply.from(dto);
+    reply.userIdx = userIdx;
+    if (file) {
+      const url = await mediaUpload(file, S3FolderName.REPLY);
+      reply.filePath = url;
+    }
+    const count = await this.countComment('all', dto.boardIdx);
+    await this.boardRepository.updateReplyCnt(dto.boardIdx, count);
+    const result = await this.replyRepository.save(reply);
+
+    const userDetails = await this.findUserInfo(result);
+    result.UserInfo = userDetails;
+    return result;
+  }
+  async removeReply(
+    replyIdx: number,
+    boardIdx: number,
+    userIdx: number,
+  ): Promise<number> {
+    const rerelpy = await this.replyRepository.findOne({
+      where: {
+        idx: replyIdx,
+      },
+    });
+    if (!rerelpy) {
+      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
+    } else if (rerelpy.userIdx != userIdx) {
+      throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
+    }
+    await this.replyRepository.softDelete(replyIdx);
+    const count = await this.countComment('reply', boardIdx);
+    await this.boardRepository.updateReplyCnt(boardIdx, count);
+    return count;
+  }
   async updateReply(
     dto: ReplyDto,
     replyIdx: number,
@@ -371,81 +448,31 @@ export class BoardService {
     const replyInfo = await this.replyRepository.save(reply);
     return replyInfo;
   }
-  async createRereply(
-    dto: RereplyDto,
-    userIdx: number,
-    file: Express.Multer.File,
-  ): Promise<Reply> {
-    const rereply = BoardRereply.from(dto);
-    rereply.userIdx = userIdx;
-    if (file) {
-      const url = await mediaUpload(file, S3FolderName.REPLY);
-      rereply.filePath = url;
-    }
-    const count = await this.countReply('all', dto.boardIdx);
-    await this.boardRepository.updateReplyCnt(dto.boardIdx, count);
-    const replyInfo = await this.rereplyRepository.save(rereply);
-    return replyInfo;
-  }
-  async removeRereply(
-    rereplyIdx: number,
-    boardIdx: number,
-    userIdx: number,
-  ): Promise<number> {
-    const rerelpy = await this.rereplyRepository.findOne({
-      where: {
-        idx: rereplyIdx,
-      },
-    });
-    if (!rerelpy) {
-      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
-    } else if (rerelpy.userIdx != userIdx) {
-      throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
-    }
-    await this.rereplyRepository.softDelete(rereplyIdx);
-    const count = await this.countReply('rereply', boardIdx);
-    await this.boardRepository.updateReplyCnt(boardIdx, count);
-    return count;
-  }
-  async updateRereply(
-    dto: RereplyDto,
-    rereplyIdx: number,
-    userIdx: number,
-    file: Express.Multer.File,
-  ): Promise<Rereply> {
-    const rereply = await this.rereplyRepository.findOne({
-      where: {
-        idx: rereplyIdx,
-      },
-    });
-    if (!rereply) {
-      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
-    } else if (rereply.userIdx != userIdx) {
-      throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
-    }
-    rereply.description = dto.description;
-    if (file) {
-      const url = await mediaUpload(file, S3FolderName.REPLY);
-      rereply.filePath = url;
-    }
-    const replyInfo = await this.rereplyRepository.save(rereply);
-    return replyInfo;
-  }
   /**
    * 댓글에 달린 대댓글 조회
    * @param pageRequest 페이징객체
    * @returns 대댓글 목록
    */
-  async findBoardRereply(
+  async findBoardReply(
     pageRequest: PageRequest,
-    replyIdx: number,
-  ): Promise<Page<BoardRereply>> {
-    const [rereplys, totalCount] =
-      await this.rereplyRepository.findAndCountByBoardIdx(
+    commentIdx: number,
+  ): Promise<Page<BoardReply>> {
+    //1. 답글에 대한 정보와 조회한 답글 수를 가져온다.
+    const [replys, totalCount] =
+      await this.replyRepository.findAndCountByBoardIdx(
         pageRequest,
-        replyIdx,
+        commentIdx,
       );
-    return new Page<BoardRereply>(totalCount, rereplys, pageRequest);
+    const result = new Page<BoardReply>(totalCount, replys, pageRequest);
+    const commentData = [];
+    //2. 답글 작성자 정보를 조회한다.
+    for (const reply of result.items) {
+      const userDetails = await this.findUserInfo(reply);
+      reply.UserInfo = userDetails;
+      commentData.push(reply);
+    }
+    result.items = commentData;
+    return result;
   }
   async RegisterBoardBookmark(boardIdx: number, userIdx: number) {
     const board = await this.boardRepository.findOne({
@@ -491,4 +518,18 @@ export class BoardService {
     );
     return result;
   }
+
+  findUserInfo = async (result) => {
+    const userInfo = await this.userRepository.findOne({
+      where: {
+        idx: result.userIdx,
+      },
+    });
+    const userDetails = {
+      idx: userInfo.idx,
+      nickname: userInfo.nickname,
+      profilePath: userInfo.profilePath,
+    };
+    return userDetails;
+  };
 }
