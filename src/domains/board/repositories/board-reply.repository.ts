@@ -9,8 +9,8 @@ export class BoardReplyRepository extends Repository<BoardReply> {
     pageRequest: PageRequest,
     commentIdx: number,
   ): Promise<[BoardReply[], number]> {
-    return this.createQueryBuilder('Reply')
-      .where('Reply.commentIdx = :commentIdx', { commentIdx })
+    return this.createQueryBuilder('reply')
+      .where('reply.commentIdx = :commentIdx', { commentIdx })
       .orderBy('idx', pageRequest.order)
       .take(pageRequest.limit)
       .skip(pageRequest.offset)
