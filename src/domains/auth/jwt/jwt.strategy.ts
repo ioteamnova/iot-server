@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 import { ExtractJwt } from 'passport-jwt';
 import { AuthService } from '../auth.service';
+import { Request } from 'express';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -31,37 +32,4 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
     return user;
   }
-
-  // todo: 액세스 토큰 검증
-  // async authenticateToken(req: Request) {
-  //   const token = ExtractJwt.fromAuthHeaderAsBearerToken()(req);
-  //   if (!token) {
-  //     throw new UnauthorizedException('Invalid token');
-  //   }
-
-  //   try {
-  //     const decoded = this.authService.verifyAccessToken(token);
-  //     const user = await this.validate(decoded);
-  //     if (!user) {
-  //       throw new UnauthorizedException('Invalid user');
-  //     }
-  //     return user;
-  //   } catch (error) {
-  //     if (error.message === 'Invalid access token') {
-  //       const refreshToken = req.headers['x-refresh-token'];
-  //       const newToken = await this.authService.reissueAccessToken(
-  //         refreshToken,
-  //         token,
-  //       );
-  //       req.headers.authorization = `Bearer ${newToken}`;
-  //       const decoded = this.authService.verifyAccessToken(newToken);
-  //       const user = await this.validate(decoded);
-  //       if (!user) {
-  //         throw new UnauthorizedException('Invalid user');
-  //       }
-  //       return user;
-  //     }
-  //     throw new UnauthorizedException('Invalid token');
-  //   }
-  // }
 }

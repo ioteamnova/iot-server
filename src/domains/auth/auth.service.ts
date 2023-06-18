@@ -1,4 +1,3 @@
-import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from './../user/user.service';
 import { validatePassword } from './../../utils/password.utils';
@@ -190,6 +189,8 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
     }
+    console.log('user::', user);
+
     // 2. 리프레시 토큰 DB와 일치 여부 확인
     const savedRefreshToken = await this.userRepository.findOne({
       where: {
@@ -197,28 +198,25 @@ export class AuthService {
       },
     });
     if (!savedRefreshToken) {
-      console.log('22');
       throw new UnauthorizedException(HttpErrorConstants.CANNOT_FIND_TOKEN);
     }
+    console.log('savedRefreshToken::', savedRefreshToken);
 
     // 3. 리프레시 토큰 만료기간 검증
-    const refreshTokenMatches = await this.jwtService.verify(oldRefreshToken);
+    const refreshTokenMatches = await this.jwtService.verify(oldRefreshToken, {
+      secret: this.configService.get<string>('JWT_SECRET'),
+    });
     if (!refreshTokenMatches) {
-      console.log('33');
       throw new UnauthorizedException(
         HttpErrorConstants.ALLREADY_EXPIRED_TOKEN,
       );
     }
-    // 4. 액세스토큰, 리프레시토큰 재 생성
-    const accessToken = await this.generateAccessToken(user.idx);
-    const refreshToken = await this.generateRefreshToken(user.idx);
 
-    // 5. DB에 리프레시 토큰 업데이트
-    await this.userRepository.update(user.idx, { refreshToken: refreshToken });
+    // 4. 액세스토큰 재생성
+    const accessToken = await this.generateAccessToken(user.idx);
 
     return {
       accessToken,
-      refreshToken,
     };
   }
 }
