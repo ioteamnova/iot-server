@@ -1,4 +1,5 @@
-import * as moment from 'moment-timezone';
+//import * as moment from 'moment-timezone';
+import moment from 'moment-timezone';
 
 const timeFormat = 'YYYY-MM-DD HH:mm:ss';
 
