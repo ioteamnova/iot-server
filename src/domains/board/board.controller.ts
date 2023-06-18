@@ -102,7 +102,7 @@ export class Boardcontroller {
     return HttpResponse.ok(res, board);
   }
   @ApiOperation({
-    summary: '     삭제',
+    summary: '게시글 삭제',
     description: '게시글을 삭제한다.',
   })
   @ApiOkResponseTemplate()
@@ -181,11 +181,11 @@ export class Boardcontroller {
     return HttpResponse.created(res, { body: result });
   }
   @UseAuthGuards()
-  @Delete('/comment/:boardIdx')
+  @Delete('/comment/:commentIdx')
   async removecomment(
     @Res() res,
     @Query('boardIdx') boardIdx: number,
-    @Query('commentIdx') commentIdx: number,
+    @Param('commentIdx') commentIdx: number,
     @AuthUser() user: User,
   ) {
     const result = await this.boardService.removeComment(
@@ -200,7 +200,7 @@ export class Boardcontroller {
     description: '게시글에 달린 댓글 정보를 최신순에 최대 20개씩 조회합니다.',
   })
   @ApiOkPaginationResponseTemplate({ type: Boardcomment })
-  @Get('/comment/:boardIdx')
+  @Get('/:boardIdx/comment')
   async getcomment(
     @Res() res,
     @Query() pageRequest: PageRequest,
@@ -319,7 +319,7 @@ export class Boardcontroller {
     description: '댓글에 달린 대댓글 정보를 최신순에 최대 8개씩 조회합니다.',
   })
   @ApiOkPaginationResponseTemplate({ type: Boardcomment })
-  @Get('/reply/:commentIdx')
+  @Get('/:commentIdx/reply')
   async getReply(
     @Res() res,
     @Query() pageRequest: PageRequest,
@@ -342,7 +342,7 @@ export class Boardcontroller {
     },
   ])
   @UseAuthGuards()
-  @Post('/boardBookmark/:boardIdx')
+  @Post('/:boardIdx/Bookmark')
   async boardBookmark(
     @Res() res,
     @Param('boardIdx') boardIdx: number,
@@ -365,7 +365,7 @@ export class Boardcontroller {
     },
   ])
   @UseAuthGuards()
-  @Delete('/boardBookmark/:boardIdx')
+  @Delete('/:boardIdx/Bookmark')
   async updateBookmark(
     @Res() res,
     @Param('boardIdx') boardIdx: number,
