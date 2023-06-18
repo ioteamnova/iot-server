@@ -1,3 +1,4 @@
+import { User } from 'src/domains/user/entities/user.entity';
 import { ApiCreatedResponseTemplate } from './../../core/swagger/api-created-response';
 import HttpResponse from 'src/core/http/http-response';
 import { AuthService } from './auth.service';
@@ -8,6 +9,12 @@ import { LoginUserDto } from './dtos/login-user.dto';
 import { SocialLoginUserDto } from './dtos/social-login-user.dto';
 import { ApiCommonErrorResponseTemplate } from 'src/core/swagger/api-error-common-response';
 import { LoginResponseDto } from './dtos/login-response.dto';
+import AuthUser from 'src/core/decorators/auth-user.decorator';
+import { RefreshTokenDto } from './dtos/refresh-token.dto';
+import { ApiErrorResponseTemplate } from 'src/core/swagger/apt-error-response';
+import { StatusCodes } from 'http-status-codes';
+import { HttpErrorConstants } from 'src/core/http/http-error-objects';
+import UseAuthGuards from './auth-guards/use-auth';
 
 @ApiTags(SwaggerTag.AUTH)
 @ApiCommonErrorResponseTemplate()
@@ -43,6 +50,41 @@ export class AuthController {
   @Post('/social')
   async socialLogin(@Res() res, @Body() dto: SocialLoginUserDto) {
     const result = await this.authService.socialLogin(dto);
+    return HttpResponse.created(res, { body: result });
+  }
+
+  @ApiOperation({
+    summary: '액세스 토큰 재발급',
+    description: `JWT 리프레시 토큰으로 액세스 토큰을 재발급 한다.`,
+  })
+  @ApiBody({
+    type: RefreshTokenDto,
+  })
+  @ApiCreatedResponseTemplate({ type: LoginResponseDto })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [
+        HttpErrorConstants.CANNOT_FIND_USER,
+        HttpErrorConstants.CANNOT_FIND_TOKEN,
+      ],
+    },
+    {
+      status: StatusCodes.UNAUTHORIZED,
+      errorFormatList: [HttpErrorConstants.ALLREADY_EXPIRED_TOKEN],
+    },
+  ])
+  @UseAuthGuards()
+  @Post('/token')
+  async getNewAccessToken(
+    @Res() res,
+    @Body() dto: RefreshTokenDto,
+    @AuthUser() user: User,
+  ) {
+    const result = await this.authService.getNewAccessToken(
+      user.idx,
+      dto.refreshToken,
+    );
     return HttpResponse.created(res, { body: result });
   }
 }

@@ -8,15 +8,16 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { ConfigService } from '@nestjs/config';
+// import { RefreshTokenStrategy } from './jwt/refresh-token.strategy';
 
 @Module({
   imports: [
     JwtModule.registerAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET'),
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: '365 days',
+          expiresIn: '600', //테스트용 60초 AccessToken
           issuer: 'reptimate.store',
           subject: 'userInfo',
         },
