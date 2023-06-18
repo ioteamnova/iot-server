@@ -47,7 +47,6 @@ export class createBoardDto {
       '가격 내용 *분양글 or 중고 마켓만 필요, 나머지 게시판은 빈값으로 보내주세요.',
     default: '90000',
   })
-  @IsNumber()
   @IsNotEmpty()
   price: number;
 
