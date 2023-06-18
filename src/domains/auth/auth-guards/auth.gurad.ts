@@ -6,6 +6,7 @@ import { User } from 'src/domains/user/entities/user.entity';
 export class UserGuard extends AuthGuard('jwt') {
   async canActivate(context: ExecutionContext) {
     await super.canActivate(context);
+    console.log('Auth Guard !!!');
     const request = context.switchToHttp().getRequest();
     const user = request.user as User;
     return !!user;

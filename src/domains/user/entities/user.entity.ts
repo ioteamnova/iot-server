@@ -57,6 +57,12 @@ export class User extends BaseEntity {
   })
   fbToken: string;
 
+  @Column({
+    nullable: true,
+    default: null,
+  })
+  refreshToken: string;
+
   @OneToMany(() => Pet, (pet) => pet.user)
   pets: Pet[];
 
