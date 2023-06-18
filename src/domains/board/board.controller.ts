@@ -12,14 +12,8 @@ import {
   Body,
   Controller,
   Delete,
-  FileTypeValidator,
   Get,
-  HttpException,
-  HttpStatus,
-  MaxFileSizeValidator,
   Param,
-  ParseFilePipe,
-  ParseFilePipeBuilder,
   Patch,
   Post,
   Query,
@@ -183,7 +177,6 @@ export class Boardcontroller {
     @UploadedFile(fileValidate())
     file: Express.Multer.File,
   ) {
-    console.log('file', file.originalname);
     const result = await this.boardService.createComment(dto, user.idx, file);
     return HttpResponse.created(res, { body: result });
   }
