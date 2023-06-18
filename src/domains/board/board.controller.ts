@@ -102,7 +102,7 @@ export class Boardcontroller {
     return HttpResponse.ok(res, board);
   }
   @ApiOperation({
-    summary: '     삭제',
+    summary: '게시글 삭제',
     description: '게시글을 삭제한다.',
   })
   @ApiOkResponseTemplate()

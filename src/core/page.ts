@@ -1,9 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsOptional } from 'class-validator';
-import { expand } from 'rxjs';
-import { BoardCommercial } from 'src/domains/board/entities/board-commercial.entity';
-import { User } from 'src/domains/user/entities/user.entity';
 
 export class Page<T> {
   pageSize: number;

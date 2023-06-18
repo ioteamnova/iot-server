@@ -48,7 +48,7 @@ export class BoardService {
     const board = Board.from(dto);
     const boardInfo = await this.boardRepository.save(board);
 
-    if (board.category == 'adoption' || board.category == 'market') {
+    if (board.category === 'adoption' || board.category === 'market') {
       const boardCommercial = new BoardCommercial();
       boardCommercial.boardIdx = boardInfo.idx;
       boardCommercial.gender = dto.gender;
@@ -85,7 +85,7 @@ export class BoardService {
       usersInfoArr.push(board);
     }
     result.items = usersInfoArr;
-    if (category == 'adoption' || category == 'market') {
+    if (category === 'adoption' || category === 'market') {
       //3. 게시판 카테고리가 분양 or 중고 마켓이면 해당 데이터를 조회한다.
       const commercialInfoArr = [];
       for (const board of result.items) {
@@ -135,14 +135,14 @@ export class BoardService {
     const board = await this.boardRepository.findBoadDetailByBoardIdx(boardIdx);
     if (!board) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
-    } else if (board.status == 'PRIVATE') {
+    } else if (board.status === 'PRIVATE') {
       throw new NotFoundException(HttpErrorConstants.BOARD_PRIVATE);
     }
     //2. 글 작성자에 대한 정보를 가지고 온다
     const userDetails = await this.findUserInfo(board);
     board.UserInfo = userDetails;
     //3. 게시글에 따라 추가 테이블 정보를 조회한다.
-    if (board.category == 'adoption' || board.category == 'market') {
+    if (board.category === 'adoption' || board.category === 'market') {
       const boardCommercial = await this.boardCommercialRepository.findOne({
         where: {
           boardIdx: boardIdx,
@@ -169,7 +169,7 @@ export class BoardService {
     } else if (board.userIdx != userIdx) {
       throw new NotFoundException(HttpErrorConstants.BOARD_NOT_WRITER);
     }
-    if (board.category == 'adoption' || board.category == 'market') {
+    if (board.category === 'adoption' || board.category === 'market') {
       //게시판이 분양 or 중고 마켓일 경우 해당 데이터 테이블 삭제하는 함수
       this.boardCommercialRepository.softDelete({ boardIdx: boardIdx });
     }
@@ -213,7 +213,7 @@ export class BoardService {
     if (!board) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
     }
-    if (board.category == 'adoption' || board.category == 'market') {
+    if (board.category === 'adoption' || board.category === 'market') {
       const boardCommercial = new BoardCommercial();
       boardCommercial.idx = dto.boardCommercialIdx;
       boardCommercial.boardIdx = boardIdx;
@@ -227,12 +227,12 @@ export class BoardService {
     for (let i = 0; i < modifySqenceArr.length; i++) {
       //미디어 순서(media_squence) 바꾸는 코드
       for (let j = 0; j < board.images.length; j++) {
-        if (modifySqenceArr[i] == board.images[j].mediaSequence) {
+        if (modifySqenceArr[i] === board.images[j].mediaSequence) {
           //기존 이미지 인덱스 수정
           board.images[j].mediaSequence = i;
           await this.boardImageRepository.save(board.images[j]);
           break;
-        } else if (files && j == board.images.length - 1) {
+        } else if (files && j === board.images.length - 1) {
           const url = await mediaUpload(
             files[fileIdxArr.lastIndexOf(modifySqenceArr[i])],
             S3FolderName.BOARD,
@@ -303,21 +303,21 @@ export class BoardService {
     return count;
   }
   async countComment(table: string, boardIdx: number): Promise<number> {
-    if (table == 'comment') {
+    if (table === 'comment') {
       const replyCnt = await this.commentRepository.count({
         where: {
           boardIdx: boardIdx,
         },
       });
       return replyCnt;
-    } else if (table == 'reply') {
+    } else if (table === 'reply') {
       const replyCnt = await this.replyRepository.count({
         where: {
           boardIdx: boardIdx,
         },
       });
       return replyCnt;
-    } else if (table == 'all') {
+    } else if (table === 'all') {
       const replyCnt = await this.commentRepository.count({
         where: {
           boardIdx: boardIdx,
