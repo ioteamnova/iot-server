@@ -128,11 +128,6 @@ export class ScheduleService {
     await this.scheduleRepository.softDelete(scheduleIdx);
   }
 
-  /** 1분마다 사용자의 스케줄을 체크하는 기능.
-   * 현재 시간과 일치하는 스케줄들을 가져와서 타입을 체크한다.
-    타입이 캘린더면 날짜와 시간을 체크
-    타입이 반복이면 시간과 요일을 체크
-   */
   @Cron(CronExpression.EVERY_MINUTE)
   async checkSchedules() {
     const currentTime = DateUtils.momentTime();
