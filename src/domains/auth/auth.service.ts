@@ -3,6 +3,7 @@ import { validatePassword } from './../../utils/password.utils';
 import { HttpErrorConstants } from './../../core/http/http-error-objects';
 import { UserRepository } from './../user/repositories/user.repository';
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -124,6 +125,13 @@ export class AuthService {
       throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
     }
 
+    const existEmail = await this.userRepository.existByEmail(
+      userInfoFromKakao.data.kakao_account.email,
+    );
+    if (existEmail) {
+      throw new ConflictException(HttpErrorConstants.EXIST_EMAIL);
+    }
+
     const user = await this.userRepository.findByEmail(
       userInfoFromKakao.data.kakao_account.email,
     );
@@ -148,6 +156,11 @@ export class AuthService {
      3. 유저 생성 후 리턴
      */
   async getSocialLoginUser(dto: SocialLoginUserDto): Promise<User> {
+    const existEmail = await this.userRepository.existByEmail(dto.email);
+    if (existEmail) {
+      throw new ConflictException(HttpErrorConstants.EXIST_EMAIL);
+    }
+
     const user = await this.userRepository.findByEmail(dto.email);
     if (user) {
       return user;
