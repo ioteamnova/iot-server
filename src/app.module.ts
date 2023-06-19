@@ -11,6 +11,8 @@ import { DiaryModule } from './domains/diary/diary.module';
 import { SchedulerModule } from './domains/schedule/schedule.module';
 import { IotPersonalModule } from './domains/iot_board_personal/iot_board_personal.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { BoardModule } from './domains/board/board.module';
+// import { EventsModule } from './events/events.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -34,9 +36,11 @@ import { ScheduleModule } from '@nestjs/schedule';
     UserModule,
     AuthModule,
     DiaryModule,
-    SchedulerModule,
+    BoardModule,
+    SchedulerModule, // 스케줄 모듈과 혼동 주의
     IotPersonalModule,
-    ScheduleModule.forRoot(), // 스케줄 도메인 모듈과 혼동 주의
+    ScheduleModule.forRoot(),
+    // EventsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
