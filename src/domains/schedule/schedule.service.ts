@@ -133,7 +133,7 @@ export class ScheduleService {
     타입이 캘린더면 날짜와 시간을 체크
     타입이 반복이면 시간과 요일을 체크
    */
-  // @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_MINUTE)
   async checkSchedules() {
     const currentTime = DateUtils.momentTime();
     // const testTime = '19:00'; // 테스트용

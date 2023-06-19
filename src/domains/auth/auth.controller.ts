@@ -1,20 +1,21 @@
-import { User } from 'src/domains/user/entities/user.entity';
+import { JwtRefreshGuard } from './auth-guards/refresh-guard';
 import { ApiCreatedResponseTemplate } from './../../core/swagger/api-created-response';
 import HttpResponse from 'src/core/http/http-response';
 import { AuthService } from './auth.service';
 import { SwaggerTag } from '../../core/swagger/swagger-tags';
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { SocialLoginUserDto } from './dtos/social-login-user.dto';
 import { ApiCommonErrorResponseTemplate } from 'src/core/swagger/api-error-common-response';
 import { LoginResponseDto } from './dtos/login-response.dto';
-import AuthUser from 'src/core/decorators/auth-user.decorator';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { ApiErrorResponseTemplate } from 'src/core/swagger/apt-error-response';
 import { StatusCodes } from 'http-status-codes';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
 import UseAuthGuards from './auth-guards/use-auth';
+import AuthUser from 'src/core/decorators/auth-user.decorator';
+import { User } from '../user/entities/user.entity';
 
 @ApiTags(SwaggerTag.AUTH)
 @ApiCommonErrorResponseTemplate()
@@ -64,27 +65,29 @@ export class AuthController {
   @ApiErrorResponseTemplate([
     {
       status: StatusCodes.NOT_FOUND,
-      errorFormatList: [
-        HttpErrorConstants.CANNOT_FIND_USER,
-        HttpErrorConstants.CANNOT_FIND_TOKEN,
-      ],
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_USER],
     },
     {
       status: StatusCodes.UNAUTHORIZED,
-      errorFormatList: [HttpErrorConstants.ALLREADY_EXPIRED_TOKEN],
+      errorFormatList: [HttpErrorConstants.EXPIRED_REFRESH_TOKEN],
     },
   ])
-  @UseAuthGuards()
+  @UseGuards(JwtRefreshGuard)
   @Post('/token')
-  async getNewAccessToken(
-    @Res() res,
-    @Body() dto: RefreshTokenDto,
-    @AuthUser() user: User,
-  ) {
-    const result = await this.authService.getNewAccessToken(
-      user.idx,
-      dto.refreshToken,
-    );
+  async getNewAccessToken(@Res() res, @Body() dto: RefreshTokenDto) {
+    const result = await this.authService.getNewAccessToken(dto.refreshToken);
     return HttpResponse.created(res, { body: result });
+  }
+
+  @ApiOperation({
+    summary: '로그아웃',
+    description: `로그아웃 한다.`,
+  })
+  @ApiCreatedResponseTemplate()
+  @UseAuthGuards()
+  @Get('/logout')
+  async logout(@Res() res, @AuthUser() user: User) {
+    await this.authService.logout(user.idx);
+    return HttpResponse.ok(res);
   }
 }
