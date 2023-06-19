@@ -1,10 +1,8 @@
-import { ConfigService } from '@nestjs/config';
 import { UserService } from './../user/user.service';
 import { validatePassword } from './../../utils/password.utils';
 import { HttpErrorConstants } from './../../core/http/http-error-objects';
 import { UserRepository } from './../user/repositories/user.repository';
 import {
-  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -23,7 +21,6 @@ export class AuthService {
     private readonly userRepository: UserRepository,
     private jwtService: JwtService,
     private readonly userService: UserService,
-    private configService: ConfigService,
   ) {}
 
   /**
@@ -60,11 +57,6 @@ export class AuthService {
       refreshToken: refreshToken,
       idx: user.idx,
     };
-  }
-
-  // 로그아웃시 리프레시 토큰 삭제
-  async removeRefreshToken(userIdx: number) {
-    return this.userRepository.update(userIdx, { refreshToken: null });
   }
 
   /**
@@ -172,51 +164,53 @@ export class AuthService {
 
   async generateAccessToken(userIdx: number): Promise<string> {
     const payload = { userIdx: userIdx };
-    return this.jwtService.sign(payload);
+    return this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: '120s',
+    });
   }
 
   async generateRefreshToken(userIdx: number): Promise<string> {
     const payload = { userIdx: userIdx };
     return this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('JWT_SECRET'),
-      expiresIn: '14 days',
+      secret: process.env.JWT_SECRET,
+      expiresIn: '180s',
     });
   }
 
-  async getNewAccessToken(userIdx: number, oldRefreshToken: string) {
-    // 1. 유저 확인
-    const user = await this.userRepository.findByUserIdx(userIdx);
-    if (!user) {
-      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
-    }
-    console.log('user::', user);
-
-    // 2. 리프레시 토큰 DB와 일치 여부 확인
-    const savedRefreshToken = await this.userRepository.findOne({
+  /**
+   * 리프레시 토큰으로 액세스 토큰 재생성
+   * @param refreshToken 리프레시토큰
+   * @returns 새로운 액세스 토큰
+   */
+  async getNewAccessToken(refreshToken: string) {
+    // 1. DB의 리프레시 토큰과 일치 여부 확인
+    const user = await this.userRepository.findOne({
       where: {
-        refreshToken: oldRefreshToken,
+        refreshToken: refreshToken,
       },
     });
-    if (!savedRefreshToken) {
-      throw new UnauthorizedException(HttpErrorConstants.CANNOT_FIND_TOKEN);
+    if (!user) {
+      throw new UnauthorizedException(HttpErrorConstants.CANNOT_FIND_USER);
     }
-    console.log('savedRefreshToken::', savedRefreshToken);
 
-    // 3. 리프레시 토큰 만료기간 검증
-    const refreshTokenMatches = await this.jwtService.verify(oldRefreshToken, {
-      secret: this.configService.get<string>('JWT_SECRET'),
-    });
+    // 2. 리프레시 토큰 만료기간 검증
+    const refreshTokenMatches = await this.jwtService.verify(refreshToken);
     if (!refreshTokenMatches) {
-      throw new UnauthorizedException(
-        HttpErrorConstants.ALLREADY_EXPIRED_TOKEN,
-      );
+      throw new UnauthorizedException(HttpErrorConstants.EXPIRED_REFRESH_TOKEN);
     }
 
-    // 4. 액세스토큰 재생성
+    // 3. 액세스토큰 재생성
     const accessToken = await this.generateAccessToken(user.idx);
 
     return {
       accessToken,
     };
+  }
+
+  // 로그아웃시 파이어베이스 토큰, 리프레시 토큰 삭제
+  async logout(userIdx: number) {
+    await this.userRepository.update(userIdx, { fbToken: null });
+    await this.userRepository.update(userIdx, { refreshToken: null });
   }
 }
