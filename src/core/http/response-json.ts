@@ -8,6 +8,7 @@ export default function responseJson<T>(
     return {
       status: status,
       message: statusMessage(status),
+      result: object,
     };
   }
 

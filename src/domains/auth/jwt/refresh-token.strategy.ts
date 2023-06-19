@@ -1,31 +1,31 @@
+import { HttpErrorConstants } from 'src/core/http/http-error-objects';
 import { Request } from 'express';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UserRepository } from 'src/domains/user/repositories/user.repository';
 
 @Injectable()
-export class RefreshTokenStrategy extends PassportStrategy(
+export class JwtRefreshTokenStrategy extends PassportStrategy(
   Strategy,
-  'jwt-refresh',
+  'jwt-refresh-token',
 ) {
   constructor(private userRepository: UserRepository) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromBodyField('refreshToken'),
       secretOrKey: process.env.JWT_SECRET,
-      passReqToCallback: true,
     });
   }
 
   async validate(req: Request, payload: any) {
-    const refreshToken = req.get('Authorization').replace('Bearer', '').trim();
-    console.log('JWT RefreshToken Strategy!!', refreshToken);
     const user = await this.userRepository.findOne({
       where: {
         idx: payload.userIdx,
-        refreshToken: refreshToken,
       },
     });
+    if (!user) {
+      throw new UnauthorizedException(HttpErrorConstants.EXPIRED_REFRESH_TOKEN); //리프레시 토큰 만료. 재로그인 필요
+    }
     return user;
   }
 }
