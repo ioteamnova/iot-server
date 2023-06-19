@@ -20,6 +20,8 @@ import DateUtils from 'src/utils/date-utils';
 import { SocialMethodType } from '../auth/helpers/constants';
 import { FindPasswordDto } from './dtos/find-password.dto';
 import { VerifyEmailResponseDto } from './dtos/verify-email-response.dto';
+import { VerifyEmailDto } from './dtos/verify-email.dto';
+import { EmailVerifyType } from './helper/constant';
 
 @Injectable()
 export class UserService {
@@ -86,9 +88,17 @@ export class UserService {
    * @param email 이메일
    * @returns 이메일 인증 토큰
    */
-  async sendMemberJoinEmail(email: string): Promise<VerifyEmailResponseDto> {
+  async sendMemberJoinEmail(
+    dto: VerifyEmailDto,
+  ): Promise<VerifyEmailResponseDto> {
     const signupVerifyToken = uuid.v1();
-    await this.emailService.sendVerificationEmail(email, signupVerifyToken);
+    if (dto.type === EmailVerifyType.OLDUSER) {
+      const existEmail = await this.userRepository.existByEmail(dto.email);
+      if (!existEmail) {
+        throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
+      }
+    }
+    await this.emailService.sendVerificationEmail(dto.email, signupVerifyToken);
     return { signupVerifyToken: signupVerifyToken };
   }
 

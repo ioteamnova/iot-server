@@ -72,9 +72,7 @@ export class UserController {
   @ApiCreatedResponseTemplate({ type: VerifyEmailResponseDto })
   @Post('/email-verify')
   async verifyEmail(@Res() res, @Body() dto: VerifyEmailDto) {
-    const signupVerifyToken = await this.userService.sendMemberJoinEmail(
-      dto.email,
-    );
+    const signupVerifyToken = await this.userService.sendMemberJoinEmail(dto);
     return HttpResponse.ok(res, signupVerifyToken);
   }
 
