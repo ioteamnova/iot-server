@@ -19,18 +19,12 @@ export class ScheduleRepository extends Repository<Schedule> {
       .getManyAndCount();
   }
 
-  async findAndCountByUserIdxAndDate(
-    userIdx: number,
-    date: string,
-    pageRequest: PageRequest,
-  ) {
+  async findSchedulesByDate(userIdx: number, yearAndMonth: string) {
     return await this.createQueryBuilder('schedule')
       .where('schedule.userIdx = :userIdx', { userIdx })
-      .andWhere('schedule.date = :date', { date })
-      .orderBy('schedule.idx', pageRequest.order)
-      .take(pageRequest.limit)
-      .skip(pageRequest.offset)
-      .getManyAndCount();
+      .andWhere('schedule.date LIKE :date', { date: `${yearAndMonth}%` })
+      .orderBy('schedule.idx', 'ASC')
+      .getMany();
   }
 
   async findByScheduleIdx(scheduleIdx: number): Promise<Schedule> {

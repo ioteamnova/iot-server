@@ -52,7 +52,7 @@ export class ScheduleService {
    * @param pageRequest
    * @returns 타입이 반복인 스케줄 목록
    */
-  async findAll(
+  async findRepeatSchedules(
     userIdx: number,
     pageRequest: PageRequest,
   ): Promise<Page<ScheduleListDto>> {
@@ -68,30 +68,22 @@ export class ScheduleService {
   }
 
   /**
-   * 해당날짜의 스케줄 목록 조회 (캘린더 스케줄링 조회)
+   * 해당 월의 달력 스케줄 목록 조회 (캘린더 스케줄링 조회)
    * @param userIdx
    * @param date
-   * @param pageRequest
-   * @returns 타입이 캘린더인 스케줄 목록
+   * @returns 해당 월의 타입이 캘린더인 스케줄
    */
-  async findScheduleByDate(
-    userIdx: number,
-    date: string,
-    pageRequest: PageRequest,
-  ): Promise<Page<ScheduleListDto>> {
+  async findScheduleByDate(userIdx: number, date: string) {
     const user = await this.userRepository.findByUserIdx(userIdx);
     if (!user) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
     }
-
-    const [schedules, totalCount] =
-      await this.scheduleRepository.findAndCountByUserIdxAndDate(
-        userIdx,
-        date,
-        pageRequest,
-      );
-    const items = schedules.map((schedule) => new ScheduleListDto(schedule));
-    return new Page<ScheduleListDto>(totalCount, items, pageRequest);
+    const yearAndMonth = date.substring(0, 7);
+    const schedules = await this.scheduleRepository.findSchedulesByDate(
+      userIdx,
+      yearAndMonth,
+    );
+    return schedules;
   }
 
   /**

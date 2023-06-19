@@ -45,7 +45,7 @@ export class ScheduleListDto {
   type: string;
 
   @ApiProperty({
-    description: '달력 날짜',
+    description: '스케줄 날짜',
     type: 'string',
     default: '2023-06-02',
     required: false,

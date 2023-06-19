@@ -57,38 +57,39 @@ export class ScheduleController {
   }
 
   @ApiOperation({
-    summary: '스케줄 목록 조회',
-    description: '스케줄 목록을 조회한다.',
+    summary: '반복 스케줄 목록 조회',
+    description: '반복 스케줄 목록을 조회한다.',
   })
   @ApiOkPaginationResponseTemplate({ type: ScheduleListDto })
   @UseAuthGuards()
   @Get()
-  async findAll(
+  async findRepeatSchedules(
     @Res() res,
     @AuthUser() user: User,
     @Query() pageRequest: PageRequest,
   ) {
-    const result = await this.scheduleService.findAll(user.idx, pageRequest);
+    const result = await this.scheduleService.findRepeatSchedules(
+      user.idx,
+      pageRequest,
+    );
     return HttpResponse.ok(res, result);
   }
 
   @ApiOperation({
-    summary: '특정 날짜 스케줄 조회',
-    description: '특정 날짜의 스케줄을 조회한다.',
+    summary: '달력 스케줄 조회',
+    description: '해당 월의 달력 스케줄 전체를 조회한다.',
   })
   @ApiOkPaginationResponseTemplate({ type: ScheduleListDto })
   @UseAuthGuards()
   @Get('/:date')
-  async find(
+  async findCalendarSchedules(
     @Res() res,
     @AuthUser() user: User,
     @Param('date') date: string,
-    @Query() pageRequest: PageRequest,
   ) {
     const result = await this.scheduleService.findScheduleByDate(
       user.idx,
       date,
-      pageRequest,
     );
     return HttpResponse.ok(res, result);
   }
