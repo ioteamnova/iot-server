@@ -17,6 +17,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   Res,
   UploadedFile,
   UploadedFiles,
@@ -35,12 +36,20 @@ import { CommentDto, ReplyDto } from './dtos/board-comment.dto';
 import { createBoardDto } from './dtos/create-board.dto';
 import Boardcomment from './entities/board-comment.entity';
 import { fileValidate } from 'src/utils/fileValitate';
+import AWS from 'aws-sdk';
+import { Response, Request } from 'express';
 
 @ApiTags(SwaggerTag.BOARD)
 @ApiCommonErrorResponseTemplate()
 @Controller('/board')
 export class Boardcontroller {
-  constructor(private readonly boardService: BoardService) {}
+  constructor(private readonly boardService: BoardService) {
+    this.s3 = new AWS.S3({
+      accessKeyId: 'AKIA3EB674H3YMFI77OW',
+      secretAccessKey: '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',
+      region: 'ap-northeast-2',
+    });
+  }
 
   @ApiOperation({
     summary: '게시판 등록',
@@ -378,5 +387,47 @@ export class Boardcontroller {
       user.idx,
     );
     return HttpResponse.ok(res, board);
+  }
+  private s3: AWS.S3;
+
+  @Get('/test/:filename')
+  async streamVideo(@Res() res: Response, @Req() req: Request) {
+    const s3Params = {
+      Bucket: 'reptimate',
+      Key: `reply/20230620145132-08ff8b18-0a8d-415a-a9e2-1a01efdeaa57-video.mp4`,
+    };
+
+    const head = await this.s3.headObject(s3Params).promise();
+    const fileSize = head.ContentLength;
+
+    if (req.headers['range']) {
+      const range = req.headers['range'];
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunkSize = end - start + 1;
+
+      const s3Stream = this.s3
+        .getObject({ ...s3Params, Range: range })
+        .createReadStream();
+      const head = {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunkSize,
+        'Content-Type': 'video/mp4',
+      };
+
+      res.writeHead(206, head);
+      s3Stream.pipe(res);
+    } else {
+      const s3Stream = this.s3.getObject(s3Params).createReadStream();
+      const head = {
+        'Content-Length': fileSize,
+        'Content-Type': 'video/mp4',
+      };
+
+      res.writeHead(200, head);
+      s3Stream.pipe(res);
+    }
   }
 }
