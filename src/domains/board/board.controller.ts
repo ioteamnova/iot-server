@@ -169,7 +169,7 @@ export class Boardcontroller {
   @ApiBody({ type: CommentDto })
   @UseInterceptors(FileInterceptor('file'))
   @UseAuthGuards()
-  @Post('/:boardIdx/comment')
+  @Post('/:boardIdx/commentc')
   async createcomment(
     @Res() res,
     @Param('boardIdx') boardIdx: number,
@@ -258,7 +258,7 @@ export class Boardcontroller {
   @ApiBody({ type: ReplyDto })
   @UseInterceptors(FileInterceptor('file'))
   @UseAuthGuards()
-  @Post('/:boardIdx/reply')
+  @Post('/:boardIdx/replyc')
   async createReply(
     @Res() res,
     @Param('boardIdx') boardIdx: number,
