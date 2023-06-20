@@ -36,7 +36,7 @@ import { CommentDto, ReplyDto } from './dtos/board-comment.dto';
 import { createBoardDto } from './dtos/create-board.dto';
 import Boardcomment from './entities/board-comment.entity';
 import { fileValidate } from 'src/utils/fileValitate';
-import AWS from 'aws-sdk';
+import { S3 } from 'aws-sdk'; // 필요한 경우 aws-sdk를 임포트합니다.
 import { Response, Request } from 'express';
 
 @ApiTags(SwaggerTag.BOARD)
@@ -44,7 +44,7 @@ import { Response, Request } from 'express';
 @Controller('/board')
 export class Boardcontroller {
   constructor(private readonly boardService: BoardService) {
-    this.s3 = new AWS.S3({
+    this.s3 = new S3({
       accessKeyId: 'AKIA3EB674H3YMFI77OW',
       secretAccessKey: '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',
       region: 'ap-northeast-2',
