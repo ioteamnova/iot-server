@@ -61,7 +61,7 @@ export class Boardcontroller {
     @Res() res,
     @Body() dto: createBoardDto,
     @AuthUser() user: User,
-    @UploadedFiles(fileValidate())
+    @UploadedFiles()
     files: Array<Express.Multer.File>,
   ) {
     const result = await this.boardService.createBoard(dto, user.idx, files);
@@ -141,7 +141,7 @@ export class Boardcontroller {
     @Param('boardIdx') boardIdx: number,
     @AuthUser() user: User,
     @Body() dto: UpdateBoardDto,
-    @UploadedFiles(fileValidate())
+    @UploadedFiles()
     files: Array<Express.Multer.File>,
   ) {
     dto.deleteIdxArr = [148, 150];
@@ -174,7 +174,7 @@ export class Boardcontroller {
     @Res() res,
     @Body() dto: CommentDto,
     @AuthUser() user: User,
-    @UploadedFile(fileValidate())
+    @UploadedFile()
     file: Express.Multer.File,
   ) {
     const result = await this.boardService.createComment(dto, user.idx, file);
@@ -232,7 +232,7 @@ export class Boardcontroller {
     @Param('commentIdx') commentIdx: number,
     @AuthUser() user: User,
     @Body() dto: CommentDto,
-    @UploadedFile(fileValidate())
+    @UploadedFile()
     file: Express.Multer.File,
   ) {
     const result = await this.boardService.updateComment(
@@ -262,7 +262,7 @@ export class Boardcontroller {
     @Res() res,
     @Body() dto: ReplyDto,
     @AuthUser() user: User,
-    @UploadedFile(fileValidate())
+    @UploadedFile()
     file: Express.Multer.File,
   ) {
     const result = await this.boardService.createReply(dto, user.idx, file);
@@ -303,7 +303,7 @@ export class Boardcontroller {
     @Param('replyIdx') replyIdx: number,
     @AuthUser() user: User,
     @Body() dto: ReplyDto,
-    @UploadedFile(fileValidate())
+    @UploadedFile()
     file: Express.Multer.File,
   ) {
     const result = await this.boardService.updateReply(
