@@ -395,6 +395,7 @@ export class Boardcontroller {
     @Req() req: Request,
     @Param('filename') filename: string,
   ) {
+    //영상 스트리밍 테스트입니다.
     const s3Params = {
       Bucket: 'reptimate',
       Key: `reply/${filename}`,
