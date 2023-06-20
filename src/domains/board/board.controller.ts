@@ -35,7 +35,6 @@ import { UpdateBoardDto } from './dtos/update-board.dto';
 import { CommentDto, ReplyDto } from './dtos/board-comment.dto';
 import { createBoardDto } from './dtos/create-board.dto';
 import Boardcomment from './entities/board-comment.entity';
-import { fileValidate } from 'src/utils/fileValitate';
 import { S3 } from 'aws-sdk'; // 필요한 경우 aws-sdk를 임포트합니다.
 import { Response, Request } from 'express';
 
@@ -391,10 +390,14 @@ export class Boardcontroller {
   private s3: AWS.S3;
 
   @Get('/test/:filename')
-  async streamVideo(@Res() res: Response, @Req() req: Request) {
+  async streamVideo(
+    @Res() res: Response,
+    @Req() req: Request,
+    @Param('filename') filename: string,
+  ) {
     const s3Params = {
       Bucket: 'reptimate',
-      Key: `reply/20230620145132-08ff8b18-0a8d-415a-a9e2-1a01efdeaa57-video.mp4`,
+      Key: `reply/${filename}`,
     };
 
     const head = await this.s3.headObject(s3Params).promise();
