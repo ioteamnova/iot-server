@@ -1,4 +1,5 @@
 import { CustomRepository } from 'src/core/decorators/typeorm-ex.decorator';
+import { SocialMethodType } from 'src/domains/auth/helpers/constants';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 
@@ -46,6 +47,15 @@ export class UserRepository extends Repository<User> {
 
   async updatePasswordByUserIdx(userIdx: number, newPassword: string) {
     await this.update({ idx: userIdx }, { password: newPassword });
+  }
+
+  async findByEmailAndLoginMethod(email: string, socialType: SocialMethodType) {
+    return await this.findOne({
+      where: {
+        email: email,
+        loginMethod: socialType,
+      },
+    });
   }
 
   // async findByfbTokens(tokens: string[]): Promise<User[]> {
