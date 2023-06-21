@@ -17,6 +17,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   Res,
   UploadedFile,
   UploadedFiles,
@@ -34,13 +35,20 @@ import { UpdateBoardDto } from './dtos/update-board.dto';
 import { CommentDto, ReplyDto } from './dtos/board-comment.dto';
 import { createBoardDto } from './dtos/create-board.dto';
 import Boardcomment from './entities/board-comment.entity';
-import { fileValidate } from 'src/utils/fileValitate';
+import { S3 } from 'aws-sdk'; // 필요한 경우 aws-sdk를 임포트합니다.
+import { Response, Request } from 'express';
 
 @ApiTags(SwaggerTag.BOARD)
 @ApiCommonErrorResponseTemplate()
 @Controller('/board')
 export class Boardcontroller {
-  constructor(private readonly boardService: BoardService) {}
+  constructor(private readonly boardService: BoardService) {
+    this.s3 = new S3({
+      accessKeyId: 'AKIA3EB674H3YMFI77OW',
+      secretAccessKey: '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',
+      region: 'ap-northeast-2',
+    });
+  }
 
   @ApiOperation({
     summary: '게시판 등록',
@@ -61,7 +69,7 @@ export class Boardcontroller {
     @Res() res,
     @Body() dto: createBoardDto,
     @AuthUser() user: User,
-    @UploadedFiles(fileValidate())
+    @UploadedFiles()
     files: Array<Express.Multer.File>,
   ) {
     const result = await this.boardService.createBoard(dto, user.idx, files);
@@ -141,7 +149,7 @@ export class Boardcontroller {
     @Param('boardIdx') boardIdx: number,
     @AuthUser() user: User,
     @Body() dto: UpdateBoardDto,
-    @UploadedFiles(fileValidate())
+    @UploadedFiles()
     files: Array<Express.Multer.File>,
   ) {
     dto.deleteIdxArr = [148, 150];
@@ -169,12 +177,13 @@ export class Boardcontroller {
   @ApiBody({ type: CommentDto })
   @UseInterceptors(FileInterceptor('file'))
   @UseAuthGuards()
-  @Post('/comment')
+  @Post('/:boardIdx/comment')
   async createcomment(
     @Res() res,
+    @Param('boardIdx') boardIdx: number,
     @Body() dto: CommentDto,
     @AuthUser() user: User,
-    @UploadedFile(fileValidate())
+    @UploadedFile()
     file: Express.Multer.File,
   ) {
     const result = await this.boardService.createComment(dto, user.idx, file);
@@ -232,7 +241,7 @@ export class Boardcontroller {
     @Param('commentIdx') commentIdx: number,
     @AuthUser() user: User,
     @Body() dto: CommentDto,
-    @UploadedFile(fileValidate())
+    @UploadedFile()
     file: Express.Multer.File,
   ) {
     const result = await this.boardService.updateComment(
@@ -257,12 +266,13 @@ export class Boardcontroller {
   @ApiBody({ type: ReplyDto })
   @UseInterceptors(FileInterceptor('file'))
   @UseAuthGuards()
-  @Post('/reply')
+  @Post('/:boardIdx/reply')
   async createReply(
     @Res() res,
+    @Param('boardIdx') boardIdx: number,
     @Body() dto: ReplyDto,
     @AuthUser() user: User,
-    @UploadedFile(fileValidate())
+    @UploadedFile()
     file: Express.Multer.File,
   ) {
     const result = await this.boardService.createReply(dto, user.idx, file);
@@ -303,7 +313,7 @@ export class Boardcontroller {
     @Param('replyIdx') replyIdx: number,
     @AuthUser() user: User,
     @Body() dto: ReplyDto,
-    @UploadedFile(fileValidate())
+    @UploadedFile()
     file: Express.Multer.File,
   ) {
     const result = await this.boardService.updateReply(
@@ -376,5 +386,52 @@ export class Boardcontroller {
       user.idx,
     );
     return HttpResponse.ok(res, board);
+  }
+  private s3: AWS.S3;
+
+  @Get('/test/:filename')
+  async streamVideo(
+    @Res() res: Response,
+    @Req() req: Request,
+    @Param('filename') filename: string,
+  ) {
+    //영상 스트리밍 테스트입니다.
+    const s3Params = {
+      Bucket: 'reptimate',
+      Key: `reply/${filename}`,
+    };
+
+    const head = await this.s3.headObject(s3Params).promise();
+    const fileSize = head.ContentLength;
+
+    if (req.headers['range']) {
+      const range = req.headers['range'];
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunkSize = end - start + 1;
+
+      const s3Stream = this.s3
+        .getObject({ ...s3Params, Range: range })
+        .createReadStream();
+      const head = {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunkSize,
+        'Content-Type': 'video/mp4',
+      };
+
+      res.writeHead(206, head);
+      s3Stream.pipe(res);
+    } else {
+      const s3Stream = this.s3.getObject(s3Params).createReadStream();
+      const head = {
+        'Content-Length': fileSize,
+        'Content-Type': 'video/mp4',
+      };
+
+      res.writeHead(200, head);
+      s3Stream.pipe(res);
+    }
   }
 }

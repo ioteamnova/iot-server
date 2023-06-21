@@ -23,6 +23,7 @@ import { BoardCommercial } from './entities/board-commercial.entity';
 import { BoardCommercialRepository } from './repositories/board-commercial.repository';
 import { UserRepository } from '../user/repositories/user.repository';
 import { BoardListDto } from './dtos/board-list.dto';
+import { fileValidate, fileValidates } from 'src/utils/fileValitate';
 
 @Injectable()
 export class BoardService {
@@ -44,6 +45,8 @@ export class BoardService {
     userIdx: number,
     files: Array<Express.Multer.File>,
   ) {
+    //파일이 존재하면 유효성 검사
+    await fileValidates(files);
     dto.userIdx = userIdx;
     const board = Board.from(dto);
     const boardInfo = await this.boardRepository.save(board);
@@ -112,6 +115,7 @@ export class BoardService {
     files: Express.Multer.File[],
     boardIdx: number,
   ): Promise<BoardImage[]> {
+    fileValidates(files);
     const images: BoardImage[] = [];
     for (let i = 0; i < files.length; i++) {
       const url = await mediaUpload(files[i], S3FolderName.BOARD);
@@ -196,6 +200,7 @@ export class BoardService {
     @AuthUser() user: User,
     files: Array<Express.Multer.File>,
   ) {
+    await fileValidates(files);
     const deleteArr = dto.deleteIdxArr;
     const modifySqenceArr = dto.modifySqenceArr;
     const fileIdxArr = dto.FileIdx;
@@ -270,6 +275,7 @@ export class BoardService {
     userIdx: number,
     file: Express.Multer.File,
   ): Promise<Comment> {
+    await fileValidate(file);
     const comment = Comment.from(dto);
     comment.userIdx = userIdx;
     if (file) {
@@ -367,6 +373,7 @@ export class BoardService {
     userIdx: number,
     file: Express.Multer.File,
   ): Promise<BoardComment> {
+    fileValidate(file);
     const comment = await this.commentRepository.findOne({
       where: {
         idx: commentIdx,
@@ -390,6 +397,7 @@ export class BoardService {
     userIdx: number,
     file: Express.Multer.File,
   ): Promise<Reply> {
+    fileValidate(file);
     const reply = BoardReply.from(dto);
     reply.userIdx = userIdx;
     if (file) {
@@ -430,6 +438,7 @@ export class BoardService {
     userIdx: number,
     file: Express.Multer.File,
   ): Promise<Reply> {
+    fileValidate(file);
     const reply = await this.replyRepository.findOne({
       where: {
         idx: replyIdx,
