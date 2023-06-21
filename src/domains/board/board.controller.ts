@@ -37,6 +37,7 @@ import { createBoardDto } from './dtos/create-board.dto';
 import Boardcomment from './entities/board-comment.entity';
 import { S3 } from 'aws-sdk'; // 필요한 경우 aws-sdk를 임포트합니다.
 import { Response, Request } from 'express';
+import * as path from 'path';
 
 @ApiTags(SwaggerTag.BOARD)
 @ApiCommonErrorResponseTemplate()
@@ -433,5 +434,11 @@ export class Boardcontroller {
       res.writeHead(200, head);
       s3Stream.pipe(res);
     }
+  }
+  @Get('test2/:filename')
+  getVideo(@Res() res: Response, @Param('filename') filename: string) {
+    const test = `../../../../../video/test/${filename}`;
+    const videoPath = path.join(__dirname, test);
+    res.sendFile(videoPath);
   }
 }
