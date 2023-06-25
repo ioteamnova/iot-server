@@ -17,7 +17,6 @@ import {
   Patch,
   Post,
   Query,
-  Req,
   Res,
   UploadedFile,
   UploadedFiles,
@@ -36,20 +35,16 @@ import { CommentDto, ReplyDto } from './dtos/board-comment.dto';
 import { createBoardDto } from './dtos/create-board.dto';
 import Boardcomment from './entities/board-comment.entity';
 import { S3 } from 'aws-sdk'; // 필요한 경우 aws-sdk를 임포트합니다.
-import { Response, Request } from 'express';
+import * as fs from 'fs-extra'; // Import fs-extra instead of fs
+import { promisify } from 'util';
+import { exec } from 'child_process';
 import * as path from 'path';
 
 @ApiTags(SwaggerTag.BOARD)
 @ApiCommonErrorResponseTemplate()
 @Controller('/board')
 export class Boardcontroller {
-  constructor(private readonly boardService: BoardService) {
-    this.s3 = new S3({
-      accessKeyId: 'AKIA3EB674H3YMFI77OW',
-      secretAccessKey: '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',
-      region: 'ap-northeast-2',
-    });
-  }
+  constructor(private readonly boardService: BoardService) {}
 
   @ApiOperation({
     summary: '게시판 등록',
@@ -388,57 +383,62 @@ export class Boardcontroller {
     );
     return HttpResponse.ok(res, board);
   }
-  private s3: AWS.S3;
 
-  @Get('/test/:filename')
-  async streamVideo(
-    @Res() res: Response,
-    @Req() req: Request,
-    @Param('filename') filename: string,
-  ) {
-    //영상 스트리밍 테스트입니다.
-    const s3Params = {
-      Bucket: 'reptimate',
-      Key: `reply/${filename}`,
-    };
+  @Post('/upload')
+  @UseInterceptors(FileInterceptor('video'))
+  async uploadVideo(@UploadedFile() videoFile: Express.Multer.File) {
+    try {
+      const videoBuffer = videoFile.buffer; //비디오 파일 버퍼
+      const videoFileName = videoFile.originalname;
+      const outputDir = '/Users/munjunho/Desktop/video'; //비디오 저장 폴더 경로
+      const videoFolder = `${outputDir}/${videoFileName.replace(
+        /\.[^/.]+$/,
+        '',
+      )}`; //비디오가 저장될 폴더
+      const videoBaseName = path.basename(
+        videoFileName,
+        path.extname(videoFileName),
+      );
+      const videoPath = `${videoFolder}/${videoFileName}`;
+      const outputPath = `${videoFolder}/${videoBaseName}.m3u8`;
+      //1. 영상 저장할 폴더 생성
+      await fs.mkdirSync(videoFolder);
+      //2. 원본 영상 저장
+      await fs.promises.writeFile(videoPath, videoBuffer);
 
-    const head = await this.s3.headObject(s3Params).promise();
-    const fileSize = head.ContentLength;
+      //3. .m3u8 파일 변환
+      const executeFfmpeg = promisify(exec);
 
-    if (req.headers['range']) {
-      const range = req.headers['range'];
-      const parts = range.replace(/bytes=/, '').split('-');
-      const start = parseInt(parts[0], 10);
-      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-      const chunkSize = end - start + 1;
+      await executeFfmpeg(
+        `ffmpeg -i ${videoPath} -hls_time 10 -hls_list_size 0 ${outputPath}`,
+      );
 
-      const s3Stream = this.s3
-        .getObject({ ...s3Params, Range: range })
-        .createReadStream();
-      const head = {
-        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-        'Accept-Ranges': 'bytes',
-        'Content-Length': chunkSize,
-        'Content-Type': 'video/mp4',
-      };
+      const s3 = new S3({
+        accessKeyId: process.env.AWS_ACECSS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        region: process.env.AWS_BUCKET_REGION,
+      });
+      const bucket = process.env.AWS_BUCKET_NAME;
+      const files = fs.readdirSync(videoFolder);
+      //4. s3에 저장
+      for (const fileName of files) {
+        if (path.extname(fileName) === '.mp4') {
+          continue; // Skip uploading MP4 files
+        }
+        const filePath = path.join(videoFolder, fileName);
+        const fileStream = fs.createReadStream(filePath);
+        const uploadParams = {
+          Bucket: bucket,
+          Key: `test/${fileName}`,
+          Body: fileStream,
+        };
+        await s3.upload(uploadParams).promise();
+      }
 
-      res.writeHead(206, head);
-      s3Stream.pipe(res);
-    } else {
-      const s3Stream = this.s3.getObject(s3Params).createReadStream();
-      const head = {
-        'Content-Length': fileSize,
-        'Content-Type': 'video/mp4',
-      };
-
-      res.writeHead(200, head);
-      s3Stream.pipe(res);
+      return { message: 'Video uploaded and converted successfully' };
+    } catch (err) {
+      console.error('Error during video upload:', err);
+      throw err;
     }
-  }
-  @Get('test2/:filename')
-  getVideo(@Res() res: Response, @Param('filename') filename: string) {
-    const test = `../../../../../video/test/${filename}`;
-    const videoPath = path.join(__dirname, test);
-    res.sendFile(videoPath);
   }
 }
