@@ -24,6 +24,8 @@ import { BoardCommercialRepository } from './repositories/board-commercial.repos
 import { UserRepository } from '../user/repositories/user.repository';
 import { BoardListDto } from './dtos/board-list.dto';
 import { fileValidate, fileValidates } from 'src/utils/fileValitate';
+import axios from 'axios';
+import * as FormData from 'form-data';
 
 @Injectable()
 export class BoardService {
@@ -62,7 +64,24 @@ export class BoardService {
     }
 
     if (files) {
-      await this.uploadBoardImages(files, boardInfo.idx);
+      try {
+        const url = 'http://localhost:3002/board/upload';
+        const formData = new FormData();
+        formData.append('boardIdx', boardInfo.idx.toString());
+        formData.append('userIdx', userIdx.toString());
+        files.forEach((file) => {
+          formData.append('files', file.buffer, {
+            filename: file.originalname,
+            contentType: file.mimetype,
+          });
+        });
+        const response = await axios.post(url, formData, {
+          headers: formData.getHeaders(),
+        });
+        return response.data;
+      } catch (error) {
+        throw new Error(`Error sending POST request: ${error.message}`);
+      }
     }
     return boardInfo;
   }
@@ -198,7 +217,7 @@ export class BoardService {
     boardIdx: number,
     dto: UpdateBoardDto,
     @AuthUser() user: User,
-    files: Array<Express.Multer.File>,
+    files: Express.Multer.File[],
   ) {
     await fileValidates(files);
     const deleteArr = dto.deleteIdxArr;
@@ -238,16 +257,23 @@ export class BoardService {
           await this.boardImageRepository.save(board.images[j]);
           break;
         } else if (files && j === board.images.length - 1) {
-          const url = await mediaUpload(
-            files[fileIdxArr.lastIndexOf(modifySqenceArr[i])],
-            S3FolderName.BOARD,
-          );
-          const image = new BoardImage();
-          image.boardIdx = boardIdx;
-          image.mediaSequence = i;
-          image.category = 'img';
-          image.path = url;
-          await this.boardImageRepository.save(image);
+          try {
+            const getFile = files[fileIdxArr.lastIndexOf(modifySqenceArr[i])];
+            const url = 'http://localhost:3002/board/update';
+            const formData = new FormData();
+            formData.append('boardIdx', board.idx.toString());
+            formData.append('sequence', i.toString());
+            formData.append('file', getFile.buffer, {
+              filename: getFile.originalname,
+              contentType: getFile.mimetype,
+            });
+            const response = await axios.post(url, formData, {
+              headers: formData.getHeaders(),
+            });
+            return response.data;
+          } catch (error) {
+            throw new Error(`Error sending POST request: ${error.message}`);
+          }
         }
       }
     }

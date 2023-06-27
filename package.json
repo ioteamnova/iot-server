@@ -45,6 +45,7 @@
     "express-http-context": "^1.2.4",
     "firebase-admin": "^11.8.0",
     "fluent-ffmpeg": "^2.1.2",
+    "form-data": "^4.0.0",
     "googleapis": "^95.0.0",
     "http-status-codes": "^2.2.0",
     "jsonwebtoken": "^9.0.0",
