@@ -16,6 +16,9 @@ export class BoardImage extends BaseEntity {
   @Column()
   path: string;
 
+  @Column()
+  coverImgPath: string;
+
   @ManyToOne(() => Board, (board) => board.images)
   @JoinColumn({ name: 'board_idx' })
   board: Board;
