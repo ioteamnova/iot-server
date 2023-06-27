@@ -13,7 +13,8 @@ export class ScheduleRepository extends Repository<Schedule> {
     return await this.createQueryBuilder('schedule')
       .where('schedule.userIdx = :userIdx', { userIdx })
       .andWhere('schedule.type = :type', { type: SchedulesType.REPETITION })
-      .orderBy('schedule.idx', pageRequest.order)
+      .orderBy('schedule.alarmTime', 'ASC')
+      .addOrderBy('schedule.idx', 'ASC')
       .take(pageRequest.limit)
       .skip(pageRequest.offset)
       .getManyAndCount();
