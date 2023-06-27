@@ -148,9 +148,10 @@ export class Boardcontroller {
     @UploadedFiles()
     files: Array<Express.Multer.File>,
   ) {
-    dto.deleteIdxArr = [148, 150];
-    dto.modifySqenceArr = [5, 6, 2, 4, 0];
-    dto.FileIdx = [5, 6];
+    console.log('dfafd', dto);
+    dto.deleteIdxArr = [202];
+    dto.modifySqenceArr = [0, 3, 2];
+    dto.FileIdx = [3];
     const board = await this.boardService.updateBoard(
       boardIdx,
       dto,
