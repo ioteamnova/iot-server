@@ -65,7 +65,7 @@ export class BoardService {
 
     if (files) {
       try {
-        const url = 'http://localhost:3002/board/upload';
+        const url = 'http://3.34.97.139:3002/board/upload';
         const formData = new FormData();
         formData.append('boardIdx', boardInfo.idx.toString());
         formData.append('userIdx', userIdx.toString());
@@ -252,14 +252,14 @@ export class BoardService {
       //미디어 순서(media_squence) 바꾸는 코드
       for (let j = 0; j < board.images.length; j++) {
         if (modifySqenceArr[i] === board.images[j].mediaSequence) {
-          //기존 이미지 인덱스 수정
+          //기존 이미지 순서 인덱스 수정
           board.images[j].mediaSequence = i;
           await this.boardImageRepository.save(board.images[j]);
           break;
         } else if (files && j === board.images.length - 1) {
           try {
             const getFile = files[fileIdxArr.lastIndexOf(modifySqenceArr[i])];
-            const url = 'http://localhost:3002/board/update';
+            const url = 'http://3.34.97.139:3002/board/update';
             const formData = new FormData();
             formData.append('boardIdx', board.idx.toString());
             formData.append('sequence', i.toString());
