@@ -65,11 +65,11 @@ export class BoardService {
 
     if (files) {
       try {
-        console.log('FILECONVERTERIP', process.env.FILECONVERTERIP);
-        const url = `${process.env.PROD_FILE_CONVERTER_IP}/board/update`;
+        const url = `${process.env.FILE_CONVERTER_IP}/board/upload`;
         const formData = new FormData();
         formData.append('boardIdx', boardInfo.idx.toString());
         formData.append('userIdx', userIdx.toString());
+        console.log('files:', files);
         files.forEach((file) => {
           formData.append('files', file.buffer, {
             filename: file.originalname,
@@ -260,7 +260,7 @@ export class BoardService {
         } else if (files && j === board.images.length - 1) {
           try {
             const getFile = files[fileIdxArr.lastIndexOf(modifySqenceArr[i])];
-            const url = `${process.env.PROD_FILE_CONVERTER_IP}/board/update`;
+            const url = `${process.env.FILE_CONVERTER_IP}/board/update`;
             const formData = new FormData();
             formData.append('boardIdx', board.idx.toString());
             formData.append('sequence', i.toString());
