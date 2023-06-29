@@ -69,7 +69,6 @@ export class BoardService {
         const formData = new FormData();
         formData.append('boardIdx', boardInfo.idx.toString());
         formData.append('userIdx', userIdx.toString());
-        console.log('files:', files);
         files.forEach((file) => {
           formData.append('files', file.buffer, {
             filename: file.originalname,
@@ -78,6 +77,7 @@ export class BoardService {
         });
         const response = await axios.post(url, formData, {
           headers: formData.getHeaders(),
+          timeout: 1800000, // 30 minutes in milliseconds
         });
         return response.data;
       } catch (error) {
