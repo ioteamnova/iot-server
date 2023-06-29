@@ -42,13 +42,8 @@ export class BoardService {
    * 게시판 다중 이미지 업로드
    * @param files 파일들
    */
-  async createBoard(
-    dto: createBoardDto,
-    userIdx: number,
-    files: Array<Express.Multer.File>,
-  ) {
+  async createBoard(dto: createBoardDto, userIdx: number) {
     //파일이 존재하면 유효성 검사
-    await fileValidates(files);
     dto.userIdx = userIdx;
     const board = Board.from(dto);
     const boardInfo = await this.boardRepository.save(board);
@@ -62,27 +57,15 @@ export class BoardService {
       boardCommercial.variety = dto.variety;
       await this.boardCommercialRepository.save(boardCommercial);
     }
-
-    if (files) {
-      try {
-        const url = `${process.env.FILE_CONVERTER_IP}/board/upload`;
-        const formData = new FormData();
-        formData.append('boardIdx', boardInfo.idx.toString());
-        formData.append('userIdx', userIdx.toString());
-        files.forEach((file) => {
-          formData.append('files', file.buffer, {
-            filename: file.originalname,
-            contentType: file.mimetype,
-          });
-        });
-        const response = await axios.post(url, formData, {
-          headers: formData.getHeaders(),
-          timeout: 1800000, // 30 minutes in milliseconds
-        });
-        return response.data;
-      } catch (error) {
-        throw new Error(`Error sending POST request: ${error.message}`);
+    if (dto.fileUrl) {
+      const mediaInfo = [];
+      for (let i = 0; i < dto.fileUrl.length; i++) {
+        const fileDate = dto.fileUrl[i];
+        fileDate.boardIdx = boardInfo.idx;
+        fileDate.mediaSequence = i;
+        mediaInfo.push(fileDate);
       }
+      await this.boardImageRepository.save(mediaInfo);
     }
     return boardInfo;
   }

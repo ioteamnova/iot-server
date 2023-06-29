@@ -1,11 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  MaxLength,
-  ValidateIf,
-} from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength, ValidateIf } from 'class-validator';
+import { BoardImage } from '../entities/board-image.entity';
 
 export class createBoardDto {
   @ApiProperty({
@@ -79,4 +74,22 @@ export class createBoardDto {
   @IsString()
   @IsNotEmpty()
   variety: string;
+
+  @ApiProperty({
+    description:
+      '미디어(사진, 영상)가 있으면 미디어 처리 서버에 먼저 보내고, DB에 저장될 데이터 리턴 받아 넣어줘야 합니다.',
+    default: [
+      {
+        category: 'video',
+        path: 'https://reptimate.s3.ap-northeast-2.amazonaws.com/test/20230629233509-e04030ed-107c-4fc7-93b9-d44fad9469d7-video.m3u8',
+        coverImgPath:
+          'https://reptimate.s3.ap-northeast-2.amazonaws.com/test/20230629233509-e04030ed-107c-4fc7-93b9-d44fad9469d7-video.jpg',
+      },
+      {
+        category: 'img',
+        path: 'https://reptimate.s3.ap-northeast-2.amazonaws.com/board/20230629233511-42b37a7f-20d1-43f3-8615-9cb01e8ac99d-N1.jpeg',
+      },
+    ],
+  })
+  fileUrl: BoardImage[];
 }
