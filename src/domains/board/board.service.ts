@@ -65,7 +65,8 @@ export class BoardService {
 
     if (files) {
       try {
-        const url = 'http://3.34.97.139:3002/board/upload';
+        console.log('FILECONVERTERIP', process.env.FILECONVERTERIP);
+        const url = `${process.env.PROD_FILE_CONVERTER_IP}/board/update`;
         const formData = new FormData();
         formData.append('boardIdx', boardInfo.idx.toString());
         formData.append('userIdx', userIdx.toString());
@@ -259,7 +260,7 @@ export class BoardService {
         } else if (files && j === board.images.length - 1) {
           try {
             const getFile = files[fileIdxArr.lastIndexOf(modifySqenceArr[i])];
-            const url = 'http://3.34.97.139:3002/board/update';
+            const url = `${process.env.PROD_FILE_CONVERTER_IP}/board/update`;
             const formData = new FormData();
             formData.append('boardIdx', board.idx.toString());
             formData.append('sequence', i.toString());
