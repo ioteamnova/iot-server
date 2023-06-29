@@ -59,16 +59,13 @@ export class Boardcontroller {
   ])
   @ApiBody({ type: createBoardDto })
   @UseAuthGuards()
-  @UseInterceptors(FilesInterceptor('files', 5))
   @Post('/')
   async createBoard(
     @Res() res,
     @Body() dto: createBoardDto,
     @AuthUser() user: User,
-    @UploadedFiles()
-    files: Array<Express.Multer.File>,
   ) {
-    const result = await this.boardService.createBoard(dto, user.idx, files);
+    const result = await this.boardService.createBoard(dto, user.idx);
     return HttpResponse.created(res, { body: result });
   }
   @ApiOperation({
