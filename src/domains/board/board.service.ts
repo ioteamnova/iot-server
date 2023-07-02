@@ -11,7 +11,6 @@ import AuthUser from 'src/core/decorators/auth-user.decorator';
 import { User } from 'src/domains/user/entities/user.entity';
 import { CommentDto, ReplyDto } from './dtos/board-comment.dto';
 import Comment from './entities/board-comment.entity';
-import Reply from './entities/board-comment.entity';
 import { BoardCommentRepository } from './repositories/board-comment.repository';
 import { BoardImageRepository } from './repositories/board-image.repository';
 import BoardReply from './entities/board-reply.entity';
@@ -24,7 +23,7 @@ import { BoardCommercialRepository } from './repositories/board-commercial.repos
 import { UserRepository } from '../user/repositories/user.repository';
 import { BoardListDto } from './dtos/board-list.dto';
 import { fileValidate, fileValidates } from 'src/utils/fileValitate';
-import { DataSource } from 'typeorm';
+import { DataSource, QueryRunner } from 'typeorm';
 
 @Injectable()
 export class BoardService {
@@ -247,7 +246,6 @@ export class BoardService {
       }
 
       if (board.category === 'adoption' || board.category === 'market') {
-        console.log('dto.boardCommercialIdx', dto.boardCommercialIdx);
         const boardCommercial = new BoardCommercial();
         boardCommercial.idx = dto.boardCommercialIdx;
         boardCommercial.boardIdx = boardIdx;
@@ -289,66 +287,126 @@ export class BoardService {
     userIdx: number,
     file: Express.Multer.File,
   ): Promise<Comment> {
-    await fileValidate(file);
-    const comment = Comment.from(dto);
-    comment.userIdx = userIdx;
-    if (file) {
-      const url = await mediaUpload(file, S3FolderName.REPLY);
-      comment.filePath = url;
+    fileValidate(file);
+    const queryRunner = this.dataSource.createQueryRunner();
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      let commentInfo;
+      //1.댓글일 때
+      if (dto.category === 'comment') {
+        const comment = Comment.from(dto);
+        comment.userIdx = userIdx;
+        if (file) {
+          const url = await mediaUpload(file, S3FolderName.REPLY);
+          comment.filePath = url;
+        }
+        commentInfo = await queryRunner.manager.save(comment);
+      } else if (dto.category === 'reply') {
+        //2. 답글일 때에는, 댓글idx가 필요하다.
+        const reply = BoardReply.from(dto);
+        reply.userIdx = userIdx;
+        if (file) {
+          const url = await mediaUpload(file, S3FolderName.REPLY);
+          reply.filePath = url;
+        }
+        commentInfo = await queryRunner.manager.save(reply);
+        //2-2. 댓글은 replyCnt 컬럼이 있기 때문에, 답글 수 계산 후에 업데이트
+        const count = await this.countComment(
+          'reply',
+          dto.commentIdx,
+          queryRunner,
+        );
+        await this.commentRepository.updateReplyCnt(dto.commentIdx, count);
+      }
+      const count = await this.countComment('all', dto.boardIdx, queryRunner);
+      this.boardRepository.updateReplyCnt(dto.boardIdx, count);
+      await queryRunner.commitTransaction();
+      return commentInfo;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-    const commentInfo = await this.commentRepository.save(comment);
-    const count = await this.countComment('all', dto.boardIdx);
-    await this.boardRepository.updateReplyCnt(dto.boardIdx, count);
-    return commentInfo;
   }
   async removeComment(
     commentIdx: number,
     boardIdx: number,
     userIdx: number,
+    category: string,
   ): Promise<number> {
-    const comment = await this.commentRepository.findOne({
-      where: {
-        idx: commentIdx,
-      },
-    });
-
-    if (!comment) {
-      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
-    } else if (comment.userIdx != userIdx) {
-      throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      if (category === 'comment') {
+        const comment = await this.commentRepository.findOne({
+          where: {
+            idx: commentIdx,
+          },
+        });
+        if (!comment) {
+          throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
+        } else if (comment.userIdx != userIdx) {
+          throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
+        }
+        await queryRunner.manager.softDelete(BoardComment, commentIdx);
+      } else if (category === 'reply') {
+        const rerelpy = await this.replyRepository.findOne({
+          where: {
+            idx: commentIdx,
+          },
+        });
+        if (!rerelpy) {
+          throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
+        } else if (rerelpy.userIdx != userIdx) {
+          throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
+        }
+        await queryRunner.manager.softDelete(BoardReply, commentIdx);
+      }
+      const count = await this.countComment('all', boardIdx, queryRunner);
+      await this.boardRepository.updateReplyCnt(boardIdx, count);
+      await queryRunner.commitTransaction();
+      return count;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-    await this.commentRepository.softDelete(commentIdx);
-    const count = await this.countComment('all', boardIdx);
-    await this.boardRepository.updateReplyCnt(boardIdx, count);
-    return count;
   }
-  async countComment(table: string, boardIdx: number): Promise<number> {
+  async countComment(
+    table: string,
+    boardIdx: number,
+    queryRunner: QueryRunner,
+  ): Promise<number> {
     if (table === 'comment') {
-      const replyCnt = await this.commentRepository.count({
+      const replyCnt = await queryRunner.manager.count(BoardComment, {
         where: {
           boardIdx: boardIdx,
         },
       });
       return replyCnt;
     } else if (table === 'reply') {
-      const replyCnt = await this.replyRepository.count({
+      const replyCnt = await queryRunner.manager.count(BoardReply, {
         where: {
-          boardIdx: boardIdx,
+          commentIdx: boardIdx,
         },
       });
       return replyCnt;
     } else if (table === 'all') {
-      const replyCnt = await this.commentRepository.count({
+      const commentCnt = await queryRunner.manager.count(BoardComment, {
         where: {
           boardIdx: boardIdx,
         },
       });
-      const rereplyCnt = await this.replyRepository.count({
+      const replyCnt = await queryRunner.manager.count(BoardReply, {
         where: {
           boardIdx: boardIdx,
         },
       });
-      const result = replyCnt + rereplyCnt;
+      const result = replyCnt + commentCnt;
       return result;
     }
   }
@@ -360,21 +418,42 @@ export class BoardService {
   async findBoardComment(
     pageRequest: PageRequest,
     boardIdx: number,
-  ): Promise<Page<BoardComment>> {
-    const [comments, totalCount] =
-      await this.commentRepository.findAndCountByBoardIdx(
-        pageRequest,
-        boardIdx,
-      );
-    const result = new Page<BoardComment>(totalCount, comments, pageRequest);
-    const commentData = [];
-    for (const reply of result.items) {
-      const userDetails = await this.findUserInfo(reply);
-      reply.UserInfo = userDetails;
-      commentData.push(reply);
+    category: string,
+  ): Promise<Page<BoardComment> | Page<BoardReply>> {
+    console.log(category);
+    if (category === 'comment') {
+      const [comments, totalCount] =
+        await this.commentRepository.findAndCountByBoardIdx(
+          pageRequest,
+          boardIdx,
+        );
+      const result = new Page<BoardComment>(totalCount, comments, pageRequest);
+      const commentData = [];
+      for (const reply of result.items) {
+        const userDetails = await this.findUserInfo(reply);
+        reply.UserInfo = userDetails;
+        commentData.push(reply);
+      }
+      result.items = commentData;
+      return result;
+    } else if (category === 'reply') {
+      //1. 답글에 대한 정보와 조회한 답글 수를 가져온다.
+      const [replys, totalCount] =
+        await this.replyRepository.findAndCountByBoardIdx(
+          pageRequest,
+          boardIdx,
+        );
+      const result = new Page<BoardReply>(totalCount, replys, pageRequest);
+      const commentData = [];
+      //2. 답글 작성자 정보를 조회한다.
+      for (const reply of result.items) {
+        const userDetails = await this.findUserInfo(reply);
+        reply.UserInfo = userDetails;
+        commentData.push(reply);
+      }
+      result.items = commentData;
+      return result;
     }
-    result.items = commentData;
-    return result;
   }
   /**
    * 게시글에 달린 댓글 수정
@@ -386,117 +465,47 @@ export class BoardService {
     commentIdx: number,
     userIdx: number,
     file: Express.Multer.File,
-  ): Promise<BoardComment> {
+  ): Promise<Comment | BoardReply> {
     fileValidate(file);
-    const comment = await this.commentRepository.findOne({
-      where: {
-        idx: commentIdx,
-      },
-    });
-    if (!comment) {
-      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
-    } else if (comment.userIdx != userIdx) {
-      throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
+    if (dto.category === 'comment') {
+      const comment = await this.commentRepository.findOne({
+        where: {
+          idx: commentIdx,
+        },
+      });
+      if (!comment) {
+        throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
+      } else if (comment.userIdx != userIdx) {
+        throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
+      }
+      comment.description = dto.description;
+      if (file) {
+        const url = await mediaUpload(file, S3FolderName.REPLY);
+        comment.filePath = url;
+      }
+      const commentInfo = await this.commentRepository.save(comment);
+      return commentInfo;
+    } else if (dto.category === 'reply') {
+      const reply = await this.replyRepository.findOne({
+        where: {
+          idx: commentIdx,
+        },
+      });
+      if (!reply) {
+        throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
+      } else if (reply.userIdx != userIdx) {
+        throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
+      }
+      reply.description = dto.description;
+      if (file) {
+        const url = await mediaUpload(file, S3FolderName.REPLY);
+        reply.filePath = url;
+      }
+      const replyInfo = await this.replyRepository.save(reply);
+      return replyInfo;
     }
-    comment.description = dto.description;
-    if (file) {
-      const url = await mediaUpload(file, S3FolderName.REPLY);
-      comment.filePath = url;
-    }
-    const commentInfo = await this.commentRepository.save(comment);
-    return commentInfo;
   }
-  async createReply(
-    dto: ReplyDto,
-    userIdx: number,
-    file: Express.Multer.File,
-  ): Promise<Reply> {
-    fileValidate(file);
-    const reply = BoardReply.from(dto);
-    reply.userIdx = userIdx;
-    if (file) {
-      const url = await mediaUpload(file, S3FolderName.REPLY);
-      reply.filePath = url;
-    }
-    const count = await this.countComment('all', dto.boardIdx);
-    await this.boardRepository.updateReplyCnt(dto.boardIdx, count);
-    const result = await this.replyRepository.save(reply);
 
-    const userDetails = await this.findUserInfo(result);
-    result.UserInfo = userDetails;
-    return result;
-  }
-  async removeReply(
-    replyIdx: number,
-    boardIdx: number,
-    userIdx: number,
-  ): Promise<number> {
-    const rerelpy = await this.replyRepository.findOne({
-      where: {
-        idx: replyIdx,
-      },
-    });
-    if (!rerelpy) {
-      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
-    } else if (rerelpy.userIdx != userIdx) {
-      throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
-    }
-    await this.replyRepository.softDelete(replyIdx);
-    const count = await this.countComment('reply', boardIdx);
-    await this.boardRepository.updateReplyCnt(boardIdx, count);
-    return count;
-  }
-  async updateReply(
-    dto: ReplyDto,
-    replyIdx: number,
-    userIdx: number,
-    file: Express.Multer.File,
-  ): Promise<Reply> {
-    fileValidate(file);
-    const reply = await this.replyRepository.findOne({
-      where: {
-        idx: replyIdx,
-      },
-    });
-    if (!reply) {
-      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
-    } else if (reply.userIdx != userIdx) {
-      throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
-    }
-    reply.description = dto.description;
-    if (file) {
-      const url = await mediaUpload(file, S3FolderName.REPLY);
-      reply.filePath = url;
-    }
-    const replyInfo = await this.replyRepository.save(reply);
-    return replyInfo;
-  }
-  /**
-   * 댓글에 달린 대댓글 조회
-   * @param pageRequest 페이징객체
-   * @returns 대댓글 목록
-   */
-  async findBoardReply(
-    pageRequest: PageRequest,
-    commentIdx: number,
-  ): Promise<Page<BoardReply>> {
-    //1. 답글에 대한 정보와 조회한 답글 수를 가져온다.
-    const [replys, totalCount] =
-      await this.replyRepository.findAndCountByBoardIdx(
-        pageRequest,
-        commentIdx,
-      );
-    const result = new Page<BoardReply>(totalCount, replys, pageRequest);
-    const commentData = [];
-    //2. 답글 작성자 정보를 조회한다.
-    for (const reply of result.items) {
-      const userDetails = await this.findUserInfo(reply);
-      reply.UserInfo = userDetails;
-      commentData.push(reply);
-    }
-    result.items = commentData;
-    return result;
-  }
   async RegisterBoardBookmark(boardIdx: number, userIdx: number) {
     const board = await this.boardRepository.findOne({
       where: {

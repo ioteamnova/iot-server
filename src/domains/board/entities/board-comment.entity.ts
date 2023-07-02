@@ -15,6 +15,9 @@ export default class BoardComment extends BaseEntity {
   @Column()
   description: string;
 
+  @Column()
+  replyCnt: number;
+
   UserInfo: { idx: number; nickname: string; profilePath: string };
 
   static from({
