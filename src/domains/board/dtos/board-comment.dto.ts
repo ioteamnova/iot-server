@@ -1,12 +1,29 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength, ValidateIf } from 'class-validator';
 
 export class CommentDto {
   @ApiProperty({
     description: '게시글 인덱스 번호',
     default: 1,
   })
+  @IsNotEmpty()
   boardIdx: number;
+
+  @ApiProperty({
+    description: '댓글인가? 답글인가?',
+    default: 'comment',
+  })
+  @IsString()
+  @IsNotEmpty()
+  category: string;
+
+  @ValidateIf((object) => object.category === 'reply')
+  @ApiProperty({
+    description: '댓글 idx',
+    default: '1',
+  })
+  @IsNotEmpty()
+  commentIdx: number;
 
   @ApiProperty({
     description: '댓글 내용',

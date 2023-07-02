@@ -16,4 +16,11 @@ export class BoardCommentRepository extends Repository<BoardComment> {
       .skip(pageRequest.offset)
       .getManyAndCount();
   }
+  updateReplyCnt(commentIdx: number, replyCnt: number) {
+    this.createQueryBuilder()
+      .update(BoardComment)
+      .set({ replyCnt })
+      .where('idx = :commentIdx', { commentIdx })
+      .execute();
+  }
 }

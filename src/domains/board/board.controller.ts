@@ -146,8 +146,8 @@ export class Boardcontroller {
     return HttpResponse.ok(res, board);
   }
   @ApiOperation({
-    summary: '댓글 등록',
-    description: '댓글을 등록한다.',
+    summary: '댓글 & 답글 등록',
+    description: '댓글 & 답글을 등록한다.',
   })
   @ApiCreatedResponseTemplate({ type: CommentDto })
   @ApiErrorResponseTemplate([
@@ -159,10 +159,9 @@ export class Boardcontroller {
   @ApiBody({ type: CommentDto })
   @UseInterceptors(FileInterceptor('file'))
   @UseAuthGuards()
-  @Post('/:boardIdx/comment')
+  @Post('/:Idx/comment')
   async createcomment(
     @Res() res,
-    @Param('boardIdx') boardIdx: number,
     @Body() dto: CommentDto,
     @AuthUser() user: User,
     @UploadedFile()
@@ -171,11 +170,16 @@ export class Boardcontroller {
     const result = await this.boardService.createComment(dto, user.idx, file);
     return HttpResponse.created(res, { body: result });
   }
+  @ApiOperation({
+    summary: '댓글 & 답글 삭제',
+    description: '댓글 & 답글을 삭제합니다..',
+  })
   @UseAuthGuards()
   @Delete('/comment/:commentIdx')
   async removecomment(
     @Res() res,
     @Query('boardIdx') boardIdx: number,
+    @Query('category') category: string,
     @Param('commentIdx') commentIdx: number,
     @AuthUser() user: User,
   ) {
@@ -183,28 +187,31 @@ export class Boardcontroller {
       commentIdx,
       boardIdx,
       user.idx,
+      category,
     );
     return HttpResponse.ok(res, { body: result });
   }
   @ApiOperation({
-    summary: '댓글 조회',
+    summary: '댓글 & 답글 조회',
     description: '게시글에 달린 댓글 정보를 최신순에 최대 20개씩 조회합니다.',
   })
   @ApiOkPaginationResponseTemplate({ type: Boardcomment })
-  @Get('/:boardIdx/comment')
+  @Get('/:boardIdx/:category')
   async getcomment(
     @Res() res,
     @Query() pageRequest: PageRequest,
+    @Param('category') category: string,
     @Param('boardIdx') boardIdx: number,
   ) {
     const comments = await this.boardService.findBoardComment(
       pageRequest,
       boardIdx,
+      category,
     );
     return HttpResponse.ok(res, comments);
   }
   @ApiOperation({
-    summary: '댓글 수정',
+    summary: '댓글 & 답글 수정',
     description: '댓글을 수정한다.',
   })
   @ApiCreatedResponseTemplate({ type: CommentDto })
@@ -233,95 +240,6 @@ export class Boardcontroller {
       file,
     );
     return HttpResponse.created(res, { body: result });
-  }
-  @ApiOperation({
-    summary: '대댓글 등록',
-    description: '대댓글을 등록한다.',
-  })
-  @ApiCreatedResponseTemplate({ type: ReplyDto })
-  @ApiErrorResponseTemplate([
-    {
-      status: StatusCodes.NOT_FOUND,
-      errorFormatList: [HttpErrorConstants.CANNOT_FIND_USER],
-    },
-  ])
-  @ApiBody({ type: ReplyDto })
-  @UseInterceptors(FileInterceptor('file'))
-  @UseAuthGuards()
-  @Post('/:boardIdx/reply')
-  async createReply(
-    @Res() res,
-    @Param('boardIdx') boardIdx: number,
-    @Body() dto: ReplyDto,
-    @AuthUser() user: User,
-    @UploadedFile()
-    file: Express.Multer.File,
-  ) {
-    const result = await this.boardService.createReply(dto, user.idx, file);
-    return HttpResponse.created(res, { body: result });
-  }
-  @UseAuthGuards()
-  @Delete('/reply/:replyIdx')
-  async removeReply(
-    @Res() res,
-    @Query('boardIdx') boardIdx: number,
-    @Param('replyIdx') replyIdx: number,
-    @AuthUser() user: User,
-  ) {
-    const result = await this.boardService.removeReply(
-      replyIdx,
-      boardIdx,
-      user.idx,
-    );
-    return HttpResponse.ok(res, { body: result });
-  }
-  @ApiOperation({
-    summary: '대댓글 수정',
-    description: '대댓글을 수정한다.',
-  })
-  @ApiCreatedResponseTemplate({ type: CommentDto })
-  @ApiErrorResponseTemplate([
-    {
-      status: StatusCodes.NOT_FOUND,
-      errorFormatList: [HttpErrorConstants.CANNOT_FIND_USER],
-    },
-  ])
-  @ApiBody({ type: CommentDto })
-  @UseAuthGuards()
-  @UseInterceptors(FileInterceptor('file'))
-  @Patch('/reply/:replyIdx')
-  async updateReply(
-    @Res() res,
-    @Param('replyIdx') replyIdx: number,
-    @AuthUser() user: User,
-    @Body() dto: ReplyDto,
-    @UploadedFile()
-    file: Express.Multer.File,
-  ) {
-    const result = await this.boardService.updateReply(
-      dto,
-      replyIdx,
-      user.idx,
-      file,
-    );
-    return HttpResponse.created(res, { body: result });
-  }
-  @ApiOperation({
-    summary: '대댓글 조회',
-    description: '댓글에 달린 대댓글 정보를 최신순에 최대 8개씩 조회합니다.',
-  })
-  @ApiOkPaginationResponseTemplate({ type: Boardcomment })
-  @Get('/:commentIdx/reply')
-  async getReply(
-    @Res() res,
-    @Query() pageRequest: PageRequest,
-    @Param('commentIdx') commentIdx: number,
-  ) {
-    const replys = await this.boardService.findBoardReply(
-      pageRequest,
-      commentIdx,
-    );
-    return HttpResponse.ok(res, replys);
   }
   @ApiOperation({
     summary: '게시글 북마크 등록 등록',
