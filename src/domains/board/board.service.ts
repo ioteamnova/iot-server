@@ -24,8 +24,7 @@ import { BoardCommercialRepository } from './repositories/board-commercial.repos
 import { UserRepository } from '../user/repositories/user.repository';
 import { BoardListDto } from './dtos/board-list.dto';
 import { fileValidate, fileValidates } from 'src/utils/fileValitate';
-import axios from 'axios';
-import * as FormData from 'form-data';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class BoardService {
@@ -37,37 +36,52 @@ export class BoardService {
     private replyRepository: BoardReplyRepository,
     private boardBookmarkRepository: BoardBookmarkRepository,
     private boardCommercialRepository: BoardCommercialRepository,
+    private dataSource: DataSource,
   ) {}
   /**
-   * 게시판 다중 이미지 업로드
+   * 게시판 다중 파일 업로드
    * @param files 파일들
    */
   async createBoard(dto: createBoardDto, userIdx: number) {
-    //파일이 존재하면 유효성 검사
-    dto.userIdx = userIdx;
-    const board = Board.from(dto);
-    const boardInfo = await this.boardRepository.save(board);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    if (board.category === 'adoption' || board.category === 'market') {
-      const boardCommercial = new BoardCommercial();
-      boardCommercial.boardIdx = boardInfo.idx;
-      boardCommercial.gender = dto.gender;
-      boardCommercial.price = dto.price;
-      boardCommercial.size = dto.size;
-      boardCommercial.variety = dto.variety;
-      await this.boardCommercialRepository.save(boardCommercial);
-    }
-    if (dto.fileUrl) {
-      const mediaInfo = [];
-      for (let i = 0; i < dto.fileUrl.length; i++) {
-        const fileDate = dto.fileUrl[i];
-        fileDate.boardIdx = boardInfo.idx;
-        fileDate.mediaSequence = i;
-        mediaInfo.push(fileDate);
+    try {
+      dto.userIdx = userIdx;
+      const board = Board.from(dto);
+      const boardInfo = await queryRunner.manager.save(board);
+
+      if (board.category === 'adoption' || board.category === 'market') {
+        const boardCommercial = new BoardCommercial();
+        boardCommercial.boardIdx = boardInfo.idx;
+        boardCommercial.gender = dto.gender;
+        boardCommercial.price = dto.price;
+        boardCommercial.size = dto.size;
+        boardCommercial.variety = dto.variety;
+        await queryRunner.manager.save(boardCommercial);
       }
-      await this.boardImageRepository.save(mediaInfo);
+
+      if (dto.fileUrl) {
+        const mediaInfo = [];
+        for (let i = 0; i < dto.fileUrl.length; i++) {
+          const fileData = dto.fileUrl[i];
+          fileData.boardIdx = boardInfo.idx;
+          fileData.mediaSequence = i;
+          mediaInfo.push(fileData);
+        }
+        await queryRunner.manager.save(BoardImage, mediaInfo); // Create an instance of BoardImage entity class
+      }
+
+      await queryRunner.commitTransaction();
+
+      return boardInfo;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-    return boardInfo;
   }
   /**
    * 게시판 조회
@@ -164,27 +178,42 @@ export class BoardService {
    * @param diaryIdx 게시판 인덱스
    */
   async removeBoard(boardIdx: number, userIdx: number): Promise<void> {
-    const board = await this.boardRepository.findOne({
-      where: {
-        idx: boardIdx,
-      },
-      relations: ['images'],
-    });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const board = await this.boardRepository.findOne({
+        where: {
+          idx: boardIdx,
+        },
+        relations: ['images'],
+      });
 
-    if (!board) {
-      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
-    } else if (board.userIdx != userIdx) {
-      throw new NotFoundException(HttpErrorConstants.BOARD_NOT_WRITER);
+      if (!board) {
+        throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
+      } else if (board.userIdx != userIdx) {
+        throw new NotFoundException(HttpErrorConstants.BOARD_NOT_WRITER);
+      }
+      if (board.category === 'adoption' || board.category === 'market') {
+        //게시판이 분양 or 중고 마켓일 경우 해당 데이터 테이블 삭제하는 함수
+        await queryRunner.manager.softDelete(BoardCommercial, {
+          boardIdx: boardIdx,
+        });
+      }
+      // 게시판 이미지 같이 삭제
+      if (board.images) {
+        for (const image of board.images) {
+          await queryRunner.manager.softRemove(BoardImage, image);
+        }
+      }
+      await queryRunner.manager.softDelete(Board, boardIdx);
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-    if (board.category === 'adoption' || board.category === 'market') {
-      //게시판이 분양 or 중고 마켓일 경우 해당 데이터 테이블 삭제하는 함수
-      this.boardCommercialRepository.softDelete({ boardIdx: boardIdx });
-    }
-    // 게시판 이미지 같이 삭제
-    if (board.images) {
-      this.deleteBoardImages(board.images);
-    }
-    this.boardRepository.softDelete(boardIdx);
   }
   async deleteBoardImages(images: BoardImage[]): Promise<void> {
     for (const image of images) {
@@ -201,80 +230,55 @@ export class BoardService {
     boardIdx: number,
     dto: UpdateBoardDto,
     @AuthUser() user: User,
-    files: Express.Multer.File[],
   ) {
-    await fileValidates(files);
-    const deleteArr = dto.deleteIdxArr;
-    const modifySqenceArr = dto.modifySqenceArr;
-    const fileIdxArr = dto.FileIdx;
-    for (let i = 0; i < deleteArr.length; i++) {
-      // 기존 이미지 삭제
-      await this.boardImageRepository.softDelete(deleteArr[i]);
-    }
-    const board = await this.boardRepository.findOne({
-      where: {
-        idx: boardIdx,
-      },
-      relations: ['images'],
-    });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const board = await this.boardRepository.findOne({
+        where: {
+          idx: boardIdx,
+        },
+        relations: ['images'],
+      });
 
-    if (!board) {
-      throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
-    }
-    if (board.category === 'adoption' || board.category === 'market') {
-      const boardCommercial = new BoardCommercial();
-      boardCommercial.idx = dto.boardCommercialIdx;
-      boardCommercial.boardIdx = boardIdx;
-      boardCommercial.gender = dto.gender;
-      boardCommercial.price = dto.price;
-      boardCommercial.size = dto.size;
-      boardCommercial.variety = dto.variety;
-      await this.boardCommercialRepository.save(boardCommercial);
-    }
-
-    for (let i = 0; i < modifySqenceArr.length; i++) {
-      //미디어 순서(media_squence) 바꾸는 코드
-      for (let j = 0; j < board.images.length; j++) {
-        if (modifySqenceArr[i] === board.images[j].mediaSequence) {
-          //기존 이미지 순서 인덱스 수정
-          board.images[j].mediaSequence = i;
-          await this.boardImageRepository.save(board.images[j]);
-          break;
-        } else if (files && j === board.images.length - 1) {
-          try {
-            const getFile = files[fileIdxArr.lastIndexOf(modifySqenceArr[i])];
-            const url = `${process.env.FILE_CONVERTER_IP}/board/update`;
-            const formData = new FormData();
-            formData.append('boardIdx', board.idx.toString());
-            formData.append('sequence', i.toString());
-            formData.append('file', getFile.buffer, {
-              filename: getFile.originalname,
-              contentType: getFile.mimetype,
-            });
-            const response = await axios.post(url, formData, {
-              headers: formData.getHeaders(),
-            });
-            return response.data;
-          } catch (error) {
-            throw new Error(`Error sending POST request: ${error.message}`);
-          }
-        }
+      if (!board) {
+        throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
       }
+
+      if (board.category === 'adoption' || board.category === 'market') {
+        console.log('dto.boardCommercialIdx', dto.boardCommercialIdx);
+        const boardCommercial = new BoardCommercial();
+        boardCommercial.idx = dto.boardCommercialIdx;
+        boardCommercial.boardIdx = boardIdx;
+        boardCommercial.gender = dto.gender;
+        boardCommercial.price = dto.price;
+        boardCommercial.size = dto.size;
+        boardCommercial.variety = dto.variety;
+        await queryRunner.manager.save(boardCommercial);
+      }
+
+      const boardInfo = new Board();
+      boardInfo.userIdx = user.idx;
+      boardInfo.category = dto.category;
+      boardInfo.idx = boardIdx;
+      boardInfo.title = dto.title;
+      boardInfo.description = dto.description;
+      await queryRunner.manager.save(boardInfo);
+      const returnBoard = await this.boardRepository.findOne({
+        where: {
+          idx: boardIdx,
+        },
+        relations: ['images'],
+      });
+      await queryRunner.commitTransaction();
+      return returnBoard;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-    const boardInfo = new Board();
-    boardInfo.userIdx = user.idx;
-    boardInfo.category = dto.category;
-    boardInfo.idx = boardIdx;
-    boardInfo.title = dto.title;
-    boardInfo.description = dto.description;
-    await this.boardRepository.save(boardInfo);
-    const returnBoard = await this.boardRepository.findOne({
-      where: {
-        idx: boardIdx,
-      },
-      relations: ['images'],
-    });
-    return returnBoard;
   }
   /**
    * 댓글 이미지 업로드(영상x, 이미지만 1장 제한)
