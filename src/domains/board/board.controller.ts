@@ -38,6 +38,7 @@ import { S3 } from 'aws-sdk'; // 필요한 경우 aws-sdk를 임포트합니다.
 import * as fs from 'fs-extra'; // Import fs-extra instead of fs
 import { promisify } from 'util';
 import { exec } from 'child_process';
+import { Response, Request } from 'express';
 import * as path from 'path';
 
 @ApiTags(SwaggerTag.BOARD)
@@ -344,5 +345,11 @@ export class Boardcontroller {
       console.error('Error during video upload:', err);
       throw err;
     }
+  }
+  @Get('test2/:filename')
+  getVideo(@Res() res: Response, @Param('filename') filename: string) {
+    const test = `../../../../../video/test/${filename}`;
+    const videoPath = path.join(__dirname, test);
+    res.sendFile(videoPath);
   }
 }
