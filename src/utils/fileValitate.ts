@@ -21,7 +21,7 @@ export function fileValidates(files: Express.Multer.File[]) {
 }
 export function fileValidate(file: Express.Multer.File) {
   if (file) {
-    const allowedFileTypes = /(?:png|jpeg|mov|mp4)$/i;
+    const allowedFileTypes = /(?:png|jpeg)$/i;
     const maxFileSize = 200 * 1024 * 1024; // 200MB
     if (!allowedFileTypes.test(file.originalname)) {
       throw new HttpException('Invalid file type', HttpStatus.BAD_REQUEST);

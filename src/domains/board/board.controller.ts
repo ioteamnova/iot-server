@@ -135,26 +135,14 @@ export class Boardcontroller {
     },
   ])
   @UseAuthGuards()
-  @UseInterceptors(FilesInterceptor('files', 5))
   @Patch('/:boardIdx')
   async updateBoard(
     @Res() res,
     @Param('boardIdx') boardIdx: number,
     @AuthUser() user: User,
     @Body() dto: UpdateBoardDto,
-    @UploadedFiles()
-    files: Array<Express.Multer.File>,
   ) {
-    console.log('dfafd', dto);
-    dto.deleteIdxArr = [202];
-    dto.modifySqenceArr = [0, 3, 2];
-    dto.FileIdx = [3];
-    const board = await this.boardService.updateBoard(
-      boardIdx,
-      dto,
-      user,
-      files,
-    );
+    const board = await this.boardService.updateBoard(boardIdx, dto, user);
     return HttpResponse.ok(res, board);
   }
   @ApiOperation({
