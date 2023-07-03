@@ -30,7 +30,7 @@ import { PageRequest } from 'src/core/page';
 import { ApiOkResponseTemplate } from 'src/core/swagger/api-ok-response';
 import { BoardDetailDto } from './dtos/board-detail-dto';
 import { UpdateBoardDto } from './dtos/update-board.dto';
-import { CommentDto, ReplyDto } from './dtos/board-comment.dto';
+import { CommentDto } from './dtos/board-comment.dto';
 import { createBoardDto } from './dtos/create-board.dto';
 import Boardcomment from './entities/board-comment.entity';
 
