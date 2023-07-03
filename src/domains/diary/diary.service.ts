@@ -313,7 +313,6 @@ export class DiaryService {
     if (!pet) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_PET);
     }
-
     const existDate = await this.petWeightRepository.checkExistDate(
       pet.idx,
       dto.date,
@@ -324,7 +323,6 @@ export class DiaryService {
 
     const weight = PetWeight.from(dto);
     weight.petIdx = petIdx;
-
     const result = await this.petWeightRepository.save(weight);
     return result;
   }

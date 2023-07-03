@@ -8,7 +8,7 @@ export class PetWeight extends BaseEntity {
   @Column()
   petIdx: number;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   weight: number;
 
   @Column({
@@ -23,14 +23,13 @@ export class PetWeight extends BaseEntity {
 
   static from({ weight, date }: { weight: number; date: Date }) {
     const petWeight = new PetWeight();
-    petWeight.weight = weight;
+    petWeight.weight = parseFloat(weight.toFixed(2));
     petWeight.date = date;
-
     return petWeight;
   }
 
   updateFromDto(dto: UpdatePetWeightDto) {
-    this.weight = dto.weight;
+    this.weight = parseFloat(dto.weight.toFixed(2));
     this.date = dto.date;
   }
 }
