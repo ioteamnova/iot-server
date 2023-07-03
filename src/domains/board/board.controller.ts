@@ -19,7 +19,6 @@ import {
   Query,
   Res,
   UploadedFile,
-  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiErrorResponseTemplate } from 'src/core/swagger/apt-error-response';
@@ -34,12 +33,6 @@ import { UpdateBoardDto } from './dtos/update-board.dto';
 import { CommentDto, ReplyDto } from './dtos/board-comment.dto';
 import { createBoardDto } from './dtos/create-board.dto';
 import Boardcomment from './entities/board-comment.entity';
-import { S3 } from 'aws-sdk'; // 필요한 경우 aws-sdk를 임포트합니다.
-import * as fs from 'fs-extra'; // Import fs-extra instead of fs
-import { promisify } from 'util';
-import { exec } from 'child_process';
-import { Response, Request } from 'express';
-import * as path from 'path';
 
 @ApiTags(SwaggerTag.BOARD)
 @ApiCommonErrorResponseTemplate()
