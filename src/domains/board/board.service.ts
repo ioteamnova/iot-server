@@ -573,15 +573,14 @@ export class BoardService {
     return userDetails;
   };
   async redisTestSave(test: string) {
-    const test1 = await this.cacheManager.set('test', test);
-    const test12 = await this.cacheManager.get('test');
-    console.log('test12', test12);
+    const test1 = await this.cacheManager.set(test, test, 1);
+    const test12 = await this.cacheManager.get(test);
+    console.log(test, test12);
     return test1;
   }
-  async redisTestGet() {
-    console.log('11111');
-    const test1 = await this.cacheManager.get('test');
-    console.log('test1', test1);
+  async redisTestGet(test: string) {
+    const test1 = await this.cacheManager.get(test);
+    console.log(test, test1);
     return test1;
   }
 }

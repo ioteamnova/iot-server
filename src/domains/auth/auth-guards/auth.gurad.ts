@@ -12,6 +12,7 @@ export class UserGuard extends AuthGuard('jwt') {
     try {
       await super.canActivate(context);
       const request = context.switchToHttp().getRequest();
+      console.log(request);
       const user = request.user as User;
       return !!user;
     } catch (error) {
