@@ -9,7 +9,8 @@ import { BoardReplyRepository } from './repositories/board-reply.repository';
 import { BoardBookmarkRepository } from './repositories/board-bookmark.repository';
 import { BoardCommercialRepository } from './repositories/board-commercial.repository';
 import { UserRepository } from '../user/repositories/user.repository';
-
+import { CacheModule } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-ioredis';
 @Module({
   imports: [
     TypeOrmExModule.forCustomRepository([
@@ -21,6 +22,12 @@ import { UserRepository } from '../user/repositories/user.repository';
       BoardCommercialRepository,
       UserRepository,
     ]),
+    CacheModule.register({
+      store: redisStore,
+      host: 'localhost',
+      port: 6379,
+      ttl: 100000, // 없는 경우 default 5초
+    }),
   ],
   controllers: [Boardcontroller],
   providers: [BoardService],
