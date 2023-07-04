@@ -168,7 +168,7 @@ export class AuthService {
     const payload = { userIdx: userIdx };
     return this.jwtService.sign(payload, {
       secret: process.env.JWT_SECRET,
-      expiresIn: '1m',
+      expiresIn: '2h',
     });
   }
 
@@ -176,7 +176,7 @@ export class AuthService {
     const payload = { userIdx: userIdx };
     return this.jwtService.sign(payload, {
       secret: process.env.JWT_SECRET,
-      expiresIn: '2m',
+      expiresIn: '14 days',
     });
   }
 

@@ -2,8 +2,7 @@ import { Schedule } from '../../schedule/entities/schedule.entity';
 import { UpdateUserDto } from './../dtos/update-user.dto';
 import BaseEntity from 'src/core/entity/base.entity';
 import { hashPassword } from 'src/utils/password.utils';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { CreateUserDto } from '../dtos/create-user.dto';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { SocialMethodType } from 'src/domains/auth/helpers/constants';
 import { Pet } from 'src/domains/diary/entities/pet.entity';
 

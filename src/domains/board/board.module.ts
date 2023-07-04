@@ -26,7 +26,6 @@ import * as redisStore from 'cache-manager-ioredis';
       store: redisStore,
       host: 'localhost',
       port: 6379,
-      ttl: 100000, // 없는 경우 default 5초
     }),
   ],
   controllers: [Boardcontroller],
