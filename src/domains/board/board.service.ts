@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  CACHE_MANAGER,
+} from '@nestjs/common';
 import { createBoardDto } from './dtos/create-board.dto';
 import { S3FolderName, mediaUpload } from 'src/utils/s3-utils';
 import { BoardRepository } from './repositories/board.repository';
@@ -9,7 +14,7 @@ import { HttpErrorConstants } from 'src/core/http/http-error-objects';
 import { UpdateBoardDto } from './dtos/update-board.dto';
 import AuthUser from 'src/core/decorators/auth-user.decorator';
 import { User } from 'src/domains/user/entities/user.entity';
-import { CommentDto, ReplyDto } from './dtos/board-comment.dto';
+import { CommentDto } from './dtos/board-comment.dto';
 import Comment from './entities/board-comment.entity';
 import { BoardCommentRepository } from './repositories/board-comment.repository';
 import { BoardImageRepository } from './repositories/board-image.repository';
@@ -24,10 +29,13 @@ import { UserRepository } from '../user/repositories/user.repository';
 import { BoardListDto } from './dtos/board-list.dto';
 import { fileValidate, fileValidates } from 'src/utils/fileValitate';
 import { DataSource, QueryRunner } from 'typeorm';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class BoardService {
   constructor(
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
     private boardRepository: BoardRepository,
     private userRepository: UserRepository,
     private boardImageRepository: BoardImageRepository,
@@ -564,4 +572,16 @@ export class BoardService {
     };
     return userDetails;
   };
+  async redisTestSave(test: string) {
+    const test1 = await this.cacheManager.set('test', test);
+    const test12 = await this.cacheManager.get('test');
+    console.log('test12', test12);
+    return test1;
+  }
+  async redisTestGet() {
+    console.log('11111');
+    const test1 = await this.cacheManager.get('test');
+    console.log('test1', test1);
+    return test1;
+  }
 }

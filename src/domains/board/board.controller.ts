@@ -281,4 +281,23 @@ export class Boardcontroller {
     );
     return HttpResponse.ok(res, board);
   }
+
+  @UseAuthGuards()
+  @Post('/redis/:test')
+  async redisTest(@Res() res, @Param('test') test: string) {
+    const result = await this.boardService.redisTestSave(test);
+    return HttpResponse.created(res, { body: result });
+  }
+  @Post('/redis3232/:test')
+  async redisTest11(@Res() res, @Param('test') test: string) {
+    console.log('@@@##1');
+    const result = await this.boardService.redisTestGet();
+    return HttpResponse.created(res, { body: result });
+  }
+  @Get('/redis11/test')
+  async redisGetTest(@Res() res) {
+    console.log('@@@##1');
+    const result = await this.boardService.redisTestGet();
+    return HttpResponse.created(res, { body: result });
+  }
 }
