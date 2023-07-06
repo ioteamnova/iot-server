@@ -1,4 +1,4 @@
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiCreatedResponseTemplate } from 'src/core/swagger/api-created-response';
 import { ApiCommonErrorResponseTemplate } from 'src/core/swagger/api-error-common-response';
@@ -90,10 +90,13 @@ export class Boardcontroller {
       ],
     },
   ])
-  @UseAuthGuards()
   @Get('/:boardIdx')
-  async findBoard(@Res() res, @Param('boardIdx') boardIdx: number) {
-    const board = await this.boardService.findBoard(boardIdx);
+  async findBoard(
+    @Res() res,
+    @Param('boardIdx') boardIdx: number,
+    @Query('macAddress') macAddress: string,
+  ) {
+    const board = await this.boardService.findBoard(boardIdx, macAddress);
     return HttpResponse.ok(res, board);
   }
   @ApiOperation({
@@ -282,16 +285,16 @@ export class Boardcontroller {
     return HttpResponse.ok(res, board);
   }
 
-  @Post('/redis/:test')
-  async redisTest(@Res() res, @Param('test') test: string) {
-    const result = await this.boardService.redisTestSave(test);
-    return HttpResponse.created(res, { body: result });
-  }
-  @Post('/redis3232/:test')
-  async redisTest11(@Res() res, @Param('test') test: string) {
-    const result = await this.boardService.redisTestGet(test);
-    return HttpResponse.created(res, { body: result });
-  }
+  // @Post('/redis/:test')
+  // async redisTest(@Res() res, @Param('test') test: string) {
+  //   const result = await this.boardService.redisTestSave(test);
+  //   return HttpResponse.created(res, { body: result });
+  // }
+  // @Post('/redis3232/:test')
+  // async redisTest11(@Res() res, @Param('test') test: string) {
+  //   const result = await this.boardService.redisTestGet(test);
+  //   return HttpResponse.created(res, { body: result });
+  // }
   // @Get('/redis11/test')
   // async redisGetTest(@Res() res) {
   //   console.log('@@@##1');

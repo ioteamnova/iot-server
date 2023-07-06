@@ -76,6 +76,8 @@ export class BoardListDto {
 
   status: string;
 
+  view: number;
+
   static from({
     userIdx,
     title,

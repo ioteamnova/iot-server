@@ -1,9 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  NotFoundException,
-  CACHE_MANAGER,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { createBoardDto } from './dtos/create-board.dto';
 import { S3FolderName, mediaUpload } from 'src/utils/s3-utils';
 import { BoardRepository } from './repositories/board.repository';
@@ -29,13 +24,20 @@ import { UserRepository } from '../user/repositories/user.repository';
 import { BoardListDto } from './dtos/board-list.dto';
 import { fileValidate, fileValidates } from 'src/utils/fileValitate';
 import { DataSource, QueryRunner } from 'typeorm';
-import { Cache } from 'cache-manager';
+import { RedisService } from '@liaoliaots/nestjs-redis';
+
+enum BoardCategory {
+  Adoption = 'adoption',
+  Market = 'market',
+}
+enum CommentCategory {
+  Reply = 'reply',
+  Comment = 'comment',
+}
 
 @Injectable()
 export class BoardService {
   constructor(
-    @Inject(CACHE_MANAGER)
-    private readonly cacheManager: Cache,
     private boardRepository: BoardRepository,
     private userRepository: UserRepository,
     private boardImageRepository: BoardImageRepository,
@@ -44,6 +46,7 @@ export class BoardService {
     private boardBookmarkRepository: BoardBookmarkRepository,
     private boardCommercialRepository: BoardCommercialRepository,
     private dataSource: DataSource,
+    private readonly redisService: RedisService,
   ) {}
   /**
    * 게시판 다중 파일 업로드
@@ -58,17 +61,16 @@ export class BoardService {
       dto.userIdx = userIdx;
       const board = Board.from(dto);
       const boardInfo = await queryRunner.manager.save(board);
-
-      if (board.category === 'adoption' || board.category === 'market') {
-        const boardCommercial = new BoardCommercial();
-        boardCommercial.boardIdx = boardInfo.idx;
-        boardCommercial.gender = dto.gender;
-        boardCommercial.price = dto.price;
-        boardCommercial.size = dto.size;
-        boardCommercial.variety = dto.variety;
+      if (this.isCommercialCate(board.category)) {
+        const boardCommercial = BoardCommercial.from(
+          boardInfo.idx,
+          dto.gender,
+          dto.price,
+          dto.size,
+          dto.variety,
+        );
         await queryRunner.manager.save(boardCommercial);
       }
-
       if (dto.fileUrl) {
         const mediaInfo = [];
         for (let i = 0; i < dto.fileUrl.length; i++) {
@@ -79,9 +81,7 @@ export class BoardService {
         }
         await queryRunner.manager.save(BoardImage, mediaInfo); // Create an instance of BoardImage entity class
       }
-
       await queryRunner.commitTransaction();
-
       return boardInfo;
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -112,7 +112,10 @@ export class BoardService {
       usersInfoArr.push(board);
     }
     result.items = usersInfoArr;
-    if (category === 'adoption' || category === 'market') {
+    if (
+      category === BoardCategory.Adoption ||
+      category === BoardCategory.Market
+    ) {
       //3. 게시판 카테고리가 분양 or 중고 마켓이면 해당 데이터를 조회한다.
       const commercialInfoArr = [];
       for (const board of result.items) {
@@ -158,7 +161,7 @@ export class BoardService {
    * @param BoardIdx 게시판 인덱스
    * @returns 게시글 관련 정보 및 미디어(이미지, 영상)
    */
-  async findBoard(boardIdx: number) {
+  async findBoard(boardIdx: number, macAddress: string) {
     //1. 게시글 정보를 조회한다.
     const board = await this.boardRepository.findBoadDetailByBoardIdx(boardIdx);
     if (!board) {
@@ -166,11 +169,28 @@ export class BoardService {
     } else if (board.status === 'PRIVATE') {
       throw new NotFoundException(HttpErrorConstants.BOARD_PRIVATE);
     }
-    //2. 글 작성자에 대한 정보를 가지고 온다
+    //2. 조회수 처리: 해당 맥어드레스 주소가 해당 게시글을 읽은 적이 있는지 확인
+    const key = `boardview${boardIdx}`;
+    const redis = this.redisService.getClient();
+    const setMembers = await redis.smembers(key); // Redis에서 Set의 모든 멤버 가져오기const boardCommercial = new BoardCommercial();
+    if (!setMembers.includes(macAddress)) {
+      await redis.sadd(key, macAddress);
+      if (setMembers.length === 0) {
+        const currentTimestamp = Math.floor(Date.now() / 1000); // 현재 시간의 타임스탬프 (초 단위)
+        const endOfDayTimestamp = Math.floor(
+          new Date().setHours(23, 59, 59, 999) / 1000,
+        ); // 오늘 자정까지의 타임스탬프 (초 단위)
+        const ttl = endOfDayTimestamp - currentTimestamp; // 오늘 자정까지 남은 시간 (초 단위)
+        await redis.expire(key, ttl);
+      }
+      const viewCnt = board.view + 1;
+      await this.boardRepository.updateViewCount(boardIdx, viewCnt);
+    }
+    //3. 글 작성자에 대한 정보를 가지고 온다
     const userDetails = await this.findUserInfo(board);
     board.UserInfo = userDetails;
-    //3. 게시글에 따라 추가 테이블 정보를 조회한다.
-    if (board.category === 'adoption' || board.category === 'market') {
+    //4. 게시글에 따라 추가 테이블 정보를 조회한다.
+    if (this.isCommercialCate(board.category)) {
       const boardCommercial = await this.boardCommercialRepository.findOne({
         where: {
           boardIdx: boardIdx,
@@ -201,7 +221,7 @@ export class BoardService {
       } else if (board.userIdx != userIdx) {
         throw new NotFoundException(HttpErrorConstants.BOARD_NOT_WRITER);
       }
-      if (board.category === 'adoption' || board.category === 'market') {
+      if (this.isCommercialCate(board.category)) {
         //게시판이 분양 or 중고 마켓일 경우 해당 데이터 테이블 삭제하는 함수
         await queryRunner.manager.softDelete(BoardCommercial, {
           boardIdx: boardIdx,
@@ -253,23 +273,25 @@ export class BoardService {
         throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
       }
 
-      if (board.category === 'adoption' || board.category === 'market') {
-        const boardCommercial = new BoardCommercial();
-        boardCommercial.idx = dto.boardCommercialIdx;
-        boardCommercial.boardIdx = boardIdx;
-        boardCommercial.gender = dto.gender;
-        boardCommercial.price = dto.price;
-        boardCommercial.size = dto.size;
-        boardCommercial.variety = dto.variety;
+      if (this.isCommercialCate(board.category)) {
+        const boardCommercial = BoardCommercial.updateFrom(
+          dto.boardCommercialIdx,
+          boardIdx,
+          dto.gender,
+          dto.price,
+          dto.size,
+          dto.variety,
+        );
         await queryRunner.manager.save(boardCommercial);
       }
 
-      const boardInfo = new Board();
-      boardInfo.userIdx = user.idx;
-      boardInfo.category = dto.category;
-      boardInfo.idx = boardIdx;
-      boardInfo.title = dto.title;
-      boardInfo.description = dto.description;
+      const boardInfo = Board.undateFrom(
+        user.idx,
+        dto.category,
+        boardIdx,
+        dto.title,
+        dto.description,
+      );
       await queryRunner.manager.save(boardInfo);
       const returnBoard = await this.boardRepository.findOne({
         where: {
@@ -302,7 +324,7 @@ export class BoardService {
       await queryRunner.startTransaction();
       let commentInfo;
       //1.댓글일 때
-      if (dto.category === 'comment') {
+      if (dto.category === CommentCategory.Comment) {
         const comment = Comment.from(dto);
         comment.userIdx = userIdx;
         if (file) {
@@ -310,7 +332,7 @@ export class BoardService {
           comment.filePath = url;
         }
         commentInfo = await queryRunner.manager.save(comment);
-      } else if (dto.category === 'reply') {
+      } else if (dto.category === CommentCategory.Reply) {
         //2. 답글일 때에는, 댓글idx가 필요하다.
         const reply = BoardReply.from(dto);
         reply.userIdx = userIdx;
@@ -356,7 +378,8 @@ export class BoardService {
         });
         if (!comment) {
           throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_REPLY);
-        } else if (comment.userIdx != userIdx) {
+        }
+        if (comment.userIdx != userIdx) {
           throw new NotFoundException(HttpErrorConstants.REPLY_NOT_WRITER);
         }
         await queryRunner.manager.softDelete(BoardComment, commentIdx);
@@ -475,7 +498,7 @@ export class BoardService {
     file: Express.Multer.File,
   ): Promise<Comment | BoardReply> {
     fileValidate(file);
-    if (dto.category === 'comment') {
+    if (dto.category === CommentCategory.Comment) {
       const comment = await this.commentRepository.findOne({
         where: {
           idx: commentIdx,
@@ -493,7 +516,7 @@ export class BoardService {
       }
       const commentInfo = await this.commentRepository.save(comment);
       return commentInfo;
-    } else if (dto.category === 'reply') {
+    } else if (dto.category === CommentCategory.Reply) {
       const reply = await this.replyRepository.findOne({
         where: {
           idx: commentIdx,
@@ -572,15 +595,14 @@ export class BoardService {
     };
     return userDetails;
   };
-  async redisTestSave(test: string) {
-    const test1 = await this.cacheManager.set(test, test, 1);
-    const test12 = await this.cacheManager.get(test);
-    console.log(test, test12);
-    return test1;
-  }
-  async redisTestGet(test: string) {
-    const test1 = await this.cacheManager.get(test);
-    console.log(test, test1);
-    return test1;
+  async isCommercialCate(category: string) {
+    if (
+      category === BoardCategory.Adoption ||
+      category === BoardCategory.Market
+    ) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
