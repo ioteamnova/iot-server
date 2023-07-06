@@ -27,6 +27,9 @@ export class Board extends BaseEntity {
   @Column()
   status: BoardStatus;
 
+  @Column()
+  view: number;
+
   @OneToMany(() => BoardImage, (image) => image.board)
   images: BoardImage[];
 
@@ -42,6 +45,21 @@ export class Board extends BaseEntity {
     description: string;
   }) {
     const board = new Board();
+    board.userIdx = userIdx;
+    board.title = title;
+    board.category = category;
+    board.description = description;
+    return board;
+  }
+  static undateFrom(
+    userIdx: number,
+    category: string,
+    idx: number,
+    title: string,
+    description: string,
+  ) {
+    const board = new Board();
+    board.idx = idx;
     board.userIdx = userIdx;
     board.title = title;
     board.category = category;

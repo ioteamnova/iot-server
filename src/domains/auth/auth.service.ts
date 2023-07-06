@@ -2,12 +2,7 @@ import { UserService } from './../user/user.service';
 import { validatePassword } from './../../utils/password.utils';
 import { HttpErrorConstants } from './../../core/http/http-error-objects';
 import { UserRepository } from './../user/repositories/user.repository';
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';

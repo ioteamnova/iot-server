@@ -33,10 +33,16 @@ export class BoardRepository extends Repository<Board> {
     return boardListDto;
   }
   updateReplyCnt(boardIdx: number, commentCnt: number) {
-    console.log('boardIdx', boardIdx);
     this.createQueryBuilder()
       .update(Board)
       .set({ commentCnt })
+      .where('board.idx = :boardIdx', { boardIdx })
+      .execute();
+  }
+  async updateViewCount(boardIdx: number, view: number): Promise<void> {
+    await this.createQueryBuilder()
+      .update(Board)
+      .set({ view })
       .where('board.idx = :boardIdx', { boardIdx })
       .execute();
   }

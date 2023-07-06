@@ -12,8 +12,6 @@ import { SchedulerModule } from './domains/schedule/schedule.module';
 import { IotPersonalModule } from './domains/iot_board_personal/iot_board_personal.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BoardModule } from './domains/board/board.module';
-import { CacheModule } from '@nestjs/cache-manager';
-import * as redisStore from 'cache-manager-ioredis';
 
 @Module({
   imports: [
@@ -42,11 +40,6 @@ import * as redisStore from 'cache-manager-ioredis';
     SchedulerModule, // 스케줄 모듈과 혼동 주의
     IotPersonalModule,
     ScheduleModule.forRoot(),
-    CacheModule.register({
-      store: redisStore,
-      host: 'localhost',
-      port: 6379,
-    }),
   ],
   controllers: [AppController],
   providers: [AppService],
