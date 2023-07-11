@@ -221,19 +221,7 @@ export class AuthService {
    */
   async loginLiveStreaming(accessToken: string) {
     //accesstoken을 보내오면 디코딩하고 나온 uid를 우리 db에 있는지 확인하고 리턴
-
-    // await const decodedJwtAccessToken: string = this.jwtService.decode(accessToken);
-
-    // return true;
-    // return this.jwtService.sign(payload, {
-    //   secret: process.env.JWT_SECRET,
-    //   expiresIn: '2h',
-    // });
-    // const refreshTokenMatches = await this.jwtService.verify(refreshToken);
     const decodedJwtAccessToken = await this.jwtService.decode(accessToken);
-    console.log('decodedJwtAccessToken');
-    console.log(decodedJwtAccessToken);
-    console.log(decodedJwtAccessToken['userIdx']);
 
     const user = await this.userRepository.findOne({
       where: {
