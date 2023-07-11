@@ -99,16 +99,17 @@ export class AuthController {
     summary: '라이브 스트리밍 인증',
     description: `JWT 엑세스 토큰을 디코딩하여 인증을 한다`,
   })
-  @ApiBody({
-    type: AccessTokenDto,
-  })
-  @ApiCreatedResponseTemplate()
+  // @ApiBody({
+  //   type: AccessTokenDto,
+  // })
+  // @ApiCreatedResponseTemplate()
   @Post('/liveToken')
-  async authLiveStreaming(@Res() res, @Body() dto: AccessTokenDto) {
+  // async authLiveStreaming(@Res() res, @Body() dto: AccessTokenDto) {
+  async authLiveStreaming(@Res() res) {
     console.log('authLiveStreaming');
     console.log(res);
-    console.log(dto);
-    console.log(dto.accessToken);
+    // console.log(dto);
+    // console.log(dto.accessToken);
     const result = true;
     // const result = await this.authService.loginLiveStreaming(dto.accessToken);
     return HttpResponse.created(res, { body: result });
