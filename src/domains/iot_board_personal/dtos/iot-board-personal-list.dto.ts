@@ -123,7 +123,30 @@ export class IotBoardPersonalListDto {
   })
   createdAt: Date;
 
-  constructor(iotBoardPersonal: IotBoardPersonal) {
+  constructor() {
+    // constructor(iotBoardPersonal: IotBoardPersonal) {
+    // this.idx = iotBoardPersonal.idx;
+    // this.cageName = iotBoardPersonal.cageName;
+    // this.currentUvbLight = iotBoardPersonal.currentUvbLight;
+    // this.currentHeatingLight = iotBoardPersonal.currentHeatingLight;
+    // this.autoChkLight = iotBoardPersonal.autoChkLight;
+    // this.autoChkTemp = iotBoardPersonal.autoChkTemp;
+    // this.autoChkHumid = iotBoardPersonal.autoChkHumid;
+    // this.currentTemp = iotBoardPersonal.currentTemp;
+    // this.currentTemp2 = iotBoardPersonal.currentTemp2;
+    // this.maxTemp = iotBoardPersonal.maxTemp;
+    // this.minTemp = iotBoardPersonal.minTemp;
+    // this.currentHumid = iotBoardPersonal.currentHumid;
+    // this.currentHumid2 = iotBoardPersonal.currentHumid2;
+    // this.maxHumid = iotBoardPersonal.maxHumid;
+    // this.minHumid = iotBoardPersonal.minHumid;
+    // this.usage = iotBoardPersonal.usage;
+    // this.autoLightUtctimeOn = iotBoardPersonal.autoLightUtctimeOn;
+    // this.autoLightUtctimeOff = iotBoardPersonal.autoLightUtctimeOff;
+    // this.boardTempName = iotBoardPersonal.iotAuthInfo.boardTempName;
+  }
+
+  totalBoardList(iotBoardPersonal: IotBoardPersonal) {
     this.idx = iotBoardPersonal.idx;
     this.cageName = iotBoardPersonal.cageName;
     this.currentUvbLight = iotBoardPersonal.currentUvbLight;
@@ -142,6 +165,8 @@ export class IotBoardPersonalListDto {
     this.usage = iotBoardPersonal.usage;
     this.autoLightUtctimeOn = iotBoardPersonal.autoLightUtctimeOn;
     this.autoLightUtctimeOff = iotBoardPersonal.autoLightUtctimeOff;
-    this.boardTempName = iotBoardPersonal.iotAuthInfo.boardTempName;
+
+    console.log('iotBoards items::', iotBoardPersonal.idx);
+    console.log('iotBoards items::', this.idx);
   }
 }

@@ -29,11 +29,11 @@ export class IotBoardPersonalService {
   ) { }
 
   /**
-   *  보드 리스트
+   * 나의 보드 리스트
    * @param dto 보드 dto
    * @returns Iot_board_personal
    */
-  async getBoardList(userIdx: number, pageRequest: PageRequest) {
+  async getMyBoardList(userIdx: number, pageRequest: PageRequest) {
     console.log(pageRequest);
 
     const [iotBoards, totalCount] =
@@ -41,9 +41,51 @@ export class IotBoardPersonalService {
         userIdx,
         pageRequest,
       );
+    // console.log('iotBoards::', iotBoards);
+    // const items = iotBoards.map((board) => new IotBoardPersonalListDto(board));
+    // return new Page<IotBoardPersonalListDto>(totalCount, items, pageRequest);
+  }
+
+  /**
+   *  전체 보드 리스트
+   * @param dto 보드 dto
+   * @returns Iot_board_personal
+   */
+  async getBoardList(userIdx: number, pageRequest: PageRequest) {
+    console.log(pageRequest);
+
+    const iotBoards = await this.iotBoardPersonalRepository.find({
+      //where: {
+      // boardIdx: pageRequest.boardIdx,
+      // createdAt: Between(
+      //   new Date(timelist.firstData),
+      //   new Date(timelist.secondData),
+      // ),
+      //},
+    });
+
+    //ㅈㄷㄹㅈㄷㄹㄹ
+    // const [iotBoards, totalCount] =
+    //   await this.iotBoardPersonalRepository.findAndCountByUserIdx(
+    //     userIdx,
+    //     pageRequest,
+    //   );
     console.log('iotBoards::', iotBoards);
-    const items = iotBoards.map((board) => new IotBoardPersonalListDto(board));
-    return new Page<IotBoardPersonalListDto>(totalCount, items, pageRequest);
+    console.log('iotBoards length::', iotBoards.length);
+    // const dto = new IotBoardPersonalListDto();
+    // dto.totalBoardList(board);
+
+    const items = iotBoards.map((board) =>
+      new IotBoardPersonalListDto().totalBoardList(board),
+    );
+
+    console.log('iotBoards items::', items);
+
+    // return new Page<IotBoardPersonalListDto>(
+    //   iotBoards.length,
+    //   items,
+    //   pageRequest,
+    // );
   }
 
   /**

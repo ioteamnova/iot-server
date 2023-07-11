@@ -33,4 +33,4 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
   providers: [BoardService],
   exports: [BoardService, TypeOrmExModule],
 })
-export class BoardModule {}
+export class BoardModule { }
