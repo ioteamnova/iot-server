@@ -104,11 +104,11 @@ export class AuthController {
   })
   @ApiCreatedResponseTemplate()
   @Post('/liveToken')
-  async authLiveStreaming(@Res() res) {
+  async authLiveStreaming(@Res() res, @Body() dto: AccessTokenDto) {
     console.log('authLiveStreaming');
     console.log(res);
-    // console.log(dto);
-    // console.log(dto.accessToken);
+    console.log(dto);
+    console.log(dto.accessToken);
     const result = true;
     // const result = await this.authService.loginLiveStreaming(dto.accessToken);
     return HttpResponse.created(res, { body: result });
