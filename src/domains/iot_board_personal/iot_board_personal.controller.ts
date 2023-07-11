@@ -28,10 +28,33 @@ export class IotBoardPersonalController {
     private readonly iotPersonalService: IotBoardPersonalService, // private authService: AuthService,
   ) { }
 
-  //보드리스트
+  //나의 보드리스트
   @ApiOperation({
     summary: '내 보드 정보 리스트',
     description: '내가 등록한 보드의 리스트를 가져온다.',
+  })
+  @UseAuthGuards()
+  @Get('/myboardlist')
+  async getMyBoardList(
+    @Res() res,
+    @AuthUser() user: User,
+    @Query() pageRequest: PageRequest,
+  ) {
+    console.log('boardlist start!!');
+    console.log('user:::', user);
+    console.log(pageRequest);
+
+    const result = await this.iotPersonalService.getMyBoardList(
+      user.idx,
+      pageRequest,
+    );
+    return HttpResponse.ok(res, result);
+  }
+
+  //전체보드리스트
+  @ApiOperation({
+    summary: '전체 보드 정보 리스트',
+    description: '전체 보드의 리스트를 가져온다.',
   })
   @UseAuthGuards()
   @Get('/boardlist')

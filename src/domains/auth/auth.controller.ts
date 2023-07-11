@@ -16,12 +16,13 @@ import { HttpErrorConstants } from 'src/core/http/http-error-objects';
 import UseAuthGuards from './auth-guards/use-auth';
 import AuthUser from 'src/core/decorators/auth-user.decorator';
 import { User } from '../user/entities/user.entity';
+import { AccessTokenDto } from './dtos/access-token.dto';
 
 @ApiTags(SwaggerTag.AUTH)
 @ApiCommonErrorResponseTemplate()
 @Controller('/auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @ApiOperation({
     summary: '로그인',
@@ -35,6 +36,9 @@ export class AuthController {
   @ApiCreatedResponseTemplate({ type: LoginResponseDto })
   @Post()
   async login(@Res() res, @Body() dto: LoginUserDto) {
+    console.log('login');
+    console.log('login');
+
     const result = await this.authService.login(dto);
     return HttpResponse.created(res, { body: result });
     // return res.status(201).send(result);
@@ -89,5 +93,24 @@ export class AuthController {
   async logout(@Res() res, @AuthUser() user: User) {
     await this.authService.logout(user.idx);
     return HttpResponse.ok(res);
+  }
+
+  @ApiOperation({
+    summary: '라이브 스트리밍 인증',
+    description: `JWT 엑세스 토큰을 디코딩하여 인증을 한다`,
+  })
+  @ApiBody({
+    type: AccessTokenDto,
+  })
+  @ApiCreatedResponseTemplate()
+  @Post('/liveToken')
+  async authLiveStreaming(@Res() res) {
+    console.log('authLiveStreaming');
+    console.log(res);
+    // console.log(dto);
+    // console.log(dto.accessToken);
+    const result = true;
+    // const result = await this.authService.loginLiveStreaming(dto.accessToken);
+    return HttpResponse.created(res, { body: result });
   }
 }
