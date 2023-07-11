@@ -206,9 +206,9 @@ export class BoardService {
    */
   async removeBoard(boardIdx: number, userIdx: number): Promise<void> {
     const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
     try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
       const board = await this.boardRepository.findOne({
         where: {
           idx: boardIdx,
