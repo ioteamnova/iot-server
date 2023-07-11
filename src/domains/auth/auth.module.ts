@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { JwtRefreshTokenStrategy } from './jwt/refresh-token.strategy';
+import { RedisModule } from '@liaoliaots/nestjs-redis';
 
 @Module({
   imports: [
@@ -22,6 +23,13 @@ import { JwtRefreshTokenStrategy } from './jwt/refresh-token.strategy';
     TypeOrmExModule.forCustomRepository([UserRepository]),
     PassportModule,
     forwardRef(() => UserModule),
+    RedisModule.forRoot({
+      readyLog: true,
+      config: {
+        host: 'localhost',
+        port: 6379,
+      },
+    }),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, JwtRefreshTokenStrategy],
