@@ -76,7 +76,7 @@ export class AuthController {
       errorFormatList: [HttpErrorConstants.EXPIRED_REFRESH_TOKEN],
     },
   ])
-  // @UseGuards(JwtRefreshGuard)
+  @UseGuards(JwtRefreshGuard)
   @Post('/token')
   async getNewAccessToken(@Res() res, @Body() dto: RefreshTokenDto) {
     console.log('getNewAccessToken');
