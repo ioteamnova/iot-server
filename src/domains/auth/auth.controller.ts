@@ -8,7 +8,10 @@ import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { SocialLoginUserDto } from './dtos/social-login-user.dto';
 import { ApiCommonErrorResponseTemplate } from 'src/core/swagger/api-error-common-response';
-import { LoginResponseDto } from './dtos/login-response.dto';
+import {
+  LoginResponseDto,
+  getNewAccessTokenDto,
+} from './dtos/login-response.dto';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { ApiErrorResponseTemplate } from 'src/core/swagger/apt-error-response';
 import { StatusCodes } from 'http-status-codes';
@@ -65,7 +68,7 @@ export class AuthController {
   @ApiBody({
     type: RefreshTokenDto,
   })
-  @ApiCreatedResponseTemplate({ type: LoginResponseDto })
+  @ApiCreatedResponseTemplate({ type: getNewAccessTokenDto })
   @ApiErrorResponseTemplate([
     {
       status: StatusCodes.NOT_FOUND,
@@ -79,8 +82,6 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   @Post('/token')
   async getNewAccessToken(@Res() res, @Body() dto: RefreshTokenDto) {
-    console.log('getNewAccessToken');
-    console.log('getNewAccessToken', RefreshTokenDto);
     const result = await this.authService.getNewAccessToken(dto.refreshToken);
     return HttpResponse.created(res, { body: result });
   }
