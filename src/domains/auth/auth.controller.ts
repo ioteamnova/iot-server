@@ -22,7 +22,7 @@ import { AccessTokenDto } from './dtos/access-token.dto';
 @ApiCommonErrorResponseTemplate()
 @Controller('/auth')
 export class AuthController {
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {}
 
   @ApiOperation({
     summary: '로그인',
@@ -76,7 +76,7 @@ export class AuthController {
       errorFormatList: [HttpErrorConstants.EXPIRED_REFRESH_TOKEN],
     },
   ])
-  @UseGuards(JwtRefreshGuard)
+  // @UseGuards(JwtRefreshGuard)
   @Post('/token')
   async getNewAccessToken(@Res() res, @Body() dto: RefreshTokenDto) {
     const result = await this.authService.getNewAccessToken(dto.refreshToken);
