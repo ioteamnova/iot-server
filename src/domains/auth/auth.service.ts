@@ -17,7 +17,7 @@ export class AuthService {
     private readonly userRepository: UserRepository,
     private jwtService: JwtService,
     private readonly userService: UserService,
-  ) { }
+  ) {}
 
   /**
    * 로그인
