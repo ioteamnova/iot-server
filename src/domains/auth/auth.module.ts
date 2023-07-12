@@ -16,7 +16,7 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
       useFactory: () => ({
         secret: process.env.JWT_SECRET,
         signOptions: {
-          expiresIn: '10s',
+          expiresIn: '2h',
         },
       }),
     }),
