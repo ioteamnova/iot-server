@@ -79,6 +79,8 @@ export class AuthController {
   // @UseGuards(JwtRefreshGuard)
   @Post('/token')
   async getNewAccessToken(@Res() res, @Body() dto: RefreshTokenDto) {
+    console.log('getNewAccessToken');
+    console.log('getNewAccessToken', RefreshTokenDto);
     const result = await this.authService.getNewAccessToken(dto.refreshToken);
     return HttpResponse.created(res, { body: result });
   }
