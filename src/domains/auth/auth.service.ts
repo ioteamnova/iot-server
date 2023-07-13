@@ -215,25 +215,36 @@ export class AuthService {
   }
 
   /**
-   * 라이브 스트리밍 유저 인증
-   * @param refreshToken 리프레시토큰
+   * 라이브 스트리밍 스트림 키 체크
+   * @param streamKey live 송신 키
    * @returns true or false
    */
-  async loginLiveStreaming(accessToken: string) {
+  async loginLiveStreaming(streamKey: string) {
     //accesstoken을 보내오면 디코딩하고 나온 uid를 우리 db에 있는지 확인하고 리턴
-    const decodedJwtAccessToken = await this.jwtService.decode(accessToken);
+    // const decodedJwtAccessToken = await this.jwtService.decode(accessToken);
+    // const user = await this.userRepository.findOne({
+    //   where: {
+    //     idx: decodedJwtAccessToken['userIdx'],
+    //   },
+    // });
+    // if (!user) {
+    //   // 유저가 존재하지 않는 경우에는 NotFoundException 던져주는 것이 일반적이나, 로그인에서만 예외적으로 이메일, 비밀번호 중 어떤 정보가 잘못 됐는지 확인하지 못하게 하기 위하여 UnauthorizedException로 통일함.
+    //   throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
+    // } else {
+    //   return true;
+    // }
 
-    const user = await this.userRepository.findOne({
-      where: {
-        idx: decodedJwtAccessToken['userIdx'],
-      },
-    });
-
-    if (!user) {
-      // 유저가 존재하지 않는 경우에는 NotFoundException 던져주는 것이 일반적이나, 로그인에서만 예외적으로 이메일, 비밀번호 중 어떤 정보가 잘못 됐는지 확인하지 못하게 하기 위하여 UnauthorizedException로 통일함.
-      throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
+    //형식 체크 RY1G-TzOv-lPKB-zRLO-sXI3
+    const streamKey_arr = streamKey.split('-');
+    if (streamKey_arr.length == 5) {
+      for (let i = 0; i < streamKey_arr.length; i++) {
+        if (streamKey_arr[i].length != 4) {
+          return false;
+        }
+      }
     } else {
-      return true;
+      return false;
     }
+    return true;
   }
 }
