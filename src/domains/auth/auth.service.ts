@@ -245,6 +245,7 @@ export class AuthService {
     } else {
       return false;
     }
+    //db체크 추가 예정
     return true;
   }
 }
