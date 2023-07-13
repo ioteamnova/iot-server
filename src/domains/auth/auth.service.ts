@@ -234,6 +234,8 @@ export class AuthService {
     //   return true;
     // }
 
+    console.log('authLiveStreaming');
+
     //형식 체크 RY1G-TzOv-lPKB-zRLO-sXI3
     const streamKey_arr = streamKey.split('-');
     console.log(streamKey_arr.length);
