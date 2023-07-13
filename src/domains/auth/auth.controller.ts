@@ -19,7 +19,7 @@ import { HttpErrorConstants } from 'src/core/http/http-error-objects';
 import UseAuthGuards from './auth-guards/use-auth';
 import AuthUser from 'src/core/decorators/auth-user.decorator';
 import { User } from '../user/entities/user.entity';
-import { AccessTokenDto } from './dtos/access-token.dto';
+import { StreamKeyDto } from './dtos/steam-key.dto';
 
 @ApiTags(SwaggerTag.AUTH)
 @ApiCommonErrorResponseTemplate()
@@ -99,20 +99,15 @@ export class AuthController {
   }
 
   @ApiOperation({
-    summary: '라이브 스트리밍 인증',
-    description: `JWT 엑세스 토큰을 디코딩하여 인증을 한다`,
+    summary: '라이브 스트리밍 인증 : 형식, db에 있는지 체크',
+    description: `스트림 키가 경매 방에 있는 키일 경우에 송신을 허락한다.`,
   })
   @ApiBody({
-    type: AccessTokenDto,
+    type: StreamKeyDto,
   })
   @ApiCreatedResponseTemplate()
   @Post('/liveToken')
-  async authLiveStreaming(@Res() res, @Body() dto: AccessTokenDto) {
-    // console.log('authLiveStreaming');
-    // console.log(res);
-    // console.log(dto);
-    // console.log(dto.name);
-    // const result = true;
+  async authLiveStreaming(@Res() res, @Body() dto: StreamKeyDto) {
     const result = await this.authService.loginLiveStreaming(dto.name);
     return HttpResponse.created(res, { body: result });
   }
