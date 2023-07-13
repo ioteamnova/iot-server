@@ -234,7 +234,8 @@ export class AuthService {
     //   return true;
     // }
 
-    console.log('authLiveStreaming');
+    console.log('authLiveStreaming_service');
+    console.log(streamKey);
 
     //형식 체크 RY1G-TzOv-lPKB-zRLO-sXI3
     const streamKey_arr = streamKey.split('-');
@@ -243,11 +244,13 @@ export class AuthService {
       for (let i = 0; i < streamKey_arr.length; i++) {
         console.log(streamKey_arr[i].length);
         if (streamKey_arr[i].length != 4) {
-          return false;
+          // return false;
+          throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
         }
       }
     } else {
-      return false;
+      throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
+      // return false;
     }
     //db체크 추가 예정
     return true;
