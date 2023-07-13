@@ -25,7 +25,7 @@ import { AccessTokenDto } from './dtos/access-token.dto';
 @ApiCommonErrorResponseTemplate()
 @Controller('/auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @ApiOperation({
     summary: '로그인',
