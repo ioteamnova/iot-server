@@ -24,9 +24,7 @@ import { IotControlPageRequest } from './dtos/iot-control-page';
 @ApiCommonErrorResponseTemplate()
 @Controller('iotpersonal')
 export class IotBoardPersonalController {
-  constructor(
-    private readonly iotPersonalService: IotBoardPersonalService, // private authService: AuthService,
-  ) { }
+  constructor(private readonly iotPersonalService: IotBoardPersonalService) { }
 
   //나의 보드리스트
   @ApiOperation({
