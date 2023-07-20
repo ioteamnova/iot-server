@@ -116,4 +116,23 @@ export class AuthController {
     const result = await this.authService.loginLiveStreaming(dto.name);
     return HttpResponse.created(res, { body: result });
   }
+
+  @ApiOperation({
+    summary: '라이브 스트리밍 인증 : 형식, db에 있는지 체크',
+    description: `스트림 키가 경매 방에 있는 키일 경우에 송신을 허락한다.`,
+  })
+  @ApiBody({
+    type: StreamKeyDto,
+  })
+  @ApiCreatedResponseTemplate()
+  @Post('/liveEnd')
+  async endLiveStreaming(@Res() res, @Body() dto: StreamKeyDto) {
+    console.log('liveEnd');
+    console.log(res);
+    console.log(dto);
+    console.log(dto.name);
+    const result = true;
+    // const result = await this.authService.loginLiveStreaming(dto.name);
+    return HttpResponse.created(res, { body: result });
+  }
 }
