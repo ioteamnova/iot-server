@@ -64,12 +64,6 @@ export class IotBoardPersonalService {
       //},
     });
 
-    //ㅈㄷㄹㅈㄷㄹㄹ
-    // const [iotBoards, totalCount] =
-    //   await this.iotBoardPersonalRepository.findAndCountByUserIdx(
-    //     userIdx,
-    //     pageRequest,
-    //   );
     console.log('iotBoards::', iotBoards);
     console.log('iotBoards length::', iotBoards.length);
     // const dto = new IotBoardPersonalListDto();
