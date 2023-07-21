@@ -24,7 +24,7 @@ import { User } from '../user/entities/user.entity';
 @ApiCommonErrorResponseTemplate()
 @Controller('/auth')
 export class AuthController {
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService) {}
 
   @ApiOperation({
     summary: '로그인',

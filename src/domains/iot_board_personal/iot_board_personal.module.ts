@@ -19,4 +19,4 @@ import { TypeOrmExModule } from 'src/core/typeorm-ex.module';
   controllers: [IotBoardPersonalController],
   providers: [IotBoardPersonalService],
 })
-export class IotPersonalModule { }
+export class IotPersonalModule {}

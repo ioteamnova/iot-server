@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BoardActionRepository } from '../board/repositories/board-action.repository';
 import { HttpErrorConstants } from './../../core/http/http-error-objects';
 import { StreamKeyDto } from './dtos/steam-key.dto';
 import { LiveStream } from './entities/live-stream.entity';
@@ -6,7 +7,10 @@ import { LiveStreamRepository } from './repositories/live-stream.repository';
 
 @Injectable()
 export class LiveStreamService {
-  constructor(private liveStreamRepository: LiveStreamRepository) {}
+  constructor(
+    private liveStreamRepository: LiveStreamRepository,
+    private boardActionRepository: BoardActionRepository,
+  ) {}
   /**
    * 라이브 스트리밍 스트림 키 체크
    * @param streamKey live 송신 키
@@ -60,8 +64,17 @@ export class LiveStreamService {
 
     const stream_val = this.liveStreamRepository.checkStreamKeyForm(dto.name);
 
+    console.log('stream_val');
     console.log(stream_val);
-
+    if (stream_val) {
+      const actionInfo = await this.boardActionRepository.findOne({
+        where: {
+          streamKey: dto.name,
+        },
+      });
+      console.log('actionInfo');
+      console.log(actionInfo);
+    }
     // const Iotauthinfo = LiveStream.fromDto(dto);
     // //dto 담아서 save할 것.
     // const result = await this.iotAuthInfoRepository.save(Iotauthinfo);
