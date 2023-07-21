@@ -4,9 +4,6 @@ import { CreateIotAuthDto } from '../dtos/create-iot-auth.dto';
 
 @Entity()
 export class IotAuthInfo extends BaseEntity {
-  // split(arg0: string) {
-  //   throw new Error('Method not implemented.');
-  // }
   @Column({
     nullable: false,
   })
