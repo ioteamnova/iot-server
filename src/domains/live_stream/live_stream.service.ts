@@ -11,7 +11,7 @@ export class LiveStreamService {
   constructor(
     private liveStreamRepository: LiveStreamRepository,
     private boardActionRepository: BoardActionRepository,
-  ) {ㅋ}
+  ) {}
   /**
    * 라이브 스트리밍 스트림 키 체크
    * @param streamKey live 송신 키
