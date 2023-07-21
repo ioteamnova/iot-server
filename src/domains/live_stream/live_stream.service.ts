@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { BoardActionRepository } from '../board/repositories/board-action.repository';
 import { HttpErrorConstants } from './../../core/http/http-error-objects';
 import { StreamKeyDto } from './dtos/steam-key.dto';
+import { CreateLiveStreamDto } from './dtos/create-live-stream.dto';
 import { LiveStream } from './entities/live-stream.entity';
 import { LiveStreamRepository } from './repositories/live-stream.repository';
 
@@ -72,13 +73,23 @@ export class LiveStreamService {
           streamKey: dto.name,
         },
       });
-      console.log('actionInfo');
-      console.log(actionInfo);
+      if (actionInfo) {
+        const now = new Date();
+        const liveStreamData: CreateLiveStreamDto = {
+          boardIdx: actionInfo.boardIdx,
+          userIdx: 0, //일단 패스 join 해서 가져와야함
+          maxNum: 0,
+          startTime: now,
+          endTime: null,
+          state: 0,
+        };
+        const LiveStreamInfo = LiveStream.fromDto(liveStreamData);
+        const result = await this.liveStreamRepository.save(LiveStreamInfo);
+        return result;
+      } else {
+        throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
+      }
     }
-    // const Iotauthinfo = LiveStream.fromDto(dto);
-    // //dto 담아서 save할 것.
-    // const result = await this.iotAuthInfoRepository.save(Iotauthinfo);
-    // return result;
   }
 
   /**
@@ -91,9 +102,37 @@ export class LiveStreamService {
     //1. 키 형식 체크 : 맞으면 통과, 틀리면 false
     //2. 경매 리스트에 스트림 키가 있는지 검토 : 있으면 통과, 없으면 false
     //3. 통과 -> liveStream table에 저장 : action에 관련된 정보는 action에서 가져옴, 시작 시간 저장
-    // const Iotauthinfo = IotAuthInfo.fromDto(dto);
-    //dto 담아서 save할 것.
-    // const result = await this.iotAuthInfoRepository.save(Iotauthinfo);
-    // return result;
+
+    const stream_val = this.liveStreamRepository.checkStreamKeyForm(dto.name);
+
+    console.log('stream_val');
+    console.log(stream_val);
+    if (stream_val) {
+      const actionInfo = await this.boardActionRepository.findOne({
+        where: {
+          streamKey: dto.name,
+        },
+      });
+      if (actionInfo) {
+        console.log('endstart add');
+        console.log(actionInfo);
+
+        //update
+        // const now = new Date();
+        // const liveStreamData: CreateLiveStreamDto = {
+        //   boardIdx: actionInfo.boardIdx,
+        //   userIdx: 0, //일단 패스 join 해서 가져와야함
+        //   maxNum: 0,
+        //   startTime: now,
+        //   endTime: null,
+        //   state: 0,
+        // };
+        // const LiveStreamInfo = LiveStream.fromDto(liveStreamData);
+        // const result = await this.liveStreamRepository.save(LiveStreamInfo);
+        // return result;
+      } else {
+        throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
+      }
+    }
   }
 }
