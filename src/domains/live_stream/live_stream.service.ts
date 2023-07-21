@@ -73,6 +73,9 @@ export class LiveStreamService {
           streamKey: dto.name,
         },
       });
+
+      console.log('actionInfo');
+      console.log(actionInfo);
       if (actionInfo) {
         const now = new Date();
         const liveStreamData: CreateLiveStreamDto = {
