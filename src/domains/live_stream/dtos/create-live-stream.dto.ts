@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
-// import { PageRequest } from 'src/core/page';
+import { PageRequest } from 'src/core/page';
 
-export class CreateLiveStreamDto {
+export class CreateLiveStreamDto extends PageRequest {
   @ApiProperty({
     description: '게시글 고유번호',
     default: '게시글 고유번호를 입력하는 내용 입니다. ',

@@ -11,7 +11,7 @@ export class LiveStreamService {
   constructor(
     private liveStreamRepository: LiveStreamRepository,
     private boardActionRepository: BoardActionRepository,
-  ) {}
+  ) {ㅋ}
   /**
    * 라이브 스트리밍 스트림 키 체크
    * @param streamKey live 송신 키
@@ -78,7 +78,7 @@ export class LiveStreamService {
       console.log(actionInfo);
       if (actionInfo) {
         const now = new Date();
-        const liveStreamData: CreateLiveStreamDto = {
+        const liveStreamData: any = {
           boardIdx: actionInfo.boardIdx,
           userIdx: 0, //일단 패스 join 해서 가져와야함
           maxNum: 0,
