@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 // import { PageRequest } from 'src/core/page';
 
-export class UpdateLiveStreamDto {
+export class UpdateLiveEndTimeDto {
   @ApiProperty({
     description: '종료 시간',
     default: '종료 시간을 기록하는 내용 입니다.',
