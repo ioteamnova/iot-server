@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
-import { PageRequest } from 'src/core/page';
+// import { PageRequest } from 'src/core/page';
 
-export class CreateLiveStreamDto extends PageRequest {
+export class CreateLiveStreamDto {
   @ApiProperty({
     description: '게시글 고유번호',
     default: '게시글 고유번호를 입력하는 내용 입니다. ',
@@ -10,6 +10,14 @@ export class CreateLiveStreamDto extends PageRequest {
   })
   @IsNotEmpty()
   boardIdx: number;
+
+  @ApiProperty({
+    description: '스트림 키',
+    default: '스트림 키 내용 입니다. ',
+    required: true,
+  })
+  @IsNotEmpty()
+  streamKey: string;
 
   @ApiProperty({
     description: '유저 고유번호',

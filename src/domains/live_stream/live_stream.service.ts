@@ -5,13 +5,15 @@ import { StreamKeyDto } from './dtos/steam-key.dto';
 import { CreateLiveStreamDto } from './dtos/create-live-stream.dto';
 import { LiveStream } from './entities/live-stream.entity';
 import { LiveStreamRepository } from './repositories/live-stream.repository';
+import { UpdateLiveStreamDto } from './dtos/update-live-stream.dto';
+import { Ivschat } from 'aws-sdk';
 
 @Injectable()
 export class LiveStreamService {
   constructor(
     private liveStreamRepository: LiveStreamRepository,
     private boardActionRepository: BoardActionRepository,
-  ) {}
+  ) { }
   /**
    * 라이브 스트리밍 스트림 키 체크
    * @param streamKey live 송신 키
@@ -64,27 +66,26 @@ export class LiveStreamService {
     //3. 통과 -> liveStream table에 저장 : action에 관련된 정보는 action에서 가져옴, 시작 시간 저장
 
     const stream_val = this.liveStreamRepository.checkStreamKeyForm(dto.name);
-
-    console.log('stream_val');
-    console.log(stream_val);
+    // console.log('stream_val');
+    // console.log(stream_val);
     if (stream_val) {
       const actionInfo = await this.boardActionRepository.findOne({
         where: {
           streamKey: dto.name,
         },
       });
-
-      console.log('actionInfo');
-      console.log(actionInfo);
+      // console.log('actionInfo');
+      // console.log(actionInfo);
       if (actionInfo) {
         const now = new Date();
-        const liveStreamData: any = {
+        const liveStreamData: CreateLiveStreamDto = {
           boardIdx: actionInfo.boardIdx,
+          streamKey: actionInfo.streamKey,
           userIdx: 0, //일단 패스 join 해서 가져와야함
           maxNum: 0,
           startTime: now,
           endTime: null,
-          state: 0,
+          state: 1,
         };
         const LiveStreamInfo = LiveStream.fromDto(liveStreamData);
         const result = await this.liveStreamRepository.save(LiveStreamInfo);
@@ -120,19 +121,21 @@ export class LiveStreamService {
         console.log('endstart add');
         console.log(actionInfo);
 
-        //update
-        // const now = new Date();
-        // const liveStreamData: CreateLiveStreamDto = {
-        //   boardIdx: actionInfo.boardIdx,
-        //   userIdx: 0, //일단 패스 join 해서 가져와야함
-        //   maxNum: 0,
-        //   startTime: now,
-        //   endTime: null,
-        //   state: 0,
-        // };
-        // const LiveStreamInfo = LiveStream.fromDto(liveStreamData);
-        // const result = await this.liveStreamRepository.save(LiveStreamInfo);
-        // return result;
+        const LiveStream = await this.liveStreamRepository.findOne({
+          where: {
+            streamKey: actionInfo.streamKey,
+          },
+        });
+
+        if (LiveStream) {
+          const liveStreamData: UpdateLiveStreamDto = {
+            endTime: new Date(),
+            state: 0,
+          };
+
+          LiveStream.updateFromDto(liveStreamData);
+          await this.liveStreamRepository.save(LiveStream);
+        }
       } else {
         throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
       }
