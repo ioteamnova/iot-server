@@ -26,7 +26,7 @@ export class IotBoardPersonalService {
     private iotNaturerecordRepository: IotNaturerecordRepository,
     private iotControlrecordRepository: IotControlrecordRepository,
     private iotAuthInfoRepository: IotAuthInfoRepository,
-  ) { }
+  ) {}
 
   /**
    * 나의 보드 리스트
