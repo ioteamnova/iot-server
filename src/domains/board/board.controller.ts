@@ -96,9 +96,9 @@ export class Boardcontroller {
   async findBoard(
     @Res() res,
     @Param('boardIdx') boardIdx: number,
-    @Query('macAddress') macAddress: string,
+    @Query('userIdx') userIdx: string,
   ) {
-    const board = await this.boardService.findBoard(boardIdx, macAddress);
+    const board = await this.boardService.findBoard(boardIdx, userIdx);
     return HttpResponse.ok(res, board);
   }
   @ApiOperation({

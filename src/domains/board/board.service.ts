@@ -194,7 +194,7 @@ export class BoardService {
    * @param BoardIdx 게시판 인덱스
    * @returns 게시글 관련 정보 및 미디어(이미지, 영상)
    */
-  async findBoard(boardIdx: number, macAddress: string) {
+  async findBoard(boardIdx: number, userIdx: string) {
     //1. 게시글 정보를 조회한다.
     const board = await this.boardRepository.findBoadDetailByBoardIdx(boardIdx);
     if (!board) {
@@ -206,8 +206,8 @@ export class BoardService {
     const key = `boardview${boardIdx}`;
     const redis = this.redisService.getClient();
     const setMembers = await redis.smembers(key); // Redis에서 Set의 모든 멤버 가져오기const boardCommercial = new BoardCommercial();
-    if (!setMembers.includes(macAddress)) {
-      await redis.sadd(key, macAddress);
+    if (!setMembers.includes(userIdx)) {
+      await redis.sadd(key, userIdx);
       if (setMembers.length === 0) {
         const currentTimestamp = Math.floor(Date.now() / 1000); // 현재 시간의 타임스탬프 (초 단위)
         const endOfDayTimestamp = Math.floor(
@@ -224,23 +224,6 @@ export class BoardService {
     board.UserInfo = userDetails;
 
     //4. 게시글에 따라 추가 테이블 정보를 조회한다.
-    // if (this.isCommercialCate(board.category)) {
-    //   const boardCommercial = await this.boardCommercialRepository.findOne({
-    //     where: {
-    //       boardIdx: boardIdx,
-    //     },
-    //   });
-    //   board.boardCommercial = boardCommercial;
-    // } else if (this.isActionCate(board.category)) {
-    //   const boardAction = await this.boardActionRepository.findOne({
-    //     where: {
-    //       boardIdx: boardIdx,
-    //     },
-    //   });
-    //   board.boardAction = boardAction;
-    // }
-    // return board;
-
     switch (board.category) {
       case 'market':
       case 'adoption':
