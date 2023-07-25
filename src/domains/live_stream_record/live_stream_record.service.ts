@@ -1,10 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { BoardActionRepository } from '../board/repositories/board-action.repository';
-import { HttpErrorConstants } from './../../core/http/http-error-objects';
+import { HttpErrorConstants } from '../../core/http/http-error-objects';
 import { StreamKeyDto } from './dtos/steam-key.dto';
 import { CreateLiveStreamDto } from './dtos/create-live-stream.dto';
-import { LiveStream } from './entities/live-stream.entity';
-import { LiveStreamRepository } from './repositories/live-stream.repository';
+import { LiveStream } from './entities/live-stream-record.entity';
+import { LiveStreamRepository } from './repositories/live-stream-record.repository';
 import { UpdateLiveEndTimeDto } from './dtos/update-live-end-time.dto';
 import { UpdateLiveStartTimeDto } from './dtos/update-live-start-time.dto';
 // import { Ivschat } from 'aws-sdk';
@@ -14,7 +14,7 @@ export class LiveStreamService {
   constructor(
     private liveStreamRepository: LiveStreamRepository,
     private boardActionRepository: BoardActionRepository,
-  ) { }
+  ) {}
   /**
    *  라이브 스트리밍 정보 추가
    * @param dto 라이브 스트리밍 추가 dto
@@ -34,9 +34,6 @@ export class LiveStreamService {
           streamKey: dto.name,
         },
       });
-      console.log('actionInfo');
-      console.log(actionInfo);
-
       if (actionInfo) {
         //저장하기 전에 해당 키로 데이터가 있으면 업데이트만 해줄 것.
         const LiveStreamChk = await this.liveStreamRepository.findOne({
@@ -53,6 +50,7 @@ export class LiveStreamService {
             state: 1,
           };
 
+          //update
           LiveStreamChk.updateStartFromDto(liveStreamData);
           await this.liveStreamRepository.save(LiveStreamChk);
         } else {
@@ -65,12 +63,16 @@ export class LiveStreamService {
             endTime: null,
             state: 1,
           };
+
+          // save
           const LiveStreamInfo = LiveStream.fromDto(liveStreamData);
           const result = await this.liveStreamRepository.save(LiveStreamInfo);
           return result;
         }
       } else {
-        throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
+        throw new UnauthorizedException(
+          HttpErrorConstants.LIVESTREAMINFO_NOT_EXIST,
+        );
       }
     }
   }
@@ -100,24 +102,31 @@ export class LiveStreamService {
         console.log('endstart add');
         console.log(actionInfo);
 
-        const LiveStream = await this.liveStreamRepository.findOne({
+        const LiveStreamChk = await this.liveStreamRepository.findOne({
           where: {
             streamKey: actionInfo.streamKey,
           },
         });
 
-        if (LiveStream) {
+        //존재한다면 업데이트
+        if (LiveStreamChk) {
           const liveStreamData: UpdateLiveEndTimeDto = {
             endTime: new Date(),
             state: 0,
           };
 
-          LiveStream.updateEndFromDto(liveStreamData);
-          const result = await this.liveStreamRepository.save(LiveStream);
+          LiveStreamChk.updateEndFromDto(liveStreamData);
+          const result = await this.liveStreamRepository.save(LiveStreamChk);
           return result;
+        } else {
+          throw new UnauthorizedException(
+            HttpErrorConstants.LIVESTREAMINFO_NOT_EXIST,
+          );
         }
       } else {
-        throw new UnauthorizedException(HttpErrorConstants.INVALID_AUTH);
+        throw new UnauthorizedException(
+          HttpErrorConstants.LIVESTREAMINFO_NOT_EXIST,
+        );
       }
     }
   }

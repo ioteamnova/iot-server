@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString, MaxLength } from 'class-validator';
+import { BoardAction } from '../entities/board-action.entity';
 import { BoardCommercial } from '../entities/board-commercial.entity';
 import { BoardImage } from '../entities/board-image.entity';
 
@@ -72,6 +73,7 @@ export class BoardListDto {
 
   images: BoardImage[];
   boardCommercial: BoardCommercial;
+  boardAction: BoardAction;
   UserInfo: { idx: number; nickname: string; profilePath: string };
 
   status: string;

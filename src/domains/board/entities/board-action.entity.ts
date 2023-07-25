@@ -1,5 +1,7 @@
 import BaseEntity from 'src/core/entity/base.entity';
 import { Column, Entity } from 'typeorm';
+import { UpdateLiveEndTimeDto } from '../dtos/update-live-end-time.dto';
+import { UpdateLiveStartTimeDto } from '../dtos/update-live-start-time.dto';
 @Entity()
 export class BoardAction extends BaseEntity {
   @Column()
@@ -59,6 +61,15 @@ export class BoardAction extends BaseEntity {
   })
   streamKey: string;
 
+  @Column()
+  liveStartTime: Date;
+
+  @Column()
+  liveEndTime: Date;
+
+  @Column()
+  liveState: number;
+
   static from(
     boardIdx: number,
     buyPrice: number,
@@ -73,6 +84,9 @@ export class BoardAction extends BaseEntity {
     pattern: string,
     state: string,
     streamKey: string,
+    liveStartTime: Date,
+    liveEndTime: Date,
+    liveState: number,
   ) {
     const boardAction = new BoardAction();
     boardAction.boardIdx = boardIdx;
@@ -88,24 +102,28 @@ export class BoardAction extends BaseEntity {
     boardAction.pattern = pattern;
     boardAction.state = state;
     boardAction.streamKey = streamKey;
+    boardAction.liveStartTime = liveStartTime;
+    boardAction.liveEndTime = liveEndTime;
+    boardAction.liveState = liveState;
     return boardAction;
   }
 
-  // static updateFrom(
-  //   idx: number,
-  //   boardIdx: number,
-  //   gender: string,
-  //   price: number,
-  //   size: string,
-  //   variety: string,
-  // ) {
+  // static fromDto(dto: CreateLiveStreamDto) {
   //   const boardAction = new BoardAction();
-  //   boardAction.idx = idx;
-  //   boardAction.boardIdx = boardIdx;
-  //   boardAction.gender = gender;
-  //   boardAction.size = size;
-  //   boardAction.price = price;
-  //   boardAction.variety = variety;
+  //   boardAction.boardIdx = dto.boardIdx;
+  //   boardAction.streamKey = dto.streamKey;
+  //   boardAction.liveStartTime = dto.liveStartTime;
+  //   boardAction.liveEndTime = dto.liveEndTime;
+  //   boardAction.liveState = dto.liveState;
   //   return boardAction;
   // }
+  updateEndFromDto(dto: UpdateLiveEndTimeDto) {
+    this.liveEndTime = dto.liveEndTime;
+    this.liveState = dto.liveState;
+  }
+  updateStartFromDto(dto: UpdateLiveStartTimeDto) {
+    this.liveStartTime = dto.liveStartTime;
+    this.liveEndTime = dto.liveEndTime;
+    this.liveState = dto.liveState;
+  }
 }

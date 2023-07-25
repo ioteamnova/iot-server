@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { createBoardDto } from './dtos/create-board.dto';
 import { S3FolderName, mediaUpload } from 'src/utils/s3-utils';
 import { BoardRepository } from './repositories/board.repository';
@@ -25,10 +29,17 @@ import { BoardListDto } from './dtos/board-list.dto';
 import { fileValidate, fileValidates } from 'src/utils/fileValitate';
 import { DataSource, QueryRunner } from 'typeorm';
 import { RedisService } from '@liaoliaots/nestjs-redis';
+import { StreamKeyDto } from './dtos/steam-key.dto';
+import { BoardActionRepository } from '../board/repositories/board-action.repository';
+import { UpdateLiveStartTimeDto } from './dtos/update-live-start-time.dto';
+import { BoardAction } from './entities/board-action.entity';
+import { UpdateLiveEndTimeDto } from './dtos/update-live-end-time.dto';
+import { BoardCategoryPageRequest } from './dtos/board-category-page';
 
 enum BoardCategory {
   Adoption = 'adoption',
   Market = 'market',
+  Action = 'action',
 }
 enum CommentCategory {
   Reply = 'reply',
@@ -47,6 +58,7 @@ export class BoardService {
     private boardCommercialRepository: BoardCommercialRepository,
     private dataSource: DataSource,
     private readonly redisService: RedisService,
+    private boardActionRepository: BoardActionRepository,
   ) {}
   /**
    * 게시판 다중 파일 업로드
@@ -97,12 +109,15 @@ export class BoardService {
    * @returns 게시판 목록
    */
   async findAllBoard(
-    pageRequest: PageRequest,
-    category: string,
+    pageRequest: BoardCategoryPageRequest,
+    // category: BoardCategoryPageRequest,
   ): Promise<Page<BoardListDto>> {
     //1. 게시글에 대한 정보를 불러온다.
     const [boards, totalCount] =
-      await this.boardRepository.findAndCountByCategory(pageRequest, category);
+      await this.boardRepository.findAndCountByCategory(
+        pageRequest,
+        pageRequest.category,
+      );
     const result = new Page<BoardListDto>(totalCount, boards, pageRequest);
     //2. 게시글 작성자에 대한 정보(닉네임, 프로필 사진 주소)를 불러온다.
     const usersInfoArr = [];
@@ -112,24 +127,42 @@ export class BoardService {
       usersInfoArr.push(board);
     }
     result.items = usersInfoArr;
-    if (
-      category === BoardCategory.Adoption ||
-      category === BoardCategory.Market
-    ) {
-      //3. 게시판 카테고리가 분양 or 중고 마켓이면 해당 데이터를 조회한다.
-      const commercialInfoArr = [];
-      for (const board of result.items) {
-        const commercialInfo = await this.boardCommercialRepository.findOne({
-          where: {
-            boardIdx: board.idx,
-          },
-        });
-        board.boardCommercial = commercialInfo;
-        commercialInfoArr.push(board);
-      }
-      result.items = commercialInfoArr;
+
+    switch (pageRequest.category) {
+      case 'market':
+      case 'adoption':
+        console.log('isCommercialCate@@@@@@@@@@@');
+        //3. 게시판 카테고리가 분양 or 중고 마켓이면 해당 데이터를 조회한다.
+        const commercialInfoArr = [];
+        for (const board of result.items) {
+          const commercialInfo = await this.boardCommercialRepository.findOne({
+            where: {
+              boardIdx: board.idx,
+            },
+          });
+          board.boardCommercial = commercialInfo;
+          commercialInfoArr.push(board);
+        }
+        result.items = commercialInfoArr;
+        return result;
+      case 'action':
+        console.log('isActionCate@@@@@@@@@@@');
+        const actionInfoArr = [];
+        for (const board of result.items) {
+          const actionInfo = await this.boardActionRepository.findOne({
+            where: {
+              boardIdx: board.idx,
+            },
+          });
+          board.boardAction = actionInfo;
+          actionInfoArr.push(board);
+        }
+        result.items = actionInfoArr;
+        return result;
+      default:
+        console.log('category3');
+        return result;
     }
-    return result;
   }
 
   /**
@@ -189,16 +222,46 @@ export class BoardService {
     //3. 글 작성자에 대한 정보를 가지고 온다
     const userDetails = await this.findUserInfo(board);
     board.UserInfo = userDetails;
+
     //4. 게시글에 따라 추가 테이블 정보를 조회한다.
-    if (this.isCommercialCate(board.category)) {
-      const boardCommercial = await this.boardCommercialRepository.findOne({
-        where: {
-          boardIdx: boardIdx,
-        },
-      });
-      board.boardCommercial = boardCommercial;
+    // if (this.isCommercialCate(board.category)) {
+    //   const boardCommercial = await this.boardCommercialRepository.findOne({
+    //     where: {
+    //       boardIdx: boardIdx,
+    //     },
+    //   });
+    //   board.boardCommercial = boardCommercial;
+    // } else if (this.isActionCate(board.category)) {
+    //   const boardAction = await this.boardActionRepository.findOne({
+    //     where: {
+    //       boardIdx: boardIdx,
+    //     },
+    //   });
+    //   board.boardAction = boardAction;
+    // }
+    // return board;
+
+    switch (board.category) {
+      case 'market':
+      case 'adoption':
+        const boardCommercial = await this.boardCommercialRepository.findOne({
+          where: {
+            boardIdx: boardIdx,
+          },
+        });
+        board.boardCommercial = boardCommercial;
+        return board;
+      case 'action':
+        const boardAction = await this.boardActionRepository.findOne({
+          where: {
+            boardIdx: boardIdx,
+          },
+        });
+        board.boardAction = boardAction;
+        return board;
+      default:
+        return board;
     }
-    return board;
   }
   /**
    * 게시판 삭제
@@ -603,6 +666,77 @@ export class BoardService {
       return true;
     } else {
       return false;
+    }
+  }
+  async isActionCate(category: string): Promise<boolean> {
+    console.log('category@@@@@@@@@@@');
+    console.log(category);
+    console.log(BoardCategory.Action);
+
+    if (category === BoardCategory.Action) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   *  라이브 스트리밍 정보 set
+   * @param dto 라이브 스트리밍 start, end 변경 / 전 경매방에 스트림키가 존재하는지 체크
+   * @returns StreamKeyDto
+   */
+  async setLiveStreamInfo(val: string, dto: StreamKeyDto) {
+    //스트리밍이 끝났을 때 실행할 함수
+    //1. 키 형식 체크 : 맞으면 통과, 틀리면 false
+    //2. 경매 리스트에 스트림 키가 있는지 검토 : 있으면 통과, 없으면 false
+    //3. 통과 -> liveStream table에 저장 : action에 관련된 정보는 action에서 가져옴, 시작 시간 저장
+
+    const stream_from_chk = this.boardActionRepository.checkStreamKeyForm(
+      dto.name,
+    );
+
+    console.log('stream_from_chk');
+    console.log(stream_from_chk);
+
+    if (stream_from_chk) {
+      const actionInfo = await this.boardActionRepository.findOne({
+        where: {
+          streamKey: dto.name,
+        },
+      });
+
+      if (actionInfo) {
+        if (val == 'start') {
+          const liveStreamData: UpdateLiveStartTimeDto = {
+            liveStartTime: new Date(),
+            liveEndTime: null,
+            liveState: 1,
+          };
+
+          //update
+          actionInfo.updateStartFromDto(liveStreamData);
+          const result = await this.boardActionRepository.save(actionInfo);
+          return result;
+        } else {
+          //end
+          const liveStreamData: UpdateLiveEndTimeDto = {
+            liveEndTime: new Date(),
+            liveState: 0,
+          };
+
+          actionInfo.updateEndFromDto(liveStreamData);
+          const result = await this.boardActionRepository.save(actionInfo);
+          return result;
+        }
+      } else {
+        throw new UnauthorizedException(
+          HttpErrorConstants.LIVESTREAMINFO_NOT_EXIST,
+        );
+      }
+    } else {
+      throw new UnauthorizedException(
+        HttpErrorConstants.LIVESTREAMINFO_NOT_EXIST,
+      );
     }
   }
 }

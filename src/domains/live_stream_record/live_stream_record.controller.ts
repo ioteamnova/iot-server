@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
 import { ApiCommonErrorResponseTemplate } from 'src/core/swagger/api-error-common-response';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ApiCreatedResponseTemplate } from './../../core/swagger/api-created-response';
-import { LiveStreamService } from './live_stream.service';
+import { ApiCreatedResponseTemplate } from '../../core/swagger/api-created-response';
+import { LiveStreamService } from './live_stream_record.service';
 import { SwaggerTag } from 'src/core/swagger/swagger-tags';
 import { StreamKeyDto } from './dtos/steam-key.dto';
 import HttpResponse from 'src/core/http/http-response';

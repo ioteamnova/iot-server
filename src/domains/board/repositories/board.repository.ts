@@ -3,11 +3,12 @@ import { CustomRepository } from 'src/core/decorators/typeorm-ex.decorator';
 import { Board } from '../entities/board.entity';
 import { PageRequest } from 'src/core/page';
 import { BoardListDto } from '../dtos/board-list.dto';
+import { BoardCategoryPageRequest } from '../dtos/board-category-page';
 
 @CustomRepository(Board)
 export class BoardRepository extends Repository<Board> {
   async findAndCountByCategory(
-    pageRequest: PageRequest,
+    pageRequest: BoardCategoryPageRequest,
     category: string,
   ): Promise<[BoardListDto[], number]> {
     const [boards, totalCount] = await this.createQueryBuilder('board')
