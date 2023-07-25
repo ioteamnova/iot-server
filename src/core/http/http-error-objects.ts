@@ -129,4 +129,9 @@ export const HttpErrorConstants = {
     errorCode: 'BOOKMAEK_NOT_EXIST',
     message: '북마크를 찾을 수 없습니다.',
   } as HttpErrorFormat,
+
+  LIVESTREAMINFO_NOT_EXIST: {
+    errorCode: 'LIVESTREAMINFO_NOT_EXIST',
+    message: '해당 경매 라이브 정보를 찾을 수 없습니다.',
+  } as HttpErrorFormat,
 };

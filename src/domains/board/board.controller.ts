@@ -33,6 +33,8 @@ import { UpdateBoardDto } from './dtos/update-board.dto';
 import { CommentDto } from './dtos/board-comment.dto';
 import { createBoardDto } from './dtos/create-board.dto';
 import Boardcomment from './entities/board-comment.entity';
+import { StreamKeyDto } from './dtos/steam-key.dto';
+import { BoardCategoryPageRequest } from './dtos/board-category-page';
 
 @ApiTags(SwaggerTag.BOARD)
 @ApiCommonErrorResponseTemplate()
@@ -70,10 +72,10 @@ export class Boardcontroller {
   @Get('')
   async getBoard(
     @Res() res,
-    @Query() pageRequest: PageRequest,
-    @Query('category') category: string,
+    @Query() pageRequest: BoardCategoryPageRequest,
+    // @Query('category') category: BoardCategoryPageRequest,
   ) {
-    const boards = await this.boardService.findAllBoard(pageRequest, category);
+    const boards = await this.boardService.findAllBoard(pageRequest);
     return HttpResponse.ok(res, boards);
   }
   @ApiOperation({
@@ -301,4 +303,42 @@ export class Boardcontroller {
   //   const result = await this.boardService.redisTestGet();
   //   return HttpResponse.created(res, { body: result });
   // }
+
+  @ApiOperation({
+    summary: '라이브 스트리밍 시작',
+    description: `스트림 키가 경매 방에 있는 키일 경우에 송신을 허락한다.`,
+  })
+  @ApiBody({
+    type: StreamKeyDto,
+  })
+  @ApiCreatedResponseTemplate()
+  @Post('/live_start')
+  async startLiveStream(@Res() res, @Body() dto: StreamKeyDto) {
+    // console.log('live_start');
+    // console.log(res);
+    // console.log(dto);
+    // console.log(dto.name);
+    // const result = true;
+    const result = await this.boardService.setLiveStreamInfo('start', dto);
+    return HttpResponse.created(res, { body: result });
+  }
+
+  @ApiOperation({
+    summary: '라이브 스트리밍 종료',
+    description: `라이브 종료 시간을 수정`,
+  })
+  @ApiBody({
+    type: StreamKeyDto,
+  })
+  @ApiCreatedResponseTemplate()
+  @Post('/live_end')
+  async endLiveStream(@Res() res, @Body() dto: StreamKeyDto) {
+    // console.log('liveEnd');
+    // console.log(res);
+    // console.log(dto);
+    // console.log(dto.name);
+    // const result = true;
+    const result = await this.boardService.setLiveStreamInfo('end', dto);
+    return HttpResponse.created(res, { body: result });
+  }
 }
