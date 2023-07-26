@@ -6,8 +6,8 @@ import { BoardImage } from '../entities/board-image.entity';
 
 export class BoardListDto {
   @ApiProperty({
-    description: '닉네임',
-    default: '디노마켓',
+    description: '보드 넘버',
+    default: '31',
   })
   @IsString()
   @MaxLength(32)
@@ -87,8 +87,10 @@ export class BoardListDto {
     description,
     createdAt,
     images,
+    view,
   }: {
     userIdx: number;
+    view: number;
     title: string;
     category: string;
     description: string;
@@ -96,6 +98,7 @@ export class BoardListDto {
     images: BoardImage[];
   }) {
     const board = new BoardListDto();
+    board.view = view;
     board.userIdx = userIdx;
     board.title = title;
     board.category = category;

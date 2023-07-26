@@ -23,6 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const redis = this.redisService.getClient();
     const userInfo = await redis.get(`userInfo${payload.userIdx}`);
     let user;
+    console.log('test', userInfo);
     if (!userInfo) {
       user = await this.userRepository.findOne({
         where: {
