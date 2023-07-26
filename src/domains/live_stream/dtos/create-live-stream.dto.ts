@@ -20,15 +20,6 @@ export class CreateLiveStreamDto {
   streamKey: string;
 
   @ApiProperty({
-    description: '최대 인원수',
-    default:
-      '최대 인원수를 입력하는 부분 입니다. 설정데이터가 아닌 방에 최대로 입장한 수를 기록합니다.',
-    required: true,
-  })
-  @IsNotEmpty()
-  maxNum: number;
-
-  @ApiProperty({
     description: '시작 시간',
     default: '시작 시간을 기록하는 내용 입니다.',
     required: true,

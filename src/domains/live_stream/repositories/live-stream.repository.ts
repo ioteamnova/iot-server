@@ -1,7 +1,7 @@
 import { CustomRepository } from 'src/core/decorators/typeorm-ex.decorator';
 import { PageRequest } from 'src/core/page';
 import { Repository } from 'typeorm';
-import { LiveStream } from '../entities/live-stream-record.entity';
+import { LiveStream } from '../entities/live-stream.entity';
 import { UnauthorizedException } from '@nestjs/common';
 import { HttpErrorConstants } from '../../../core/http/http-error-objects';
 

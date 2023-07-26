@@ -3,8 +3,8 @@ import { BoardActionRepository } from '../board/repositories/board-action.reposi
 import { HttpErrorConstants } from '../../core/http/http-error-objects';
 import { StreamKeyDto } from './dtos/steam-key.dto';
 import { CreateLiveStreamDto } from './dtos/create-live-stream.dto';
-import { LiveStream } from './entities/live-stream-record.entity';
-import { LiveStreamRepository } from './repositories/live-stream-record.repository';
+import { LiveStream } from './entities/live-stream.entity';
+import { LiveStreamRepository } from './repositories/live-stream.repository';
 import { UpdateLiveEndTimeDto } from './dtos/update-live-end-time.dto';
 import { UpdateLiveStartTimeDto } from './dtos/update-live-start-time.dto';
 // import { Ivschat } from 'aws-sdk';
@@ -58,7 +58,6 @@ export class LiveStreamService {
           const liveStreamData: CreateLiveStreamDto = {
             boardIdx: actionInfo.boardIdx,
             streamKey: actionInfo.streamKey,
-            maxNum: 0,
             startTime: new Date(),
             endTime: null,
             state: 1,
