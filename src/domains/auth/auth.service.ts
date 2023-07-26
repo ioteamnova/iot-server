@@ -163,7 +163,7 @@ export class AuthService {
     const payload = { userIdx: userIdx };
     return this.jwtService.sign(payload, {
       secret: process.env.JWT_SECRET,
-      expiresIn: '10s',
+      expiresIn: '2h',
     });
   }
 

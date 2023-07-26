@@ -41,6 +41,8 @@ export class BoardRepository extends Repository<Board> {
       .execute();
   }
   async updateViewCount(boardIdx: number, view: number): Promise<void> {
+    console.log(boardIdx);
+    console.log(view);
     await this.createQueryBuilder()
       .update(Board)
       .set({ view })
