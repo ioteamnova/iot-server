@@ -17,11 +17,6 @@ export class LiveStream extends BaseEntity {
   })
   streamKey: string;
 
-  @Column({
-    nullable: false,
-  })
-  maxNum: number;
-
   @Column()
   startTime: Date;
 
@@ -35,7 +30,6 @@ export class LiveStream extends BaseEntity {
     const liveStream = new LiveStream();
     liveStream.boardIdx = dto.boardIdx;
     liveStream.streamKey = dto.streamKey;
-    liveStream.maxNum = dto.maxNum;
     liveStream.startTime = dto.startTime;
     liveStream.endTime = dto.endTime;
     liveStream.state = dto.state;

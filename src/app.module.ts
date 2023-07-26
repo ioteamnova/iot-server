@@ -12,7 +12,7 @@ import { SchedulerModule } from './domains/schedule/schedule.module';
 import { IotPersonalModule } from './domains/iot_board_personal/iot_board_personal.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BoardModule } from './domains/board/board.module';
-import { LiveStreamModule } from './domains/live_stream_record/live_stream_record.module';
+import { LiveStreamModule } from './domains/live_stream/live_stream.module';
 
 @Module({
   imports: [
