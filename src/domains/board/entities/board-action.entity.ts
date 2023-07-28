@@ -59,15 +59,6 @@ export class BoardAction extends BaseEntity {
   })
   streamKey: string;
 
-  @Column()
-  liveStartTime: Date;
-
-  @Column()
-  liveEndTime: Date;
-
-  @Column()
-  liveState: number;
-
   static from(
     boardIdx: number,
     buyPrice: number,
@@ -82,9 +73,6 @@ export class BoardAction extends BaseEntity {
     pattern: string,
     state: string,
     streamKey: string,
-    liveStartTime: Date,
-    liveEndTime: Date,
-    liveState: number,
   ) {
     const boardAction = new BoardAction();
     boardAction.boardIdx = boardIdx;
@@ -100,9 +88,6 @@ export class BoardAction extends BaseEntity {
     boardAction.pattern = pattern;
     boardAction.state = state;
     boardAction.streamKey = streamKey;
-    boardAction.liveStartTime = liveStartTime;
-    boardAction.liveEndTime = liveEndTime;
-    boardAction.liveState = liveState;
     return boardAction;
   }
 

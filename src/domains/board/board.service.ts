@@ -30,7 +30,6 @@ import { fileValidate, fileValidates } from 'src/utils/fileValitate';
 import { DataSource, QueryRunner } from 'typeorm';
 import { RedisService } from '@liaoliaots/nestjs-redis';
 import { BoardActionRepository } from '../board/repositories/board-action.repository';
-import { BoardAction } from './entities/board-action.entity';
 import { BoardCategoryPageRequest } from './dtos/board-category-page';
 import { LiveStreamRepository } from '../live_stream/repositories/live-stream.repository';
 
