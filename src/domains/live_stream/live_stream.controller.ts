@@ -22,13 +22,13 @@ export class LiveStreamController {
   })
   @ApiCreatedResponseTemplate()
   @Post('/live_start')
-  async authLiveStreaming(@Res() res, @Body() dto: StreamKeyDto) {
+  async startLiveStream(@Res() res, @Body() dto: StreamKeyDto) {
     console.log('live_start');
     // console.log(res);
     // console.log(dto);
-    console.log(dto.name);
+    // console.log(dto.name);
     // const result = true;
-    const result = await this.liveStreamService.createLiveStreamInfo(dto);
+    const result = await this.liveStreamService.setLiveStreamInfo('start', dto);
     return HttpResponse.created(res, { body: result });
   }
 
@@ -41,13 +41,13 @@ export class LiveStreamController {
   })
   @ApiCreatedResponseTemplate()
   @Post('/live_end')
-  async endLiveStreaming(@Res() res, @Body() dto: StreamKeyDto) {
+  async endLiveStream(@Res() res, @Body() dto: StreamKeyDto) {
     console.log('liveEnd');
-    console.log(res);
-    console.log(dto);
-    console.log(dto.name);
+    // console.log(res);
+    // console.log(dto);
+    // console.log(dto.name);
     // const result = true;
-    const result = await this.liveStreamService.modifyLiveStreamInfo(dto);
+    const result = await this.liveStreamService.setLiveStreamInfo('end', dto);
     return HttpResponse.created(res, { body: result });
   }
 }

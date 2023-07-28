@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString, MaxLength } from 'class-validator';
+import { LiveStream } from 'src/domains/live_stream/entities/live-stream.entity';
 import { BoardAction } from '../entities/board-action.entity';
 import { BoardCommercial } from '../entities/board-commercial.entity';
 import { BoardImage } from '../entities/board-image.entity';
@@ -74,6 +75,7 @@ export class BoardListDto {
   images: BoardImage[];
   boardCommercial: BoardCommercial;
   boardAction: BoardAction;
+  liveStream: LiveStream;
   UserInfo: { idx: number; nickname: string; profilePath: string };
 
   status: string;
