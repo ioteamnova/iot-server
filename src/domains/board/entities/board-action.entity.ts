@@ -1,7 +1,5 @@
 import BaseEntity from 'src/core/entity/base.entity';
 import { Column, Entity } from 'typeorm';
-import { UpdateLiveEndTimeDto } from '../dtos/update-live-end-time.dto';
-import { UpdateLiveStartTimeDto } from '../dtos/update-live-start-time.dto';
 @Entity()
 export class BoardAction extends BaseEntity {
   @Column()
@@ -117,13 +115,13 @@ export class BoardAction extends BaseEntity {
   //   boardAction.liveState = dto.liveState;
   //   return boardAction;
   // }
-  updateEndFromDto(dto: UpdateLiveEndTimeDto) {
-    this.liveEndTime = dto.liveEndTime;
-    this.liveState = dto.liveState;
-  }
-  updateStartFromDto(dto: UpdateLiveStartTimeDto) {
-    this.liveStartTime = dto.liveStartTime;
-    this.liveEndTime = dto.liveEndTime;
-    this.liveState = dto.liveState;
-  }
+  // updateEndFromDto(dto: UpdateLiveEndTimeDto) {
+  //   this.liveEndTime = dto.liveEndTime;
+  //   this.liveState = dto.liveState;
+  // }
+  // updateStartFromDto(dto: UpdateLiveStartTimeDto) {
+  //   this.liveStartTime = dto.liveStartTime;
+  //   this.liveEndTime = dto.liveEndTime;
+  //   this.liveState = dto.liveState;
+  // }
 }
