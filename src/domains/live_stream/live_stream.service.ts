@@ -15,118 +15,102 @@ export class LiveStreamService {
     private liveStreamRepository: LiveStreamRepository,
     private boardActionRepository: BoardActionRepository,
   ) {}
-  /**
-   *  라이브 스트리밍 정보 추가
-   * @param dto 라이브 스트리밍 추가 dto
-   * @returns StreamKeyDto
-   */
-  async createLiveStreamInfo(dto: StreamKeyDto) {
-    //1. 키 형식 체크 : 맞으면 통과, 틀리면 false
-    //2. 경매 리스트에 스트림 키가 있는지 검토 : 있으면 통과, 없으면 false
-    //3. 통과 -> liveStream table에 저장 : action에 관련된 정보는 action에서 가져옴, 시작 시간 저장
-
-    const stream_val = this.liveStreamRepository.checkStreamKeyForm(dto.name);
-    // console.log('stream_val');
-    // console.log(stream_val);
-    if (stream_val) {
-      const actionInfo = await this.boardActionRepository.findOne({
-        where: {
-          streamKey: dto.name,
-        },
-      });
-      if (actionInfo) {
-        //저장하기 전에 해당 키로 데이터가 있으면 업데이트만 해줄 것.
-        const LiveStreamChk = await this.liveStreamRepository.findOne({
-          where: {
-            streamKey: actionInfo.streamKey,
-          },
-        });
-
-        //존재한다면 업데이트
-        if (LiveStreamChk) {
-          const liveStreamData: UpdateLiveStartTimeDto = {
-            startTime: new Date(),
-            endTime: null,
-            state: 1,
-          };
-
-          //update
-          LiveStreamChk.updateStartFromDto(liveStreamData);
-          await this.liveStreamRepository.save(LiveStreamChk);
-        } else {
-          //추가
-          const liveStreamData: CreateLiveStreamDto = {
-            boardIdx: actionInfo.boardIdx,
-            streamKey: actionInfo.streamKey,
-            startTime: new Date(),
-            endTime: null,
-            state: 1,
-          };
-
-          // save
-          const LiveStreamInfo = LiveStream.fromDto(liveStreamData);
-          const result = await this.liveStreamRepository.save(LiveStreamInfo);
-          return result;
-        }
-      } else {
-        throw new UnauthorizedException(
-          HttpErrorConstants.LIVESTREAMINFO_NOT_EXIST,
-        );
-      }
-    }
-  }
 
   /**
-   *  라이브 스트리밍 정보 수정
-   * @param dto 라이브 스트리밍 수정 dto
+   *  라이브 스트리밍 정보 set
+   * @param dto 라이브 스트리밍 start, end 변경 / 전 경매방에 스트림키가 존재하는지 체크
    * @returns StreamKeyDto
    */
-  async modifyLiveStreamInfo(dto: StreamKeyDto) {
+  async setLiveStreamInfo(val: string, dto: StreamKeyDto) {
     //스트리밍이 끝났을 때 실행할 함수
     //1. 키 형식 체크 : 맞으면 통과, 틀리면 false
     //2. 경매 리스트에 스트림 키가 있는지 검토 : 있으면 통과, 없으면 false
     //3. 통과 -> liveStream table에 저장 : action에 관련된 정보는 action에서 가져옴, 시작 시간 저장
 
-    const stream_val = this.liveStreamRepository.checkStreamKeyForm(dto.name);
+    //키 형식 체크
+    const stream_from_chk = this.liveStreamRepository.checkStreamKeyForm(
+      dto.name,
+    );
 
-    console.log('stream_val');
-    console.log(stream_val);
-    if (stream_val) {
+    console.log('stream_from_chk');
+    console.log(stream_from_chk);
+
+    if (stream_from_chk) {
+      //경매 테이블에서 해당 키가 있는지 찾기
       const actionInfo = await this.boardActionRepository.findOne({
         where: {
           streamKey: dto.name,
         },
       });
-      if (actionInfo) {
-        console.log('endstart add');
-        console.log(actionInfo);
 
-        const LiveStreamChk = await this.liveStreamRepository.findOne({
+      if (actionInfo) {
+        //있어야 다음 진행
+
+        const liveInfo = await this.liveStreamRepository.findOne({
           where: {
-            streamKey: actionInfo.streamKey,
+            streamKey: dto.name,
           },
         });
 
-        //존재한다면 업데이트
-        if (LiveStreamChk) {
-          const liveStreamData: UpdateLiveEndTimeDto = {
-            endTime: new Date(),
-            state: 0,
-          };
+        //start : 추가, 수정
 
-          LiveStreamChk.updateEndFromDto(liveStreamData);
-          const result = await this.liveStreamRepository.save(LiveStreamChk);
-          return result;
+        //end : 수정
+
+        if (val == 'start') {
+          //start
+
+          if (liveInfo) {
+            //있으면 수정
+            const liveStreamData: UpdateLiveStartTimeDto = {
+              startTime: new Date(),
+              endTime: null,
+              state: 1,
+            };
+
+            //update
+            liveInfo.updateStartFromDto(liveStreamData);
+            const result = await this.liveStreamRepository.save(liveInfo);
+            return result;
+          } else {
+            //없으면 추가
+            const liveStreamData: CreateLiveStreamDto = {
+              boardIdx: actionInfo.boardIdx,
+              streamKey: actionInfo.streamKey,
+              startTime: new Date(),
+              endTime: null,
+              state: 1,
+            };
+
+            // save
+            const LiveStreamInfo = LiveStream.fromDto(liveStreamData);
+            const result = await this.liveStreamRepository.save(LiveStreamInfo);
+            return result;
+          }
         } else {
-          throw new UnauthorizedException(
-            HttpErrorConstants.LIVESTREAMINFO_NOT_EXIST,
-          );
+          //end
+
+          if (liveInfo) {
+            //있으면 수정
+
+            const liveStreamData: UpdateLiveEndTimeDto = {
+              endTime: new Date(),
+              state: 0,
+            };
+
+            liveInfo.updateEndFromDto(liveStreamData);
+            const result = await this.liveStreamRepository.save(liveInfo);
+            return result;
+          }
         }
       } else {
         throw new UnauthorizedException(
           HttpErrorConstants.LIVESTREAMINFO_NOT_EXIST,
         );
       }
+    } else {
+      throw new UnauthorizedException(
+        HttpErrorConstants.LIVESTREAMINFO_NOT_EXIST,
+      );
     }
   }
 }

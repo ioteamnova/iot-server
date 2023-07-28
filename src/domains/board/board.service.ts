@@ -35,6 +35,7 @@ import { UpdateLiveStartTimeDto } from './dtos/update-live-start-time.dto';
 import { BoardAction } from './entities/board-action.entity';
 import { UpdateLiveEndTimeDto } from './dtos/update-live-end-time.dto';
 import { BoardCategoryPageRequest } from './dtos/board-category-page';
+import { LiveStreamRepository } from '../live_stream/repositories/live-stream.repository';
 
 enum BoardCategory {
   Adoption = 'adoption',
@@ -59,6 +60,7 @@ export class BoardService {
     private dataSource: DataSource,
     private readonly redisService: RedisService,
     private boardActionRepository: BoardActionRepository,
+    private liveStreamRepository: LiveStreamRepository,
   ) {}
   /**
    * 게시판 다중 파일 업로드
@@ -235,12 +237,22 @@ export class BoardService {
         board.boardCommercial = boardCommercial;
         return board;
       case 'action':
+        //경매 보드 추가
         const boardAction = await this.boardActionRepository.findOne({
           where: {
             boardIdx: boardIdx,
           },
         });
         board.boardAction = boardAction;
+
+        //라이브 스트림 추가
+        const liveStream = await this.liveStreamRepository.findOne({
+          where: {
+            boardIdx: boardIdx,
+          },
+        });
+        board.liveStream = liveStream;
+
         return board;
       default:
         return board;
@@ -663,63 +675,63 @@ export class BoardService {
     }
   }
 
-  /**
-   *  라이브 스트리밍 정보 set
-   * @param dto 라이브 스트리밍 start, end 변경 / 전 경매방에 스트림키가 존재하는지 체크
-   * @returns StreamKeyDto
-   */
-  async setLiveStreamInfo(val: string, dto: StreamKeyDto) {
-    //스트리밍이 끝났을 때 실행할 함수
-    //1. 키 형식 체크 : 맞으면 통과, 틀리면 false
-    //2. 경매 리스트에 스트림 키가 있는지 검토 : 있으면 통과, 없으면 false
-    //3. 통과 -> liveStream table에 저장 : action에 관련된 정보는 action에서 가져옴, 시작 시간 저장
+  // /**
+  //  *  라이브 스트리밍 정보 set
+  //  * @param dto 라이브 스트리밍 start, end 변경 / 전 경매방에 스트림키가 존재하는지 체크
+  //  * @returns StreamKeyDto
+  //  */
+  // async setLiveStreamInfo(val: string, dto: StreamKeyDto) {
+  //   //스트리밍이 끝났을 때 실행할 함수
+  //   //1. 키 형식 체크 : 맞으면 통과, 틀리면 false
+  //   //2. 경매 리스트에 스트림 키가 있는지 검토 : 있으면 통과, 없으면 false
+  //   //3. 통과 -> liveStream table에 저장 : action에 관련된 정보는 action에서 가져옴, 시작 시간 저장
 
-    const stream_from_chk = this.boardActionRepository.checkStreamKeyForm(
-      dto.name,
-    );
+  //   const stream_from_chk = this.boardActionRepository.checkStreamKeyForm(
+  //     dto.name,
+  //   );
 
-    console.log('stream_from_chk');
-    console.log(stream_from_chk);
+  //   console.log('stream_from_chk');
+  //   console.log(stream_from_chk);
 
-    if (stream_from_chk) {
-      const actionInfo = await this.boardActionRepository.findOne({
-        where: {
-          streamKey: dto.name,
-        },
-      });
+  //   if (stream_from_chk) {
+  //     const actionInfo = await this.boardActionRepository.findOne({
+  //       where: {
+  //         streamKey: dto.name,
+  //       },
+  //     });
 
-      if (actionInfo) {
-        if (val == 'start') {
-          const liveStreamData: UpdateLiveStartTimeDto = {
-            liveStartTime: new Date(),
-            liveEndTime: null,
-            liveState: 1,
-          };
+  //     if (actionInfo) {
+  //       if (val == 'start') {
+  //         const liveStreamData: UpdateLiveStartTimeDto = {
+  //           liveStartTime: new Date(),
+  //           liveEndTime: null,
+  //           liveState: 1,
+  //         };
 
-          //update
-          actionInfo.updateStartFromDto(liveStreamData);
-          const result = await this.boardActionRepository.save(actionInfo);
-          return result;
-        } else {
-          //end
-          const liveStreamData: UpdateLiveEndTimeDto = {
-            liveEndTime: new Date(),
-            liveState: 0,
-          };
+  //         //update
+  //         actionInfo.updateStartFromDto(liveStreamData);
+  //         const result = await this.boardActionRepository.save(actionInfo);
+  //         return result;
+  //       } else {
+  //         //end
+  //         const liveStreamData: UpdateLiveEndTimeDto = {
+  //           liveEndTime: new Date(),
+  //           liveState: 0,
+  //         };
 
-          actionInfo.updateEndFromDto(liveStreamData);
-          const result = await this.boardActionRepository.save(actionInfo);
-          return result;
-        }
-      } else {
-        throw new UnauthorizedException(
-          HttpErrorConstants.LIVESTREAMINFO_NOT_EXIST,
-        );
-      }
-    } else {
-      throw new UnauthorizedException(
-        HttpErrorConstants.LIVESTREAMINFO_NOT_EXIST,
-      );
-    }
-  }
+  //         actionInfo.updateEndFromDto(liveStreamData);
+  //         const result = await this.boardActionRepository.save(actionInfo);
+  //         return result;
+  //       }
+  //     } else {
+  //       throw new UnauthorizedException(
+  //         HttpErrorConstants.LIVESTREAMINFO_NOT_EXIST,
+  //       );
+  //     }
+  //   } else {
+  //     throw new UnauthorizedException(
+  //       HttpErrorConstants.LIVESTREAMINFO_NOT_EXIST,
+  //     );
+  //   }
+  // }
 }
