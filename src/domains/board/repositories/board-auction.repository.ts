@@ -1,11 +1,11 @@
 import { Repository } from 'typeorm';
 import { CustomRepository } from 'src/core/decorators/typeorm-ex.decorator';
-import { BoardAction } from '../entities/board-auction.entity';
+import { BoardAuction } from '../entities/board-auction.entity';
 import { UnauthorizedException } from '@nestjs/common';
 import { HttpErrorConstants } from '../../../core/http/http-error-objects';
 
-@CustomRepository(BoardAction)
-export class BoardAuctionRepository extends Repository<BoardAction> {
+@CustomRepository(BoardAuction)
+export class BoardAuctionRepository extends Repository<BoardAuction> {
   // findAndCountByBoardStreamKey(
   //   streamKey: string,
   //   // pageRequest: PageRequest,

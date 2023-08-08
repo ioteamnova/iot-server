@@ -1,7 +1,7 @@
 import BaseEntity from 'src/core/entity/base.entity';
 import { Column, Entity } from 'typeorm';
 @Entity()
-export class BoardAction extends BaseEntity {
+export class BoardAuction extends BaseEntity {
   @Column()
   boardIdx: number;
 
@@ -74,21 +74,21 @@ export class BoardAction extends BaseEntity {
     state: string,
     streamKey: string,
   ) {
-    const boardAction = new BoardAction();
-    boardAction.boardIdx = boardIdx;
-    boardAction.buyPrice = buyPrice;
-    boardAction.startPrice = startPrice;
-    boardAction.unit = unit;
-    boardAction.startTime = startTime;
-    boardAction.endTime = endTime;
-    boardAction.extension_rule = extension_rule;
-    boardAction.gender = gender;
-    boardAction.size = size;
-    boardAction.variety = variety;
-    boardAction.pattern = pattern;
-    boardAction.state = state;
-    boardAction.streamKey = streamKey;
-    return boardAction;
+    const boardAuction = new BoardAuction();
+    boardAuction.boardIdx = boardIdx;
+    boardAuction.buyPrice = buyPrice;
+    boardAuction.startPrice = startPrice;
+    boardAuction.unit = unit;
+    boardAuction.startTime = startTime;
+    boardAuction.endTime = endTime;
+    boardAuction.extension_rule = extension_rule;
+    boardAuction.gender = gender;
+    boardAuction.size = size;
+    boardAuction.variety = variety;
+    boardAuction.pattern = pattern;
+    boardAuction.state = state;
+    boardAuction.streamKey = streamKey;
+    return boardAuction;
   }
 
   // static fromDto(dto: CreateLiveStreamDto) {
