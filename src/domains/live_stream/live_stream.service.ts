@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { BoardActionRepository } from '../board/repositories/board-action.repository';
+import { BoardActionRepository } from '../board/repositories/board-auction.repository';
 import { HttpErrorConstants } from '../../core/http/http-error-objects';
 import { StreamKeyDto } from './dtos/steam-key.dto';
 import { CreateLiveStreamDto } from './dtos/create-live-stream.dto';

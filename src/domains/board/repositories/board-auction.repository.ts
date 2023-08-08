@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
 import { CustomRepository } from 'src/core/decorators/typeorm-ex.decorator';
-import { BoardAction } from '../entities/board-action.entity';
+import { BoardAction } from '../entities/board-auction.entity';
 import { UnauthorizedException } from '@nestjs/common';
 import { HttpErrorConstants } from '../../../core/http/http-error-objects';
 
