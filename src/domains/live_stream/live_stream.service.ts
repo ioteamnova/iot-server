@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { BoardActionRepository } from '../board/repositories/board-auction.repository';
+import { BoardAuctionRepository } from '../board/repositories/board-auction.repository';
 import { HttpErrorConstants } from '../../core/http/http-error-objects';
 import { StreamKeyDto } from './dtos/steam-key.dto';
 import { CreateLiveStreamDto } from './dtos/create-live-stream.dto';
@@ -13,7 +13,7 @@ import { UpdateLiveStartTimeDto } from './dtos/update-live-start-time.dto';
 export class LiveStreamService {
   constructor(
     private liveStreamRepository: LiveStreamRepository,
-    private boardActionRepository: BoardActionRepository,
+    private boardAuctionRepository: BoardAuctionRepository,
   ) {}
 
   /**
@@ -25,7 +25,7 @@ export class LiveStreamService {
     //스트리밍이 끝났을 때 실행할 함수
     //1. 키 형식 체크 : 맞으면 통과, 틀리면 false
     //2. 경매 리스트에 스트림 키가 있는지 검토 : 있으면 통과, 없으면 false
-    //3. 통과 -> liveStream table에 저장 : action에 관련된 정보는 action에서 가져옴, 시작 시간 저장
+    //3. 통과 -> liveStream table에 저장 : auction에 관련된 정보는 auction에서 가져옴, 시작 시간 저장
 
     //키 형식 체크
     const stream_from_chk = this.liveStreamRepository.checkStreamKeyForm(
@@ -37,13 +37,13 @@ export class LiveStreamService {
 
     if (stream_from_chk) {
       //경매 테이블에서 해당 키가 있는지 찾기
-      const actionInfo = await this.boardActionRepository.findOne({
+      const auctionInfo = await this.boardAuctionRepository.findOne({
         where: {
           streamKey: dto.name,
         },
       });
 
-      if (actionInfo) {
+      if (auctionInfo) {
         //있어야 다음 진행
 
         const liveInfo = await this.liveStreamRepository.findOne({
@@ -74,8 +74,8 @@ export class LiveStreamService {
           } else {
             //없으면 추가
             const liveStreamData: CreateLiveStreamDto = {
-              boardIdx: actionInfo.boardIdx,
-              streamKey: actionInfo.streamKey,
+              boardIdx: auctionInfo.boardIdx,
+              streamKey: auctionInfo.streamKey,
               startTime: new Date(),
               endTime: null,
               state: 1,
