@@ -5,7 +5,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { HttpErrorConstants } from '../../../core/http/http-error-objects';
 
 @CustomRepository(BoardAction)
-export class BoardActionRepository extends Repository<BoardAction> {
+export class BoardAuctionRepository extends Repository<BoardAction> {
   // findAndCountByBoardStreamKey(
   //   streamKey: string,
   //   // pageRequest: PageRequest,

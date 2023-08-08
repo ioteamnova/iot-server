@@ -29,7 +29,7 @@ import { BoardListDto } from './dtos/board-list.dto';
 import { fileValidate, fileValidates } from 'src/utils/fileValitate';
 import { DataSource, QueryRunner } from 'typeorm';
 import { RedisService } from '@liaoliaots/nestjs-redis';
-import { BoardActionRepository } from './repositories/board-auction.repository';
+import { BoardAuctionRepository } from './repositories/board-auction.repository';
 import { BoardCategoryPageRequest } from './dtos/board-category-page';
 import { LiveStreamRepository } from '../live_stream/repositories/live-stream.repository';
 
@@ -55,7 +55,7 @@ export class BoardService {
     private boardCommercialRepository: BoardCommercialRepository,
     private dataSource: DataSource,
     private readonly redisService: RedisService,
-    private boardActionRepository: BoardActionRepository,
+    private boardAuctionRepository: BoardAuctionRepository,
     private liveStreamRepository: LiveStreamRepository,
   ) {}
   /**
@@ -147,7 +147,7 @@ export class BoardService {
         console.log('isActionCate@@@@@@@@@@@');
         const actionInfoArr = [];
         for (const board of result.items) {
-          const actionInfo = await this.boardActionRepository.findOne({
+          const actionInfo = await this.boardAuctionRepository.findOne({
             where: {
               boardIdx: board.idx,
             },
@@ -234,7 +234,7 @@ export class BoardService {
         return board;
       case 'action':
         //경매 보드 추가
-        const boardAction = await this.boardActionRepository.findOne({
+        const boardAction = await this.boardAuctionRepository.findOne({
           where: {
             boardIdx: boardIdx,
           },
