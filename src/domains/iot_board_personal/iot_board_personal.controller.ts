@@ -131,7 +131,7 @@ export class IotBoardPersonalController {
     const authNum = currentAuthInfo.boardTempName.split('KR_B')[1];
     const newAuthNum = parseInt(authNum) + 1;
 
-    //20자에서 영어 대문자 섞기  
+    //20자에서 영어 대문자 섞기
     const bigAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXTZ';
     const string_length = 20;
     let randomstring = '';
