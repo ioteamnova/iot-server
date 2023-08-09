@@ -11,6 +11,7 @@ import { BoardCommercialRepository } from './repositories/board-commercial.repos
 import { UserRepository } from '../user/repositories/user.repository';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { BoardAuctionRepository } from './repositories/board-auction.repository';
+import { LiveStreamRepository } from '../live_stream/repositories/live-stream.repository';
 @Module({
   imports: [
     TypeOrmExModule.forCustomRepository([
@@ -22,6 +23,7 @@ import { BoardAuctionRepository } from './repositories/board-auction.repository'
       BoardCommercialRepository,
       BoardAuctionRepository,
       UserRepository,
+      LiveStreamRepository,
     ]),
     RedisModule.forRoot({
       readyLog: true,
