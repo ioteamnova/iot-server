@@ -30,16 +30,15 @@ import { fileValidate, fileValidates } from 'src/utils/fileValitate';
 import { DataSource, QueryRunner } from 'typeorm';
 import { RedisService } from '@liaoliaots/nestjs-redis';
 import { StreamKeyDto } from './dtos/steam-key.dto';
-import { BoardActionRepository } from '../board/repositories/board-action.repository';
 import { UpdateLiveStartTimeDto } from './dtos/update-live-start-time.dto';
-import { BoardAction } from './entities/board-action.entity';
 import { UpdateLiveEndTimeDto } from './dtos/update-live-end-time.dto';
 import { BoardCategoryPageRequest } from './dtos/board-category-page';
+import { BoardAuctionRepository } from './repositories/board-auction.repository';
 
 enum BoardCategory {
   Adoption = 'adoption',
   Market = 'market',
-  Action = 'action',
+  Auction = 'auction',
 }
 enum CommentCategory {
   Reply = 'reply',
@@ -58,7 +57,7 @@ export class BoardService {
     private boardCommercialRepository: BoardCommercialRepository,
     private dataSource: DataSource,
     private readonly redisService: RedisService,
-    private boardActionRepository: BoardActionRepository,
+    private boardAuctionRepository: BoardAuctionRepository,
   ) {}
   /**
    * 게시판 다중 파일 업로드
@@ -145,16 +144,16 @@ export class BoardService {
         }
         result.items = commercialInfoArr;
         return result;
-      case 'action':
+      case 'auction':
         console.log('isActionCate@@@@@@@@@@@');
         const actionInfoArr = [];
         for (const board of result.items) {
-          const actionInfo = await this.boardActionRepository.findOne({
+          const actionInfo = await this.boardAuctionRepository.findOne({
             where: {
               boardIdx: board.idx,
             },
           });
-          board.boardAction = actionInfo;
+          board.boardAuction = actionInfo;
           actionInfoArr.push(board);
         }
         result.items = actionInfoArr;
@@ -234,13 +233,13 @@ export class BoardService {
         });
         board.boardCommercial = boardCommercial;
         return board;
-      case 'action':
-        const boardAction = await this.boardActionRepository.findOne({
+      case 'auction':
+        const boardAuction = await this.boardAuctionRepository.findOne({
           where: {
             boardIdx: boardIdx,
           },
         });
-        board.boardAction = boardAction;
+        board.boardAuction = boardAuction;
         return board;
       default:
         return board;
@@ -652,11 +651,7 @@ export class BoardService {
     }
   }
   async isActionCate(category: string): Promise<boolean> {
-    console.log('category@@@@@@@@@@@');
-    console.log(category);
-    console.log(BoardCategory.Action);
-
-    if (category === BoardCategory.Action) {
+    if (category === BoardCategory.Auction) {
       return true;
     } else {
       return false;
@@ -674,7 +669,7 @@ export class BoardService {
     //2. 경매 리스트에 스트림 키가 있는지 검토 : 있으면 통과, 없으면 false
     //3. 통과 -> liveStream table에 저장 : action에 관련된 정보는 action에서 가져옴, 시작 시간 저장
 
-    const stream_from_chk = this.boardActionRepository.checkStreamKeyForm(
+    const stream_from_chk = this.boardAuctionRepository.checkStreamKeyForm(
       dto.name,
     );
 
@@ -682,7 +677,7 @@ export class BoardService {
     console.log(stream_from_chk);
 
     if (stream_from_chk) {
-      const actionInfo = await this.boardActionRepository.findOne({
+      const actionInfo = await this.boardAuctionRepository.findOne({
         where: {
           streamKey: dto.name,
         },
@@ -698,7 +693,7 @@ export class BoardService {
 
           //update
           actionInfo.updateStartFromDto(liveStreamData);
-          const result = await this.boardActionRepository.save(actionInfo);
+          const result = await this.boardAuctionRepository.save(actionInfo);
           return result;
         } else {
           //end
@@ -708,7 +703,7 @@ export class BoardService {
           };
 
           actionInfo.updateEndFromDto(liveStreamData);
-          const result = await this.boardActionRepository.save(actionInfo);
+          const result = await this.boardAuctionRepository.save(actionInfo);
           return result;
         }
       } else {

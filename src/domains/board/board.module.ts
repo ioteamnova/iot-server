@@ -10,7 +10,7 @@ import { BoardBookmarkRepository } from './repositories/board-bookmark.repositor
 import { BoardCommercialRepository } from './repositories/board-commercial.repository';
 import { UserRepository } from '../user/repositories/user.repository';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { BoardActionRepository } from './repositories/board-action.repository';
+import { BoardAuctionRepository } from './repositories/board-auction.repository';
 @Module({
   imports: [
     TypeOrmExModule.forCustomRepository([
@@ -20,7 +20,7 @@ import { BoardActionRepository } from './repositories/board-action.repository';
       BoardCommentRepository,
       BoardBookmarkRepository,
       BoardCommercialRepository,
-      BoardActionRepository,
+      BoardAuctionRepository,
       UserRepository,
     ]),
     RedisModule.forRoot({

@@ -1,7 +1,6 @@
 import { Repository } from 'typeorm';
 import { CustomRepository } from 'src/core/decorators/typeorm-ex.decorator';
 import { Board } from '../entities/board.entity';
-import { PageRequest } from 'src/core/page';
 import { BoardListDto } from '../dtos/board-list.dto';
 import { BoardCategoryPageRequest } from '../dtos/board-category-page';
 
