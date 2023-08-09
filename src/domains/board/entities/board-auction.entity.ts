@@ -3,7 +3,7 @@ import { Column, Entity } from 'typeorm';
 import { UpdateLiveEndTimeDto } from '../dtos/update-live-end-time.dto';
 import { UpdateLiveStartTimeDto } from '../dtos/update-live-start-time.dto';
 @Entity()
-export class BoardAction extends BaseEntity {
+export class BoardAuction extends BaseEntity {
   @Column()
   boardIdx: number;
 
@@ -88,35 +88,25 @@ export class BoardAction extends BaseEntity {
     liveEndTime: Date,
     liveState: number,
   ) {
-    const boardAction = new BoardAction();
-    boardAction.boardIdx = boardIdx;
-    boardAction.buyPrice = buyPrice;
-    boardAction.startPrice = startPrice;
-    boardAction.unit = unit;
-    boardAction.startTime = startTime;
-    boardAction.endTime = endTime;
-    boardAction.extension_rule = extension_rule;
-    boardAction.gender = gender;
-    boardAction.size = size;
-    boardAction.variety = variety;
-    boardAction.pattern = pattern;
-    boardAction.state = state;
-    boardAction.streamKey = streamKey;
-    boardAction.liveStartTime = liveStartTime;
-    boardAction.liveEndTime = liveEndTime;
-    boardAction.liveState = liveState;
-    return boardAction;
+    const boardAuction = new BoardAuction();
+    boardAuction.boardIdx = boardIdx;
+    boardAuction.buyPrice = buyPrice;
+    boardAuction.startPrice = startPrice;
+    boardAuction.unit = unit;
+    boardAuction.startTime = startTime;
+    boardAuction.endTime = endTime;
+    boardAuction.extension_rule = extension_rule;
+    boardAuction.gender = gender;
+    boardAuction.size = size;
+    boardAuction.variety = variety;
+    boardAuction.pattern = pattern;
+    boardAuction.state = state;
+    boardAuction.streamKey = streamKey;
+    boardAuction.liveStartTime = liveStartTime;
+    boardAuction.liveEndTime = liveEndTime;
+    boardAuction.liveState = liveState;
+    return boardAuction;
   }
-
-  // static fromDto(dto: CreateLiveStreamDto) {
-  //   const boardAction = new BoardAction();
-  //   boardAction.boardIdx = dto.boardIdx;
-  //   boardAction.streamKey = dto.streamKey;
-  //   boardAction.liveStartTime = dto.liveStartTime;
-  //   boardAction.liveEndTime = dto.liveEndTime;
-  //   boardAction.liveState = dto.liveState;
-  //   return boardAction;
-  // }
   updateEndFromDto(dto: UpdateLiveEndTimeDto) {
     this.liveEndTime = dto.liveEndTime;
     this.liveState = dto.liveState;

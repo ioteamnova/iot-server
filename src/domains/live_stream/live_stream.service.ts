@@ -1,5 +1,4 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { BoardActionRepository } from '../board/repositories/board-action.repository';
 import { HttpErrorConstants } from '../../core/http/http-error-objects';
 import { StreamKeyDto } from './dtos/steam-key.dto';
 import { CreateLiveStreamDto } from './dtos/create-live-stream.dto';
@@ -7,13 +6,14 @@ import { LiveStream } from './entities/live-stream.entity';
 import { LiveStreamRepository } from './repositories/live-stream.repository';
 import { UpdateLiveEndTimeDto } from './dtos/update-live-end-time.dto';
 import { UpdateLiveStartTimeDto } from './dtos/update-live-start-time.dto';
+import { BoardAuctionRepository } from '../board/repositories/board-auction.repository';
 // import { Ivschat } from 'aws-sdk';
 
 @Injectable()
 export class LiveStreamService {
   constructor(
     private liveStreamRepository: LiveStreamRepository,
-    private boardActionRepository: BoardActionRepository,
+    private boardAuctionRepository: BoardAuctionRepository,
   ) {}
   /**
    *  라이브 스트리밍 정보 추가
@@ -29,7 +29,7 @@ export class LiveStreamService {
     // console.log('stream_val');
     // console.log(stream_val);
     if (stream_val) {
-      const actionInfo = await this.boardActionRepository.findOne({
+      const actionInfo = await this.boardAuctionRepository.findOne({
         where: {
           streamKey: dto.name,
         },
@@ -92,7 +92,7 @@ export class LiveStreamService {
     console.log('stream_val');
     console.log(stream_val);
     if (stream_val) {
-      const actionInfo = await this.boardActionRepository.findOne({
+      const actionInfo = await this.boardAuctionRepository.findOne({
         where: {
           streamKey: dto.name,
         },

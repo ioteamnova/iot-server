@@ -22,7 +22,7 @@ export class createBoardDto {
     description: `어떤 게시판인가?\n
     - free(자유게시판)
     - adoption(분양게시판)\n
-    - action(경매게시판)`,
+    - auction(경매게시판)`,
     default: 'free',
   })
   @IsString()

@@ -1,26 +1,11 @@
 import { Repository } from 'typeorm';
 import { CustomRepository } from 'src/core/decorators/typeorm-ex.decorator';
-import { BoardAction } from '../entities/board-action.entity';
+import { BoardAuction } from '../entities/board-auction.entity';
 import { UnauthorizedException } from '@nestjs/common';
 import { HttpErrorConstants } from '../../../core/http/http-error-objects';
 
-@CustomRepository(BoardAction)
-export class BoardActionRepository extends Repository<BoardAction> {
-  // findAndCountByBoardStreamKey(
-  //   streamKey: string,
-  //   // pageRequest: PageRequest,
-  // ): Promise<[BoardAction[], number]> {
-  //   return (
-  //     this.createQueryBuilder('boardAction')
-  //       .leftJoinAndSelect('boardAction.boardIdx', 'boardIdx')
-  //       .where('boardAction.boardIdx = :idx', { streamKey })
-  //       // .orderBy('diary.idx', pageRequest.order)
-  //       // .take(pageRequest.limit)
-  //       // .skip(pageRequest.offset)
-  //       .getManyAndCount()
-  //   );
-  // }
-
+@CustomRepository(BoardAuction)
+export class BoardAuctionRepository extends Repository<BoardAuction> {
   checkStreamKeyForm(streamKey: string): boolean {
     //형식 체크 RY1G-TzOv-lPKB-zRLO-sXI3
     const streamKey_arr = streamKey.split('-');

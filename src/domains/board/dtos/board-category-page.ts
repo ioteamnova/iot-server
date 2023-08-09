@@ -8,8 +8,8 @@ export class BoardCategoryPageRequest extends PageRequest {
         - 중고거래\n
         - 분양\n
         - 경매`,
-    enum: ['free', 'market', 'adoption', 'action'],
+    enum: ['free', 'market', 'adoption', 'auction'],
     default: 'free',
   })
-  category: 'free' | 'market' | 'adoption' | 'action';
+  category: 'free' | 'market' | 'adoption' | 'auction';
 }
