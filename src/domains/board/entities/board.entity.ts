@@ -19,16 +19,19 @@ export class Board extends BaseEntity {
   thumbnail: string;
 
   @Column()
+  media: string;
+
+  @Column()
   description: string;
+
+  @Column()
+  view: number;
 
   @Column()
   commentCnt: number;
 
   @Column()
   status: BoardStatus;
-
-  @Column()
-  view: number;
 
   @OneToMany(() => BoardImage, (image) => image.board)
   images: BoardImage[];
