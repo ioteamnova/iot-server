@@ -21,7 +21,7 @@ export class BoardAuction extends BaseEntity {
   endTime: Date;
 
   @Column()
-  extension_rule: number;
+  extensionRule: number;
 
   @Column({
     nullable: false,
@@ -66,7 +66,7 @@ export class BoardAuction extends BaseEntity {
     unit: number,
     startTime: Date,
     endTime: Date,
-    extension_rule: number,
+    extensionRule: number,
     gender: string,
     size: string,
     variety: string,
@@ -81,7 +81,7 @@ export class BoardAuction extends BaseEntity {
     boardAuction.unit = unit;
     boardAuction.startTime = startTime;
     boardAuction.endTime = endTime;
-    boardAuction.extension_rule = extension_rule;
+    boardAuction.extensionRule = extensionRule;
     boardAuction.gender = gender;
     boardAuction.size = size;
     boardAuction.variety = variety;
