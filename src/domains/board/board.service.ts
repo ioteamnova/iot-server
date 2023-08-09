@@ -122,10 +122,12 @@ export class BoardService {
     }
     result.items = usersInfoArr;
 
+    console.log(pageRequest.category);
+
     switch (pageRequest.category) {
       case 'market':
       case 'adoption':
-        console.log('isCommercialCate@@@@@@@@@@@');
+        console.log('isCommercialCate@@@@@@@@@@@_1');
         //3. 게시판 카테고리가 분양 or 중고 마켓이면 해당 데이터를 조회한다.
         const commercialInfoArr = [];
         for (const board of result.items) {
@@ -134,9 +136,13 @@ export class BoardService {
               boardIdx: board.idx,
             },
           });
+
+          console.log(board.idx);
+
           board.boardCommercial = commercialInfo;
           commercialInfoArr.push(board);
         }
+        console.log(commercialInfoArr);
         result.items = commercialInfoArr;
         return result;
       case 'auction':
@@ -151,10 +157,11 @@ export class BoardService {
           board.boardAuction = actionInfo;
           actionInfoArr.push(board);
         }
+        console.log(actionInfoArr);
         result.items = actionInfoArr;
         return result;
       default:
-        console.log('category3');
+        console.log('free');
         return result;
     }
   }
@@ -228,7 +235,7 @@ export class BoardService {
         });
         board.boardCommercial = boardCommercial;
         return board;
-      case 'action':
+      case 'auction':
         //경매 보드 추가
         const boardAuction = await this.boardAuctionRepository.findOne({
           where: {
