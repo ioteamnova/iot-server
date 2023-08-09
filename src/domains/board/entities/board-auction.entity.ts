@@ -1,7 +1,5 @@
 import BaseEntity from 'src/core/entity/base.entity';
 import { Column, Entity } from 'typeorm';
-import { UpdateLiveEndTimeDto } from '../dtos/update-live-end-time.dto';
-import { UpdateLiveStartTimeDto } from '../dtos/update-live-start-time.dto';
 @Entity()
 export class BoardAuction extends BaseEntity {
   @Column()
@@ -23,7 +21,7 @@ export class BoardAuction extends BaseEntity {
   endTime: Date;
 
   @Column()
-  extension_rule: number;
+  extensionRule: number;
 
   @Column({
     nullable: false,
@@ -61,15 +59,6 @@ export class BoardAuction extends BaseEntity {
   })
   streamKey: string;
 
-  @Column()
-  liveStartTime: Date;
-
-  @Column()
-  liveEndTime: Date;
-
-  @Column()
-  liveState: number;
-
   static from(
     boardIdx: number,
     buyPrice: number,
@@ -77,16 +66,13 @@ export class BoardAuction extends BaseEntity {
     unit: number,
     startTime: Date,
     endTime: Date,
-    extension_rule: number,
+    extensionRule: number,
     gender: string,
     size: string,
     variety: string,
     pattern: string,
     state: string,
     streamKey: string,
-    liveStartTime: Date,
-    liveEndTime: Date,
-    liveState: number,
   ) {
     const boardAuction = new BoardAuction();
     boardAuction.boardIdx = boardIdx;
@@ -95,25 +81,32 @@ export class BoardAuction extends BaseEntity {
     boardAuction.unit = unit;
     boardAuction.startTime = startTime;
     boardAuction.endTime = endTime;
-    boardAuction.extension_rule = extension_rule;
+    boardAuction.extensionRule = extensionRule;
     boardAuction.gender = gender;
     boardAuction.size = size;
     boardAuction.variety = variety;
     boardAuction.pattern = pattern;
     boardAuction.state = state;
     boardAuction.streamKey = streamKey;
-    boardAuction.liveStartTime = liveStartTime;
-    boardAuction.liveEndTime = liveEndTime;
-    boardAuction.liveState = liveState;
     return boardAuction;
   }
-  updateEndFromDto(dto: UpdateLiveEndTimeDto) {
-    this.liveEndTime = dto.liveEndTime;
-    this.liveState = dto.liveState;
-  }
-  updateStartFromDto(dto: UpdateLiveStartTimeDto) {
-    this.liveStartTime = dto.liveStartTime;
-    this.liveEndTime = dto.liveEndTime;
-    this.liveState = dto.liveState;
-  }
+
+  // static fromDto(dto: CreateLiveStreamDto) {
+  //   const boardAction = new BoardAction();
+  //   boardAction.boardIdx = dto.boardIdx;
+  //   boardAction.streamKey = dto.streamKey;
+  //   boardAction.liveStartTime = dto.liveStartTime;
+  //   boardAction.liveEndTime = dto.liveEndTime;
+  //   boardAction.liveState = dto.liveState;
+  //   return boardAction;
+  // }
+  // updateEndFromDto(dto: UpdateLiveEndTimeDto) {
+  //   this.liveEndTime = dto.liveEndTime;
+  //   this.liveState = dto.liveState;
+  // }
+  // updateStartFromDto(dto: UpdateLiveStartTimeDto) {
+  //   this.liveStartTime = dto.liveStartTime;
+  //   this.liveEndTime = dto.liveEndTime;
+  //   this.liveState = dto.liveState;
+  // }
 }

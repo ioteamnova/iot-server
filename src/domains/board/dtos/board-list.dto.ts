@@ -3,6 +3,7 @@ import { IsNotEmpty, IsNumber, IsString, MaxLength } from 'class-validator';
 import { BoardAuction } from '../entities/board-auction.entity';
 import { BoardCommercial } from '../entities/board-commercial.entity';
 import { BoardImage } from '../entities/board-image.entity';
+import { LiveStream } from 'src/domains/live_stream/entities/live-stream.entity';
 
 export class BoardListDto {
   @ApiProperty({
@@ -74,6 +75,7 @@ export class BoardListDto {
   images: BoardImage[];
   boardCommercial: BoardCommercial;
   boardAuction: BoardAuction;
+  liveStream: LiveStream;
   UserInfo: { idx: number; nickname: string; profilePath: string };
 
   status: string;
