@@ -8,7 +8,7 @@ import { UserRepository } from '../user/repositories/user.repository';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
 import { ScheduleListDto } from './dtos/schedule-list.dto';
 import * as admin from 'firebase-admin';
-import { Cron, CronExpression } from '@nestjs/schedule';
+// import { Cron, CronExpression } from '@nestjs/schedule';
 import DateUtils from 'src/utils/date-utils';
 import { SchedulesType } from './helper/constants';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -119,67 +119,67 @@ export class ScheduleService {
     await this.scheduleRepository.softDelete(scheduleIdx);
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
-  async checkSchedules() {
-    const currentTime = DateUtils.momentTime();
-    // const testTime = '19:00'; // 테스트용
-    const currentDay = DateUtils.momentDay();
-    const currentDate = DateUtils.momentNowSubtractTime();
+  // @Cron(CronExpression.EVERY_MINUTE)
+  // async checkSchedules() {
+  //   const currentTime = DateUtils.momentTime();
+  //   // const testTime = '19:00'; // 테스트용
+  //   const currentDay = DateUtils.momentDay();
+  //   const currentDate = DateUtils.momentNowSubtractTime();
 
-    const schedules = await this.scheduleRepository.findSchedulesByTime(
-      currentTime,
-    );
-    if (schedules.length === 0) {
-      console.log('No schedules to send alerts.');
-      return;
-    }
+  //   const schedules = await this.scheduleRepository.findSchedulesByTime(
+  //     currentTime,
+  //   );
+  //   if (schedules.length === 0) {
+  //     console.log('No schedules to send alerts.');
+  //     return;
+  //   }
 
-    const matchingSchedules = schedules.filter((schedule) => {
-      if (
-        schedule.type === SchedulesType.CALENDAR &&
-        schedule.date === currentDate
-      ) {
-        return true;
-      }
+  //   const matchingSchedules = schedules.filter((schedule) => {
+  //     if (
+  //       schedule.type === SchedulesType.CALENDAR &&
+  //       schedule.date === currentDate
+  //     ) {
+  //       return true;
+  //     }
 
-      if (schedule.type === SchedulesType.REPETITION) {
-        const repeatArray = schedule.repeatDay.split(',');
-        const sameDay: boolean = repeatArray[currentDay] === '1';
-        return sameDay;
-      }
-    });
+  //     if (schedule.type === SchedulesType.REPETITION) {
+  //       const repeatArray = schedule.repeatDay.split(',');
+  //       const sameDay: boolean = repeatArray[currentDay] === '1';
+  //       return sameDay;
+  //     }
+  //   });
 
-    if (matchingSchedules.length === 0) {
-      console.log('No matchingSchedules to send alerts.');
-      return;
-    }
-    /**
-     * 유저의 토큰과 스케줄을 Map에 담는다.
-     * 같은 유저(같은 토큰값)가 여러개의 스케줄을 갖고 있는 경우를 고려하여 Map을 사용.
-     * */
+  //   if (matchingSchedules.length === 0) {
+  //     console.log('No matchingSchedules to send alerts.');
+  //     return;
+  //   }
+  //   /**
+  //    * 유저의 토큰과 스케줄을 Map에 담는다.
+  //    * 같은 유저(같은 토큰값)가 여러개의 스케줄을 갖고 있는 경우를 고려하여 Map을 사용.
+  //    * */
 
-    const userTokensMap = new Map();
-    for (const matchingSchedule of matchingSchedules) {
-      const userToken = matchingSchedule.user.fbToken;
+  //   const userTokensMap = new Map();
+  //   for (const matchingSchedule of matchingSchedules) {
+  //     const userToken = matchingSchedule.user.fbToken;
 
-      if (!userTokensMap.has(userToken)) {
-        userTokensMap.set(userToken, []);
-      }
+  //     if (!userTokensMap.has(userToken)) {
+  //       userTokensMap.set(userToken, []);
+  //     }
 
-      userTokensMap.get(userToken).push(matchingSchedule);
-    }
+  //     userTokensMap.get(userToken).push(matchingSchedule);
+  //   }
 
-    for (const [userToken, userSchedules] of userTokensMap) {
-      const notifications = userSchedules.map((schedule) => {
-        return {
-          title: schedule.title,
-          body: schedule.memo,
-        };
-      });
+  //   for (const [userToken, userSchedules] of userTokensMap) {
+  //     const notifications = userSchedules.map((schedule) => {
+  //       return {
+  //         title: schedule.title,
+  //         body: schedule.memo,
+  //       };
+  //     });
 
-      await this.sendNotifications(notifications, userToken);
-    }
-  }
+  //     await this.sendNotifications(notifications, userToken);
+  //   }
+  // }
 
   /**
    * FCM 서버로 유저의 토큰과 발송할 메세지를 전송

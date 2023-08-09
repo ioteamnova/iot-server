@@ -140,7 +140,7 @@ export class ScheduleController {
   })
   @Post('/send')
   async sendNotification(@Res() res) {
-    const result = await this.scheduleService.checkSchedules();
-    return HttpResponse.ok(res, result);
+    // const result = await this.scheduleService.checkSchedules();
+    // return HttpResponse.ok(res, result);
   }
 }
