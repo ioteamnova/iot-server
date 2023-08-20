@@ -1,5 +1,6 @@
 import BaseEntity from 'src/core/entity/base.entity';
 import { Column, Entity } from 'typeorm';
+
 @Entity()
 export class BoardAuction extends BaseEntity {
   @Column()
@@ -12,13 +13,19 @@ export class BoardAuction extends BaseEntity {
   startPrice: number;
 
   @Column()
+  currentPrice: number;
+
+  @Column()
   unit: number;
 
   @Column()
-  startTime: Date;
+  alertTime: string;
 
   @Column()
-  endTime: Date;
+  endTime: string;
+
+  @Column()
+  extensionTime: string;
 
   @Column()
   extensionRule: number;
@@ -51,6 +58,12 @@ export class BoardAuction extends BaseEntity {
     nullable: false,
     length: 40,
   })
+  birthDate: string;
+
+  @Column({
+    nullable: false,
+    length: 40,
+  })
   state: string;
 
   @Column({
@@ -64,49 +77,55 @@ export class BoardAuction extends BaseEntity {
     buyPrice: number,
     startPrice: number,
     unit: number,
-    startTime: Date,
-    endTime: Date,
     extensionRule: number,
     gender: string,
     size: string,
     variety: string,
     pattern: string,
+    birthDate: string,
     state: string,
-    streamKey: string,
   ) {
     const boardAuction = new BoardAuction();
     boardAuction.boardIdx = boardIdx;
     boardAuction.buyPrice = buyPrice;
     boardAuction.startPrice = startPrice;
     boardAuction.unit = unit;
-    boardAuction.startTime = startTime;
-    boardAuction.endTime = endTime;
     boardAuction.extensionRule = extensionRule;
     boardAuction.gender = gender;
     boardAuction.size = size;
     boardAuction.variety = variety;
     boardAuction.pattern = pattern;
+    boardAuction.birthDate = birthDate;
     boardAuction.state = state;
-    boardAuction.streamKey = streamKey;
     return boardAuction;
   }
-
-  // static fromDto(dto: CreateLiveStreamDto) {
-  //   const boardAction = new BoardAction();
-  //   boardAction.boardIdx = dto.boardIdx;
-  //   boardAction.streamKey = dto.streamKey;
-  //   boardAction.liveStartTime = dto.liveStartTime;
-  //   boardAction.liveEndTime = dto.liveEndTime;
-  //   boardAction.liveState = dto.liveState;
-  //   return boardAction;
-  // }
-  // updateEndFromDto(dto: UpdateLiveEndTimeDto) {
-  //   this.liveEndTime = dto.liveEndTime;
-  //   this.liveState = dto.liveState;
-  // }
-  // updateStartFromDto(dto: UpdateLiveStartTimeDto) {
-  //   this.liveStartTime = dto.liveStartTime;
-  //   this.liveEndTime = dto.liveEndTime;
-  //   this.liveState = dto.liveState;
-  // }
+  static updateForm(
+    idx: number,
+    boardIdx: number,
+    buyPrice: number,
+    startPrice: number,
+    unit: number,
+    extensionRule: number,
+    gender: string,
+    size: string,
+    variety: string,
+    pattern: string,
+    birthDate: string,
+    state: string,
+  ) {
+    const boardAuction = new BoardAuction();
+    boardAuction.idx = idx;
+    boardAuction.boardIdx = boardIdx;
+    boardAuction.buyPrice = buyPrice;
+    boardAuction.startPrice = startPrice;
+    boardAuction.unit = unit;
+    boardAuction.extensionRule = extensionRule;
+    boardAuction.gender = gender;
+    boardAuction.size = size;
+    boardAuction.variety = variety;
+    boardAuction.pattern = pattern;
+    boardAuction.birthDate = birthDate;
+    boardAuction.state = state;
+    return boardAuction;
+  }
 }

@@ -22,12 +22,14 @@ import { BoardCommercial } from './entities/board-commercial.entity';
 import { BoardCommercialRepository } from './repositories/board-commercial.repository';
 import { UserRepository } from '../user/repositories/user.repository';
 import { BoardListDto } from './dtos/board-list.dto';
-import { fileValidate, fileValidates } from 'src/utils/fileValitate';
+import { fileValidate } from 'src/utils/fileValitate';
 import { DataSource, QueryRunner } from 'typeorm';
 import { RedisService } from '@liaoliaots/nestjs-redis';
 import { BoardAuctionRepository } from './repositories/board-auction.repository';
 import { BoardCategoryPageRequest } from './dtos/board-category-page';
 import { LiveStreamRepository } from '../live_stream/repositories/live-stream.repository';
+import { BoardAuction } from './entities/board-auction.entity';
+import * as moment from 'moment';
 
 enum BoardCategory {
   Adoption = 'adoption',
@@ -77,6 +79,31 @@ export class BoardService {
         );
         await queryRunner.manager.save(boardCommercial);
       }
+      if (this.isActionCate) {
+        const boardAcution = BoardAuction.from(
+          boardInfo.idx,
+          dto.price,
+          dto.startPrice,
+          dto.unit,
+          dto.extensionRule,
+          dto.gender,
+          dto.size,
+          dto.variety,
+          dto.pattern,
+          dto.birthDate,
+          'temp',
+        );
+        boardAcution.extensionTime = dto.endTime;
+        boardAcution.endTime = moment(dto.endTime)
+          .add(1, 'minute')
+          .format('YYYY-MM-DD HH:mm');
+        if (dto.alertTime !== 'noAlert') {
+          boardAcution.alertTime = moment(dto.endTime)
+            .subtract(dto.alertTime, 'minute')
+            .format('YYYY-MM-DD HH:mm');
+        }
+        await queryRunner.manager.save(boardAcution);
+      }
       if (dto.fileUrl) {
         const mediaInfo = [];
         for (let i = 0; i < dto.fileUrl.length; i++) {
@@ -125,7 +152,6 @@ export class BoardService {
     switch (pageRequest.category) {
       case 'market':
       case 'adoption':
-        console.log('isCommercialCate@@@@@@@@@@@');
         //3. 게시판 카테고리가 분양 or 중고 마켓이면 해당 데이터를 조회한다.
         const commercialInfoArr = [];
         for (const board of result.items) {
@@ -140,12 +166,12 @@ export class BoardService {
         result.items = commercialInfoArr;
         return result;
       case 'auction':
-        console.log('isActionCate@@@@@@@@@@@');
         const actionInfoArr = [];
         for (const board of result.items) {
           const actionInfo = await this.boardAuctionRepository.findOne({
             where: {
               boardIdx: board.idx,
+              state: 'selling',
             },
           });
           board.boardAuction = actionInfo;
@@ -157,31 +183,6 @@ export class BoardService {
         console.log('category3');
         return result;
     }
-  }
-
-  /**
-   * 이미지 업로드
-   * @param file 이미지파일
-   * @returns 이미지 s3 url
-   */
-
-  async uploadBoardImages(
-    files: Express.Multer.File[],
-    boardIdx: number,
-  ): Promise<BoardImage[]> {
-    fileValidates(files);
-    const images: BoardImage[] = [];
-    for (let i = 0; i < files.length; i++) {
-      const url = await mediaUpload(files[i], S3FolderName.BOARD);
-      const image = new BoardImage();
-      image.boardIdx = boardIdx;
-      image.mediaSequence = i;
-      image.category = 'img';
-      image.path = url;
-      images.push(image);
-    }
-    await this.boardImageRepository.save(images);
-    return images;
   }
   /**
    * 게시글 상세 조회
@@ -228,7 +229,7 @@ export class BoardService {
         });
         board.boardCommercial = boardCommercial;
         return board;
-      case 'action':
+      case 'auction':
         //경매 보드 추가
         const boardAuction = await this.boardAuctionRepository.findOne({
           where: {
@@ -252,7 +253,7 @@ export class BoardService {
   }
   /**
    * 게시판 삭제
-   * @param diaryIdx 게시판 인덱스
+   * @param boardIdx 게시판 인덱스
    */
   async removeBoard(boardIdx: number, userIdx: number): Promise<void> {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -274,6 +275,12 @@ export class BoardService {
       if (this.isCommercialCate(board.category)) {
         //게시판이 분양 or 중고 마켓일 경우 해당 데이터 테이블 삭제하는 함수
         await queryRunner.manager.softDelete(BoardCommercial, {
+          boardIdx: boardIdx,
+        });
+      }
+      if (this.isActionCate(board.category)) {
+        //게시판이 경매일 경우 해당 데이터 테이블 삭제하는 함수
+        await queryRunner.manager.softDelete(BoardAuction, {
           boardIdx: boardIdx,
         });
       }
@@ -333,6 +340,35 @@ export class BoardService {
           dto.variety,
         );
         await queryRunner.manager.save(boardCommercial);
+      }
+      if (this.isActionCate) {
+        const auctionInfo = await queryRunner.manager.findOneBy(BoardAuction, {
+          idx: dto.auctionIdx,
+        });
+        const boardAcution = BoardAuction.updateForm(
+          auctionInfo.idx,
+          board.idx,
+          dto.price,
+          dto.startPrice,
+          dto.unit,
+          dto.extensionRule,
+          dto.gender,
+          dto.size,
+          dto.variety,
+          dto.pattern,
+          dto.birthDate,
+          dto.state,
+        );
+        boardAcution.extensionTime = dto.endTime;
+        boardAcution.endTime = moment(dto.endTime)
+          .add(1, 'minute')
+          .format('YYYY-MM-DD HH:mm');
+        if (dto.alertTime !== 'noAlert') {
+          boardAcution.alertTime = moment(dto.endTime)
+            .subtract(dto.alertTime, 'minute')
+            .format('YYYY-MM-DD HH:mm');
+        }
+        await queryRunner.manager.save(boardAcution);
       }
 
       const boardInfo = Board.undateFrom(

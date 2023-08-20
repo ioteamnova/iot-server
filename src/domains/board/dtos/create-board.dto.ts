@@ -38,45 +38,121 @@ export class createBoardDto {
   description: string;
 
   @ValidateIf(
-    (object) => object.category === 'adoption' || object.category === 'market',
+    (object) =>
+      object.category === 'adoption' ||
+      object.category === 'market' ||
+      object.category === 'auction',
   )
   @ApiProperty({
     description:
       '가격 내용 *분양글 or 중고 마켓만 필요, 나머지 게시판은 빈값으로 보내주세요.',
-    default: '90000',
+    default: '*분양글 or 중고 or 경매 게시글만* 90000',
   })
   @IsNotEmpty()
   price: number;
 
-  @ValidateIf((object) => object.category === 'adoption')
+  @ValidateIf(
+    (object) => object.category === 'adoption' || object.category === 'auction',
+  )
   @ApiProperty({
     description:
-      '성별 내용 *분양글만 필요, 나머지 게시판은 빈값으로 보내주세요.',
-    default: '암컷',
+      '성별 내용 *분양 or 경매* 글만 필요, 나머지 게시판은 빈값으로 보내주세요.',
+    default: '*분양 or 경매* 암컷',
   })
   @IsString()
   @IsNotEmpty()
   gender: string;
 
-  @ValidateIf((object) => object.category === 'adoption')
+  @ValidateIf(
+    (object) => object.category === 'adoption' || object.category === 'auction',
+  )
   @ApiProperty({
     description:
       '크기 내용 *분양글에만 필요 나머지 게시판은 빈값으로 보내주세요.',
-    default: '아성체',
+    default: '*분양 or 경매* 아성체',
   })
   @IsString()
   @IsNotEmpty()
   size: string;
 
-  @ValidateIf((object) => object.category === 'adoption')
+  @ValidateIf(
+    (object) => object.category === 'adoption' || object.category === 'auction',
+  )
   @ApiProperty({
     description:
       '품종 내용 *분양글만 필요, 나머지 게시판은 빈값으로 보내주세요.',
-    default: '크레스티드 게코',
+    default: '*분양 or 경매* 크레스티드 게코',
   })
   @IsString()
   @IsNotEmpty()
   variety: string;
+
+  @ValidateIf(
+    (object) => object.category === 'auction' || object.category === 'adoption',
+  )
+  @ApiProperty({
+    description:
+      '해당 종의 패턴 or 모프 *경매만 필요, 나머지 게시판은 빈값으로 보내주세요.',
+    default: '*경매* 릴리 화이트',
+  })
+  @IsNotEmpty()
+  pattern: string;
+
+  @ValidateIf((object) => object.category === 'auction')
+  @ApiProperty({
+    description:
+      '경매 시작가: 가격 내용 *경매만 필요, 나머지 게시판은 빈값으로 보내주세요.',
+    default: '*경매* 50000',
+  })
+  @IsNotEmpty()
+  startPrice: number;
+
+  @ValidateIf((object) => object.category === 'auction')
+  @ApiProperty({
+    description:
+      '경매 입찰 단위 *경매만 필요, 나머지 게시판은 빈값으로 보내주세요.',
+    default: '*경매* 10000',
+  })
+  @IsNotEmpty()
+  unit: number;
+
+  @ValidateIf((object) => object.category === 'auction')
+  @ApiProperty({
+    description:
+      '경매 마감 시간 *경매만 필요, 나머지 게시판은 빈값으로 보내주세요.',
+    default: '*경매* 2023-08-17 22:00',
+  })
+  @IsNotEmpty()
+  endTime: string;
+
+  @ValidateIf((object) => object.category === 'auction')
+  @ApiProperty({
+    description:
+      '경매 마감 알림 시간 *경매만 필요 & 알람 시간 설정 시만 필요 나머지 게시판은 빈값으로 보내주세요.',
+    default: '*경매* 설정 시 ->30 설정 안하면 ->noAlert',
+  })
+  @IsNotEmpty()
+  alertTime: string;
+
+  @ValidateIf((object) => object.category === 'auction')
+  @ApiProperty({
+    description:
+      '경매 연장 룰 *경매만 필요, 나머지 게시판은 빈값으로 보내주세요.',
+    default: '*경매* 1',
+  })
+  @IsNotEmpty()
+  extensionRule: number;
+
+  @ValidateIf(
+    (object) => object.category === 'auction' || object.category === 'adoption',
+  )
+  @ApiProperty({
+    description:
+      '해칭일 or 출생일 *경매만 필요, 나머지 게시판은 빈값으로 보내주세요.',
+    default: '*경매* 2023-03-12',
+  })
+  @IsNotEmpty()
+  birthDate: string;
 
   @ApiProperty({
     description:
