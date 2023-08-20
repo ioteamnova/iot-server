@@ -54,4 +54,22 @@ export class UpdateBoardDto extends PartialType(createBoardDto) {
   @IsString()
   @IsNotEmpty()
   variety: string;
+
+  @ValidateIf((object) => object.category === 'auction')
+  @ApiProperty({
+    description: '품종 내용 *분양글만 필요, 경매 번호.',
+    default: '65',
+  })
+  @IsString()
+  @IsNotEmpty()
+  auctionIdx: number;
+
+  @ValidateIf((object) => object.category === 'auction')
+  @ApiProperty({
+    description: '품종 내용 *분양글만 필요, 상태',
+    default: 'selling',
+  })
+  @IsString()
+  @IsNotEmpty()
+  state: string;
 }
