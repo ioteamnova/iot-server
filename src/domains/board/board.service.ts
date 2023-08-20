@@ -149,6 +149,8 @@ export class BoardService {
     }
     result.items = usersInfoArr;
 
+    console.log(pageRequest.category);
+
     switch (pageRequest.category) {
       case 'market':
       case 'adoption':
@@ -160,9 +162,13 @@ export class BoardService {
               boardIdx: board.idx,
             },
           });
+
+          console.log(board.idx);
+
           board.boardCommercial = commercialInfo;
           commercialInfoArr.push(board);
         }
+        console.log(commercialInfoArr);
         result.items = commercialInfoArr;
         return result;
       case 'auction':
@@ -177,10 +183,11 @@ export class BoardService {
           board.boardAuction = actionInfo;
           actionInfoArr.push(board);
         }
+        console.log(actionInfoArr);
         result.items = actionInfoArr;
         return result;
       default:
-        console.log('category3');
+        console.log('free');
         return result;
     }
   }

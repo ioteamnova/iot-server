@@ -1,6 +1,6 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { createBoardDto } from './create-board.dto';
-import { IsNotEmpty, IsNumber, IsString, ValidateIf } from 'class-validator';
+import { IsNotEmpty, IsString, ValidateIf } from 'class-validator';
 
 export class UpdateBoardDto extends PartialType(createBoardDto) {
   @ValidateIf(
