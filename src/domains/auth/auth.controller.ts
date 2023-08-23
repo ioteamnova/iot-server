@@ -38,9 +38,6 @@ export class AuthController {
   @ApiCreatedResponseTemplate({ type: LoginResponseDto })
   @Post()
   async login(@Res() res, @Body() dto: LoginUserDto) {
-    console.log('login');
-    console.log('login');
-
     const result = await this.authService.login(dto);
     return HttpResponse.created(res, { body: result });
     // return res.status(201).send(result);

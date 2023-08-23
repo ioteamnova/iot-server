@@ -4,6 +4,7 @@ export enum SwaggerTag {
   USER = 'User: 유저',
   DIARY = 'Diary: 다이어리',
   BOARD = 'BOARD: 게시판',
+  MYPAGE = 'MYPAGE: 마이페이지',
   SCHEDULE = 'Schedule: 스케줄링',
   IOT = 'IotPersonal: iot 장비',
   LIVE = 'LiveStream: 라이브 스트리밍 방송',

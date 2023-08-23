@@ -13,6 +13,7 @@ import { IotPersonalModule } from './domains/iot_board_personal/iot_board_person
 import { ScheduleModule } from '@nestjs/schedule';
 import { BoardModule } from './domains/board/board.module';
 import { LiveStreamModule } from './domains/live_stream/live_stream.module';
+import { MypageModule } from './domains/mypage/mypage.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { LiveStreamModule } from './domains/live_stream/live_stream.module';
     IotPersonalModule,
     ScheduleModule.forRoot(),
     LiveStreamModule,
+    MypageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

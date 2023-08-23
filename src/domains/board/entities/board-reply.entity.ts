@@ -13,6 +13,9 @@ export default class BoardReply extends BaseEntity {
   commentIdx: number;
 
   @Column()
+  boardState: string;
+
+  @Column()
   filePath: string;
 
   @Column()

@@ -40,12 +40,48 @@ export class BoardRepository extends Repository<Board> {
       .execute();
   }
   async updateViewCount(boardIdx: number, view: number): Promise<void> {
-    console.log(boardIdx);
-    console.log(view);
     await this.createQueryBuilder()
       .update(Board)
       .set({ view })
       .where('board.idx = :boardIdx', { boardIdx })
       .execute();
+  }
+  async findAndCountByCategoryMyPage(
+    pageRequest: BoardCategoryPageRequest,
+    userIdx: number,
+  ): Promise<[BoardListDto[], number]> {
+    const [boards, totalCount] = await this.createQueryBuilder('board')
+      .leftJoinAndSelect('board.images', 'image')
+      .where('board.category <> :category', { category: 'auction' })
+      .andWhere('board.userIdx = :userIdx', { userIdx })
+      .orderBy('board.idx', pageRequest.order)
+      .take(pageRequest.limit)
+      .skip(pageRequest.offset)
+      .getManyAndCount();
+
+    const boardListDtoArr: BoardListDto[] = await boards.map((board) => {
+      const boardListDto = BoardListDto.from(board);
+      return boardListDto;
+    });
+    return [boardListDtoArr, totalCount];
+  }
+  async findAndCountByAuctionMyPage(
+    pageRequest: BoardCategoryPageRequest,
+    userIdx: number,
+  ): Promise<[BoardListDto[], number]> {
+    const [boards, totalCount] = await this.createQueryBuilder('board')
+      .leftJoinAndSelect('board.images', 'image')
+      .where('board.category = :category', { category: 'auction' })
+      .andWhere('board.userIdx = :userIdx', { userIdx })
+      .orderBy('board.idx', pageRequest.order)
+      .take(pageRequest.limit)
+      .skip(pageRequest.offset)
+      .getManyAndCount();
+
+    const boardListDtoArr: BoardListDto[] = await boards.map((board) => {
+      const boardListDto = BoardListDto.from(board);
+      return boardListDto;
+    });
+    return [boardListDtoArr, totalCount];
   }
 }
