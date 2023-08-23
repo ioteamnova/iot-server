@@ -30,16 +30,7 @@ import { BoardCategoryPageRequest } from './dtos/board-category-page';
 import { LiveStreamRepository } from '../live_stream/repositories/live-stream.repository';
 import { BoardAuction } from './entities/board-auction.entity';
 import * as moment from 'moment';
-
-enum BoardCategory {
-  Adoption = 'adoption',
-  Market = 'market',
-  Auction = 'auction',
-}
-enum CommentCategory {
-  Reply = 'reply',
-  Comment = 'comment',
-}
+import { BoardVerifyType } from '../user/helper/constant';
 
 @Injectable()
 export class BoardService {
@@ -131,7 +122,6 @@ export class BoardService {
    */
   async findAllBoard(
     pageRequest: BoardCategoryPageRequest,
-    // category: BoardCategoryPageRequest,
   ): Promise<Page<BoardListDto>> {
     //1. 게시글에 대한 정보를 불러온다.
     const [boards, totalCount] =
@@ -148,12 +138,9 @@ export class BoardService {
       usersInfoArr.push(board);
     }
     result.items = usersInfoArr;
-
-    console.log(pageRequest.category);
-
     switch (pageRequest.category) {
-      case 'market':
-      case 'adoption':
+      case BoardVerifyType.MARKET:
+      case BoardVerifyType.ADOPTION:
         //3. 게시판 카테고리가 분양 or 중고 마켓이면 해당 데이터를 조회한다.
         const commercialInfoArr = [];
         for (const board of result.items) {
@@ -162,32 +149,26 @@ export class BoardService {
               boardIdx: board.idx,
             },
           });
-
-          console.log(board.idx);
-
           board.boardCommercial = commercialInfo;
           commercialInfoArr.push(board);
         }
-        console.log(commercialInfoArr);
         result.items = commercialInfoArr;
         return result;
-      case 'auction':
+      case BoardVerifyType.AUCTION:
         const actionInfoArr = [];
         for (const board of result.items) {
           const actionInfo = await this.boardAuctionRepository.findOne({
             where: {
               boardIdx: board.idx,
-              state: 'selling',
+              state: BoardVerifyType.SELLING,
             },
           });
           board.boardAuction = actionInfo;
           actionInfoArr.push(board);
         }
-        console.log(actionInfoArr);
         result.items = actionInfoArr;
         return result;
       default:
-        console.log('free');
         return result;
     }
   }
@@ -227,8 +208,8 @@ export class BoardService {
 
     //4. 게시글에 따라 추가 테이블 정보를 조회한다.
     switch (board.category) {
-      case 'market':
-      case 'adoption':
+      case BoardVerifyType.MARKET:
+      case BoardVerifyType.ADOPTION:
         const boardCommercial = await this.boardCommercialRepository.findOne({
           where: {
             boardIdx: boardIdx,
@@ -236,7 +217,7 @@ export class BoardService {
         });
         board.boardCommercial = boardCommercial;
         return board;
-      case 'auction':
+      case BoardVerifyType.AUCTION:
         //경매 보드 추가
         const boardAuction = await this.boardAuctionRepository.findOne({
           where: {
@@ -278,6 +259,26 @@ export class BoardService {
         throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
       } else if (board.userIdx != userIdx) {
         throw new NotFoundException(HttpErrorConstants.BOARD_NOT_WRITER);
+      }
+      //댓글 보드 상태 변경
+      const boardComments = await this.commentRepository.find({
+        where: { boardIdx: board.idx },
+      });
+      if (boardComments.length > 0) {
+        for (const boardComment of boardComments) {
+          boardComment.boardState = 'deleted';
+        }
+        await this.commentRepository.save(boardComments);
+      }
+      //대댓글 보드 상태 변경
+      const boardReplys = await this.replyRepository.find({
+        where: { boardIdx: board.idx },
+      });
+      if (boardReplys.length > 0) {
+        for (const boardReply of boardReplys) {
+          boardReply.boardState = 'deleted';
+        }
+        await this.replyRepository.save(boardReplys);
       }
       if (this.isCommercialCate(board.category)) {
         //게시판이 분양 or 중고 마켓일 경우 해당 데이터 테이블 삭제하는 함수
@@ -417,7 +418,7 @@ export class BoardService {
       await queryRunner.startTransaction();
       let commentInfo;
       //1.댓글일 때
-      if (dto.category === CommentCategory.Comment) {
+      if (dto.category === BoardVerifyType.COMMENT) {
         const comment = Comment.from(dto);
         comment.userIdx = userIdx;
         if (file) {
@@ -425,7 +426,7 @@ export class BoardService {
           comment.filePath = url;
         }
         commentInfo = await queryRunner.manager.save(comment);
-      } else if (dto.category === CommentCategory.Reply) {
+      } else if (dto.category === BoardVerifyType.REPLY) {
         //2. 답글일 때에는, 댓글idx가 필요하다.
         const reply = BoardReply.from(dto);
         reply.userIdx = userIdx;
@@ -544,7 +545,6 @@ export class BoardService {
     boardIdx: number,
     category: string,
   ): Promise<Page<BoardComment> | Page<BoardReply>> {
-    console.log(category);
     if (category === 'comment') {
       const [comments, totalCount] =
         await this.commentRepository.findAndCountByBoardIdx(
@@ -591,7 +591,7 @@ export class BoardService {
     file: Express.Multer.File,
   ): Promise<Comment | BoardReply> {
     fileValidate(file);
-    if (dto.category === CommentCategory.Comment) {
+    if (dto.category === BoardVerifyType.COMMENT) {
       const comment = await this.commentRepository.findOne({
         where: {
           idx: commentIdx,
@@ -609,7 +609,7 @@ export class BoardService {
       }
       const commentInfo = await this.commentRepository.save(comment);
       return commentInfo;
-    } else if (dto.category === CommentCategory.Reply) {
+    } else if (dto.category === BoardVerifyType.REPLY) {
       const reply = await this.replyRepository.findOne({
         where: {
           idx: commentIdx,
@@ -690,8 +690,8 @@ export class BoardService {
   };
   async isCommercialCate(category: string) {
     if (
-      category === BoardCategory.Adoption ||
-      category === BoardCategory.Market
+      category === BoardVerifyType.ADOPTION ||
+      category === BoardVerifyType.MARKET
     ) {
       return true;
     } else {
@@ -699,7 +699,7 @@ export class BoardService {
     }
   }
   async isActionCate(category: string): Promise<boolean> {
-    if (category === BoardCategory.Auction) {
+    if (category === BoardVerifyType.AUCTION) {
       return true;
     } else {
       return false;

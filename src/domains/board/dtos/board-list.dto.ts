@@ -83,6 +83,7 @@ export class BoardListDto {
   view: number;
 
   static from({
+    idx,
     userIdx,
     title,
     category,
@@ -91,6 +92,7 @@ export class BoardListDto {
     images,
     view,
   }: {
+    idx: number;
     userIdx: number;
     view: number;
     title: string;
@@ -100,6 +102,7 @@ export class BoardListDto {
     images: BoardImage[];
   }) {
     const board = new BoardListDto();
+    board.idx = idx;
     board.view = view;
     board.userIdx = userIdx;
     board.title = title;

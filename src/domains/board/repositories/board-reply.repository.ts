@@ -16,4 +16,15 @@ export class BoardReplyRepository extends Repository<BoardReply> {
       .skip(pageRequest.offset)
       .getManyAndCount();
   }
+  findMyComment(
+    pageRequest: PageRequest,
+    userIdx: number,
+  ): Promise<[BoardReply[], number]> {
+    return this.createQueryBuilder('reply')
+      .where('reply.userIdx = :userIdx', { userIdx })
+      .orderBy('idx', pageRequest.order)
+      .take(pageRequest.limit / 2)
+      .skip(pageRequest.offset)
+      .getManyAndCount();
+  }
 }
