@@ -95,6 +95,8 @@ export class BoardService {
         }
         await queryRunner.manager.save(boardAcution);
       }
+      console.log('dto', dto);
+      console.log('fileUrl', dto.fileUrl);
       if (dto.fileUrl) {
         const mediaInfo = [];
         for (let i = 0; i < dto.fileUrl.length; i++) {

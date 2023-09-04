@@ -61,6 +61,7 @@ export class Boardcontroller {
     @Body() dto: createBoardDto,
     @AuthUser() user: User,
   ) {
+    console.log('dto', dto);
     const result = await this.boardService.createBoard(dto, user.idx);
     return HttpResponse.created(res, { body: result });
   }
