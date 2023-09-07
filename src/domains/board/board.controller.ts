@@ -160,7 +160,7 @@ export class Boardcontroller {
   @ApiBody({ type: CommentDto })
   @UseInterceptors(FileInterceptor('file'))
   @UseAuthGuards()
-  @Post('/:Idx/comment')
+  @Post('/comment')
   async createcomment(
     @Res() res,
     @Body() dto: CommentDto,
