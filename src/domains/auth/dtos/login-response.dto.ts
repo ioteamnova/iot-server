@@ -20,10 +20,16 @@ export class LoginResponseDto {
   refreshToken: string;
 
   @ApiProperty({
-    description: '프로필 이미짚주소',
+    description: '프로필 주소',
     default: 1,
   })
   profilePath: string;
+
+  @ApiProperty({
+    description: '유저 닉네임',
+    default: '크레',
+  })
+  nickname: string;
 }
 
 export class getNewAccessTokenDto {
