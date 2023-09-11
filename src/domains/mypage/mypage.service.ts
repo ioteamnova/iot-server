@@ -29,64 +29,13 @@ export class MypageService {
    */
   async findBoard(
     user: User,
-    pageRequest: BoardCategoryPageRequest,
+    pageRequest: PageRequest,
   ): Promise<Page<BoardListDto>> {
     //1. 게시글에 대한 정보를 불러온다.
     const [boards, totalCount] =
-      await this.boardRepository.findAndCountByCategoryMyPage(
-        pageRequest,
-        user.idx,
-      );
+      await this.boardRepository.findAndCountByUserIdx(user.idx, pageRequest);
     const result = new Page<BoardListDto>(totalCount, boards, pageRequest);
-    //2. 게시글 작성자에 대한 정보(닉네임, 프로필 사진 주소)를 불러온다.
-    const usersInfoArr = [];
-    for (const board of result.items) {
-      const userDetails = {
-        idx: user.idx,
-        nickname: user.nickname,
-        profilePath: user.profilePath,
-      };
-      board.UserInfo = userDetails;
-      usersInfoArr.push(board);
-    }
-    result.items = usersInfoArr;
-
-    switch (pageRequest.category) {
-      case 'market':
-      case 'adoption':
-        //3. 게시판 카테고리가 분양 or 중고 마켓이면 해당 데이터를 조회한다.
-        const commercialInfoArr = [];
-        for (const board of result.items) {
-          const commercialInfo = await this.boardCommercialRepository.findOne({
-            where: {
-              boardIdx: board.idx,
-            },
-          });
-          board.boardCommercial = commercialInfo;
-          commercialInfoArr.push(board);
-        }
-        console.log(commercialInfoArr);
-        result.items = commercialInfoArr;
-        return result;
-      case 'auction':
-        const actionInfoArr = [];
-        for (const board of result.items) {
-          const actionInfo = await this.boardAuctionRepository.findOne({
-            where: {
-              boardIdx: board.idx,
-              state: 'selling',
-            },
-          });
-          board.boardAuction = actionInfo;
-          actionInfoArr.push(board);
-        }
-        console.log(actionInfoArr);
-        result.items = actionInfoArr;
-        return result;
-      default:
-        console.log('free');
-        return result;
-    }
+    return result;
   }
   /**
    * 내가 작성한 댓글 조회
@@ -212,10 +161,12 @@ export class MypageService {
   async findBookMark(
     user: User,
     pageRequest: PageRequest,
+    category: string,
   ): Promise<Page<Bookmark>> {
     const [datas, totalCount] = await this.boardBookmarkRepository.findMyBid(
       pageRequest,
       user.idx,
+      category,
     );
     const result = new Page<Bookmark>(totalCount, datas, pageRequest);
     return result;

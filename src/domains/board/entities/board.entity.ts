@@ -1,8 +1,10 @@
 import BaseEntity from 'src/core/entity/base.entity';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { BoardStatus } from '../board-status.enum';
 import { BoardImage } from './board-image.entity';
 import { UpdateBoardDto } from '../dtos/update-board.dto';
+import { Bookmark } from './board-bookmark.entity';
+import { ChatConversation } from 'src/domains/mypage/entities/chat-conversation.entity';
 
 @Entity()
 export class Board extends BaseEntity {
@@ -35,6 +37,15 @@ export class Board extends BaseEntity {
 
   @OneToMany(() => BoardImage, (image) => image.board)
   images: BoardImage[];
+
+  // 일대일 관계 설정
+  @OneToOne(() => Bookmark)
+  @JoinColumn({ name: 'idx', referencedColumnName: 'postIdx' }) // idx와 postIdx를 일치시킴
+  bookmark: Bookmark;
+
+  @OneToOne(() => ChatConversation)
+  @JoinColumn({ name: 'idx', referencedColumnName: 'roomIdx' }) // idx와 postIdx를 일치시킴
+  chatConversation: ChatConversation;
 
   static from({
     userIdx,

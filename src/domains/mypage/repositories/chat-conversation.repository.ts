@@ -12,6 +12,7 @@ export class ChatConversationRepository extends Repository<ChatConversation> {
     const [boards, totalCount] = await this.createQueryBuilder(
       'chatConversation',
     )
+      .leftJoinAndSelect('chatConversation.board', 'board')
       .where('chatConversation.type = :type', { type: 'auction' })
       .andWhere('chatConversation.userIdx = :userIdx', { userIdx })
       .orderBy('chatConversation.idx', pageRequest.order)

@@ -1,5 +1,6 @@
 import BaseEntity from 'src/core/entity/base.entity';
-import { Column, Entity } from 'typeorm';
+import { Board } from 'src/domains/board/entities/board.entity';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 @Entity()
 export class ChatConversation extends BaseEntity {
   @Column()
@@ -19,6 +20,10 @@ export class ChatConversation extends BaseEntity {
 
   @Column()
   action: string;
+
+  @OneToOne(() => Board)
+  @JoinColumn({ name: 'room_idx', referencedColumnName: 'idx' }) // postIdx와 idx를 일치시킴
+  board: Board;
 
   static from(
     type: string,
