@@ -53,6 +53,7 @@ export class AuthService {
       refreshToken: refreshToken,
       idx: user.idx,
       profilePath: user.profilePath,
+      nickname: user.nickname,
     };
   }
 
@@ -97,6 +98,7 @@ export class AuthService {
       refreshToken: refreshToken,
       idx: user.idx,
       profilePath: user.profilePath,
+      nickname: user.nickname,
     };
   }
 
