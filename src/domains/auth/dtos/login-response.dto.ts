@@ -18,6 +18,12 @@ export class LoginResponseDto {
     default: 'as2dmlk9876_awreglkmvszdklfmnkafkzfnasjdfnadsf',
   })
   refreshToken: string;
+
+  @ApiProperty({
+    description: '프로필 이미짚주소',
+    default: 1,
+  })
+  profilePath: string;
 }
 
 export class getNewAccessTokenDto {
