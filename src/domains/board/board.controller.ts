@@ -253,15 +253,17 @@ export class Boardcontroller {
     },
   ])
   @UseAuthGuards()
-  @Post('/:boardIdx/Bookmark')
+  @Post('/:boardIdx/Bookmark/:category')
   async boardBookmark(
     @Res() res,
     @Param('boardIdx') boardIdx: number,
+    @Param('category') category: string,
     @AuthUser() user: User,
   ) {
     const result = await this.boardService.RegisterBoardBookmark(
       boardIdx,
       user.idx,
+      category,
     );
     return HttpResponse.created(res, { body: result });
   }

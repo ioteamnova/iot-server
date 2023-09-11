@@ -2,7 +2,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiCommonErrorResponseTemplate } from 'src/core/swagger/api-error-common-response';
 import { SwaggerTag } from 'src/core/swagger/swagger-tags';
 import UseAuthGuards from '../auth/auth-guards/use-auth';
-import { Controller, Get, Query, Res } from '@nestjs/common';
+import { Controller, Get, Param, Query, Res } from '@nestjs/common';
 import { ApiErrorResponseTemplate } from 'src/core/swagger/apt-error-response';
 import { StatusCodes } from 'http-status-codes';
 import { HttpErrorConstants } from 'src/core/http/http-error-objects';
@@ -37,7 +37,7 @@ export class Mypagecontroller {
   async findBoard(
     @Res() res,
     @AuthUser() user: User,
-    @Query() pageRequest: BoardCategoryPageRequest,
+    @Query() pageRequest: PageRequest,
   ) {
     const board = await this.mypageService.findBoard(user, pageRequest);
     return HttpResponse.ok(res, board);
@@ -112,8 +112,9 @@ export class Mypagecontroller {
     return HttpResponse.ok(res, board);
   }
   @ApiOperation({
-    summary: '내가 작성한 경매 조회',
-    description: '내가 작성한 경매 조회.',
+    summary: '내가 북마크한 게시글 조회',
+    description:
+      '내가 북마크한 게시글 조회. auction만 카테고리에 auction으로 쓰고 나머지는 board',
   })
   @ApiErrorResponseTemplate([
     {
@@ -125,13 +126,18 @@ export class Mypagecontroller {
     },
   ])
   @UseAuthGuards()
-  @Get('/bookmark')
+  @Get('/bookmark/:category')
   async findBookMark(
     @Res() res,
     @AuthUser() user: User,
     @Query() pageRequest: PageRequest,
+    @Param('category') category: string,
   ) {
-    const result = await this.mypageService.findBookMark(user, pageRequest);
+    const result = await this.mypageService.findBookMark(
+      user,
+      pageRequest,
+      category,
+    );
     return HttpResponse.ok(res, result);
   }
 }

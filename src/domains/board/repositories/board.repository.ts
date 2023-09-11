@@ -3,6 +3,7 @@ import { CustomRepository } from 'src/core/decorators/typeorm-ex.decorator';
 import { Board } from '../entities/board.entity';
 import { BoardListDto } from '../dtos/board-list.dto';
 import { BoardCategoryPageRequest } from '../dtos/board-category-page';
+import { PageRequest } from 'src/core/page';
 
 @CustomRepository(Board)
 export class BoardRepository extends Repository<Board> {
@@ -73,6 +74,24 @@ export class BoardRepository extends Repository<Board> {
       .leftJoinAndSelect('board.images', 'image')
       .where('board.category = :category', { category: 'auction' })
       .andWhere('board.userIdx = :userIdx', { userIdx })
+      .orderBy('board.idx', pageRequest.order)
+      .take(pageRequest.limit)
+      .skip(pageRequest.offset)
+      .getManyAndCount();
+
+    const boardListDtoArr: BoardListDto[] = await boards.map((board) => {
+      const boardListDto = BoardListDto.from(board);
+      return boardListDto;
+    });
+    return [boardListDtoArr, totalCount];
+  }
+  async findAndCountByUserIdx(
+    userIdx: number,
+    pageRequest: PageRequest,
+  ): Promise<[BoardListDto[], number]> {
+    const [boards, totalCount] = await this.createQueryBuilder('board')
+      .where('board.userIdx = :userIdx', { userIdx })
+      .andWhere('board.category != :category', { category: 'auction' })
       .orderBy('board.idx', pageRequest.order)
       .take(pageRequest.limit)
       .skip(pageRequest.offset)

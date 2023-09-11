@@ -632,7 +632,11 @@ export class BoardService {
     }
   }
 
-  async RegisterBoardBookmark(boardIdx: number, userIdx: number) {
+  async RegisterBoardBookmark(
+    boardIdx: number,
+    userIdx: number,
+    category: string,
+  ) {
     const board = await this.boardRepository.findOne({
       where: {
         idx: boardIdx,
@@ -643,13 +647,13 @@ export class BoardService {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
     }
     const bookmark = new Bookmark();
-    bookmark.category = 'board';
+    bookmark.category = category;
     bookmark.userIdx = userIdx;
     bookmark.postIdx = boardIdx;
 
     const bookmarkCheck = await this.boardBookmarkRepository.findOne({
       where: {
-        category: 'board',
+        category: category,
         postIdx: boardIdx,
         userIdx: userIdx,
       },
