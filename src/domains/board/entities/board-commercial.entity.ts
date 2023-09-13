@@ -59,6 +59,8 @@ export class BoardCommercial extends BaseEntity {
     price: number,
     size: string,
     variety: string,
+    pattern: string,
+    birthDate: string,
   ) {
     const boardCommercial = new BoardCommercial();
     boardCommercial.idx = idx;
@@ -67,6 +69,8 @@ export class BoardCommercial extends BaseEntity {
     boardCommercial.size = size;
     boardCommercial.price = price;
     boardCommercial.variety = variety;
+    boardCommercial.pattern = pattern;
+    boardCommercial.birthDate = birthDate;
     return boardCommercial;
   }
 }
