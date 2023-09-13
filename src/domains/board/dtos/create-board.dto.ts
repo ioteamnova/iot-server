@@ -93,7 +93,7 @@ export class createBoardDto {
   @ApiProperty({
     description:
       '해당 종의 패턴 or 모프 *경매만 필요, 나머지 게시판은 빈값으로 보내주세요.',
-    default: '*경매* 릴리 화이트',
+    default: '*분양 or 경매* 릴리 화이트',
   })
   @IsNotEmpty()
   pattern: string;
@@ -149,7 +149,7 @@ export class createBoardDto {
   @ApiProperty({
     description:
       '해칭일 or 출생일 *경매만 필요, 나머지 게시판은 빈값으로 보내주세요.',
-    default: '*경매* 2023-03-12',
+    default: '*분양 or 경매* 2023-03-12',
   })
   @IsNotEmpty()
   birthDate: string;
