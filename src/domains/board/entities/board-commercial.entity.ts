@@ -20,12 +20,26 @@ export class BoardCommercial extends BaseEntity {
   @Column()
   state: string;
 
+  @Column({
+    nullable: false,
+    length: 100,
+  })
+  pattern: string;
+
+  @Column({
+    nullable: false,
+    length: 40,
+  })
+  birthDate: string;
+
   static from(
     boardIdx: number,
     gender: string,
     price: number,
     size: string,
     variety: string,
+    pattern: string,
+    birthDate: string,
   ) {
     const boardCommercial = new BoardCommercial();
     boardCommercial.boardIdx = boardIdx;
@@ -33,6 +47,8 @@ export class BoardCommercial extends BaseEntity {
     boardCommercial.size = size;
     boardCommercial.price = price;
     boardCommercial.variety = variety;
+    boardCommercial.pattern = pattern;
+    boardCommercial.birthDate = birthDate;
     return boardCommercial;
   }
 
