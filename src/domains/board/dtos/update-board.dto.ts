@@ -47,17 +47,34 @@ export class UpdateBoardDto extends PartialType(createBoardDto) {
 
   @ValidateIf((object) => object.category === 'adoption')
   @ApiProperty({
-    description:
-      '품종 내용 *분양글만 필요, 나머지 게시판은 빈값으로 보내주세요.',
+    description: '*분양글만 필요, 나머지 게시판은 빈값으로 보내주세요.',
     default: '크레스티드 게코',
   })
   @IsString()
   @IsNotEmpty()
   variety: string;
 
+  @ValidateIf((object) => object.category === 'adoption')
+  @ApiProperty({
+    description: '*분양글만 필요, 나머지 게시판은 빈값으로 보내주세요.',
+    default: '릴리 화이트',
+  })
+  @IsString()
+  @IsNotEmpty()
+  pattern: string;
+
+  @ValidateIf((object) => object.category === 'adoption')
+  @ApiProperty({
+    description: '*분양글만 필요, 나머지 게시판은 빈값으로 보내주세요.',
+    default: '2023-06',
+  })
+  @IsString()
+  @IsNotEmpty()
+  birthDate: string;
+
   @ValidateIf((object) => object.category === 'auction')
   @ApiProperty({
-    description: '품종 내용 *분양글만 필요, 경매 번호.',
+    description: '내용 *분양글만 필요, 경매 번호.',
     default: '65',
   })
   @IsString()
