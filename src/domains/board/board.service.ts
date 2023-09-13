@@ -348,6 +348,8 @@ export class BoardService {
           dto.price,
           dto.size,
           dto.variety,
+          dto.pattern,
+          dto.birthDate,
         );
         await queryRunner.manager.save(boardCommercial);
       }
