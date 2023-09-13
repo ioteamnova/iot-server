@@ -143,7 +143,6 @@ export class Boardcontroller {
     @AuthUser() user: User,
     @Body() dto: UpdateBoardDto,
   ) {
-    console.log(dto);
     const board = await this.boardService.updateBoard(boardIdx, dto, user);
     return HttpResponse.ok(res, board);
   }

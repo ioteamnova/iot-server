@@ -72,7 +72,7 @@ export class BoardService {
         );
         await queryRunner.manager.save(boardCommercial);
       }
-      if (this.isActionCate) {
+      if (await this.isActionCate(dto.category)) {
         const boardAcution = BoardAuction.from(
           boardInfo.idx,
           dto.price,
@@ -288,7 +288,7 @@ export class BoardService {
           boardIdx: boardIdx,
         });
       }
-      if (this.isActionCate(board.category)) {
+      if (await this.isActionCate(board.category)) {
         //게시판이 경매일 경우 해당 데이터 테이블 삭제하는 함수
         await queryRunner.manager.softDelete(BoardAuction, {
           boardIdx: boardIdx,
@@ -353,7 +353,7 @@ export class BoardService {
         );
         await queryRunner.manager.save(boardCommercial);
       }
-      if (this.isActionCate) {
+      if (await this.isActionCate(dto.category)) {
         const auctionInfo = await queryRunner.manager.findOneBy(BoardAuction, {
           idx: dto.auctionIdx,
         });
