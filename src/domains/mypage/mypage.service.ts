@@ -138,7 +138,6 @@ export class MypageService {
       const actionInfo = await this.boardAuctionRepository.findOne({
         where: {
           boardIdx: board.idx,
-          state: 'selling',
         },
       });
       board.boardAuction = actionInfo;
