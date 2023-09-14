@@ -65,7 +65,7 @@ export class Board extends BaseEntity {
     board.description = description;
     return board;
   }
-  static undateFrom(
+  static updateFrom(
     userIdx: number,
     category: string,
     idx: number,

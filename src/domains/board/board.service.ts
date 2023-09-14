@@ -350,6 +350,7 @@ export class BoardService {
           dto.variety,
           dto.pattern,
           dto.birthDate,
+          dto.state,
         );
         await queryRunner.manager.save(boardCommercial);
       }
@@ -383,7 +384,7 @@ export class BoardService {
         await queryRunner.manager.save(boardAcution);
       }
 
-      const boardInfo = Board.undateFrom(
+      const boardInfo = Board.updateFrom(
         user.idx,
         dto.category,
         boardIdx,
