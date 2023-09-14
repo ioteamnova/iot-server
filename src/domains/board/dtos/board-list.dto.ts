@@ -64,6 +64,15 @@ export class BoardListDto {
   replyCnt: number;
 
   @ApiProperty({
+    description: '댓글+답글 수',
+    type: 'number',
+    default: '202',
+    required: false,
+  })
+  @IsNotEmpty()
+  commentCnt: number;
+
+  @ApiProperty({
     description: '작성일',
     type: 'date',
     default: '2023-04-17',
@@ -91,6 +100,7 @@ export class BoardListDto {
     createdAt,
     images,
     view,
+    commentCnt,
   }: {
     idx: number;
     userIdx: number;
@@ -100,6 +110,7 @@ export class BoardListDto {
     description: string;
     createdAt: Date;
     images: BoardImage[];
+    commentCnt: number;
   }) {
     const board = new BoardListDto();
     board.idx = idx;
@@ -110,6 +121,7 @@ export class BoardListDto {
     board.description = description;
     board.writeDate = createdAt;
     board.images = images;
+    board.commentCnt = commentCnt;
     return board;
   }
 }
