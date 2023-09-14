@@ -61,6 +61,7 @@ export class BoardCommercial extends BaseEntity {
     variety: string,
     pattern: string,
     birthDate: string,
+    state: string,
   ) {
     const boardCommercial = new BoardCommercial();
     boardCommercial.idx = idx;
@@ -71,6 +72,7 @@ export class BoardCommercial extends BaseEntity {
     boardCommercial.variety = variety;
     boardCommercial.pattern = pattern;
     boardCommercial.birthDate = birthDate;
+    boardCommercial.state = state;
     return boardCommercial;
   }
 }
