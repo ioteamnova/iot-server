@@ -38,10 +38,6 @@ export class IotBoardPersonalController {
     @AuthUser() user: User,
     @Query() pageRequest: PageRequest,
   ) {
-    console.log('boardlist start!!');
-    console.log('user:::', user);
-    console.log(pageRequest);
-
     const result = await this.iotPersonalService.getMyBoardList(
       user.idx,
       pageRequest,
@@ -61,10 +57,6 @@ export class IotBoardPersonalController {
     @AuthUser() user: User,
     @Query() pageRequest: PageRequest,
   ) {
-    console.log('boardlist start!!');
-    console.log('user:::', user);
-    console.log(pageRequest);
-
     const result = await this.iotPersonalService.getBoardList(
       user.idx,
       pageRequest,
@@ -84,10 +76,6 @@ export class IotBoardPersonalController {
     @AuthUser() user: User,
     @Query() pageRequest: IotNaturePageRequest,
   ) {
-    console.log('natureList start!!');
-    console.log('user:::', user);
-    console.log(pageRequest);
-
     const result = await this.iotPersonalService.getNatureList(pageRequest);
     return HttpResponse.ok(res, result);
   }
@@ -104,10 +92,6 @@ export class IotBoardPersonalController {
     @AuthUser() user: User,
     @Query() pageRequest: IotControlPageRequest,
   ) {
-    console.log('controllist start!!');
-    console.log('user:::', user);
-    console.log(pageRequest);
-
     const result = await this.iotPersonalService.getControlList(pageRequest);
     return HttpResponse.ok(res, result);
   }
@@ -145,16 +129,12 @@ export class IotBoardPersonalController {
       randomstring,
     );
 
-    console.log('chkDuplicate');
-    console.log(chkDuplicate);
-
     if (chkDuplicate == null) {
       const iot_auth_info: any = {
         userIdx: user.idx,
         boardTempName: 'KR_B' + newAuthNum,
         boardSerial: randomstring,
       };
-      console.log(iot_auth_info);
 
       const result = await this.iotPersonalService.createAuthInfo(
         iot_auth_info,
