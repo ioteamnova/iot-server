@@ -29,7 +29,7 @@ export class BoardRepository extends Repository<Board> {
     const board = await this.createQueryBuilder('board')
       .leftJoinAndSelect('board.images', 'image')
       .where('board.idx = :boardIdx', { boardIdx })
-      .orderBy('image.sequence', 'DESC') // sequence 컬럼을 내림차순으로 정렬
+      .orderBy('image.sequence', 'ASC') // sequence 컬럼을 내림차순으로 정렬
       .getOne();
     const boardListDto = BoardListDto.from(board);
     return boardListDto;
