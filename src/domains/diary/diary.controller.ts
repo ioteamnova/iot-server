@@ -250,7 +250,6 @@ export class DiaryController {
     @Param('petIdx') petIdx: number,
     @Body() dto: CreatePetWeightDto,
   ) {
-    console.log('dto', dto);
     const result = await this.diaryService.createPetWeight(petIdx, dto);
     return HttpResponse.created(res, { body: result });
   }

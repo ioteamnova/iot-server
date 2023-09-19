@@ -34,8 +34,6 @@ export class IotBoardPersonalService {
    * @returns Iot_board_personal
    */
   async getMyBoardList(userIdx: number, pageRequest: PageRequest) {
-    console.log(pageRequest);
-
     const [iotBoards, totalCount] =
       await this.iotBoardPersonalRepository.findAndCountByUserIdx(
         userIdx,
@@ -52,34 +50,11 @@ export class IotBoardPersonalService {
    * @returns Iot_board_personal
    */
   async getBoardList(userIdx: number, pageRequest: PageRequest) {
-    console.log(pageRequest);
-
-    const iotBoards = await this.iotBoardPersonalRepository.find({
-      //where: {
-      // boardIdx: pageRequest.boardIdx,
-      // createdAt: Between(
-      //   new Date(timelist.firstData),
-      //   new Date(timelist.secondData),
-      // ),
-      //},
-    });
-
-    console.log('iotBoards::', iotBoards);
-    console.log('iotBoards length::', iotBoards.length);
-    // const dto = new IotBoardPersonalListDto();
-    // dto.totalBoardList(board);
+    const iotBoards = await this.iotBoardPersonalRepository.find({});
 
     const items = iotBoards.map((board) =>
       new IotBoardPersonalListDto().totalBoardList(board),
     );
-
-    console.log('iotBoards items::', items);
-
-    // return new Page<IotBoardPersonalListDto>(
-    //   iotBoards.length,
-    //   items,
-    //   pageRequest,
-    // );
   }
 
   /**

@@ -23,11 +23,6 @@ export class LiveStreamController {
   @ApiCreatedResponseTemplate()
   @Post('/live_start')
   async startLiveStream(@Res() res, @Body() dto: StreamKeyDto) {
-    console.log('live_start');
-    // console.log(res);
-    // console.log(dto);
-    // console.log(dto.name);
-    // const result = true;
     const result = await this.liveStreamService.setLiveStreamInfo('start', dto);
     return HttpResponse.created(res, { body: result });
   }
@@ -42,11 +37,6 @@ export class LiveStreamController {
   @ApiCreatedResponseTemplate()
   @Post('/live_end')
   async endLiveStream(@Res() res, @Body() dto: StreamKeyDto) {
-    console.log('liveEnd');
-    // console.log(res);
-    // console.log(dto);
-    // console.log(dto.name);
-    // const result = true;
     const result = await this.liveStreamService.setLiveStreamInfo('end', dto);
     return HttpResponse.created(res, { body: result });
   }

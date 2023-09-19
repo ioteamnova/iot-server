@@ -165,8 +165,5 @@ export class IotBoardPersonalListDto {
     this.usage = iotBoardPersonal.usage;
     this.autoLightUtctimeOn = iotBoardPersonal.autoLightUtctimeOn;
     this.autoLightUtctimeOff = iotBoardPersonal.autoLightUtctimeOff;
-
-    console.log('iotBoards items::', iotBoardPersonal.idx);
-    console.log('iotBoards items::', this.idx);
   }
 }

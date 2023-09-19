@@ -186,21 +186,18 @@ export class AuthService {
    */
   async getNewAccessToken(refreshToken: string) {
     // 1. DB의 리프레시 토큰과 일치 여부 확인
-    console.log('refreshToken', refreshToken);
     const user = await this.userRepository.findOne({
       where: {
         refreshToken: refreshToken,
       },
     });
     if (!user) {
-      console.log('CANNOT_FIND_USER');
       throw new UnauthorizedException(HttpErrorConstants.CANNOT_FIND_USER);
     }
 
     // 2. 리프레시 토큰 만료기간 검증
     const refreshTokenMatches = await this.jwtService.verify(refreshToken);
     if (!refreshTokenMatches) {
-      console.log('EXPIRED_REFRESH_TOKEN');
       throw new UnauthorizedException(HttpErrorConstants.EXPIRED_REFRESH_TOKEN);
     }
 
