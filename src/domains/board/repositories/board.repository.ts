@@ -23,6 +23,11 @@ export class BoardRepository extends Repository<Board> {
       const boardListDto = BoardListDto.from(board);
       return boardListDto;
     });
+    boardListDtoArr.forEach((boardListDto) => {
+      boardListDto.images = boardListDto.images.filter(
+        (image) => image.mediaSequence === 0,
+      );
+    });
     return [boardListDtoArr, totalCount];
   }
   async findBoadDetailByBoardIdx(boardIdx: number): Promise<BoardListDto> {
