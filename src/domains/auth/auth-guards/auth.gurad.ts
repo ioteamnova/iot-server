@@ -14,6 +14,7 @@ export class UserGuard extends AuthGuard('jwt') {
       const request = context.switchToHttp().getRequest();
       const user = request.user as User;
       return !!user;
+
     } catch (error) {
       if (error.status === 401) {
         throw new NotFoundException({ status: 401, message: 'Unauthorized' });

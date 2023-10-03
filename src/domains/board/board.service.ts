@@ -31,6 +31,7 @@ import { LiveStreamRepository } from '../live_stream/repositories/live-stream.re
 import { BoardAuction } from './entities/board-auction.entity';
 import * as moment from 'moment';
 import { BoardVerifyType } from '../user/helper/constant';
+import { logger } from '../../utils/logger';
 
 @Injectable()
 export class BoardService {
@@ -60,7 +61,8 @@ export class BoardService {
       dto.userIdx = userIdx;
       const board = Board.from(dto);
       const boardInfo = await queryRunner.manager.save(board);
-      if (this.isCommercialCate(board.category)) {
+      
+      if (await this.isCommercialCate(board.category)) {
         const boardCommercial = BoardCommercial.from(
           boardInfo.idx,
           dto.gender,
@@ -72,8 +74,8 @@ export class BoardService {
         );
         await queryRunner.manager.save(boardCommercial);
       }
-      if (await this.isActionCate(dto.category)) {
-        const boardAcution = BoardAuction.from(
+      if (await this.isAuctionCate(dto.category)) {
+        const boardAuction = BoardAuction.from(
           boardInfo.idx,
           dto.price,
           dto.startPrice,
@@ -86,16 +88,16 @@ export class BoardService {
           dto.birthDate,
           'temp',
         );
-        boardAcution.extensionTime = dto.endTime;
-        boardAcution.endTime = moment(dto.endTime)
+        boardAuction.extensionTime = dto.endTime;
+        boardAuction.endTime = moment(dto.endTime)
           .add(1, 'minute')
           .format('YYYY-MM-DD HH:mm');
         if (dto.alertTime !== 'noAlert') {
-          boardAcution.alertTime = moment(dto.endTime)
+          boardAuction.alertTime = moment(dto.endTime)
             .subtract(dto.alertTime, 'minute')
             .format('YYYY-MM-DD HH:mm');
         }
-        await queryRunner.manager.save(boardAcution);
+        await queryRunner.manager.save(boardAuction);
       }
       if (dto.fileUrl) {
         const mediaInfo = [];
@@ -157,18 +159,18 @@ export class BoardService {
         result.items = commercialInfoArr;
         return result;
       case BoardVerifyType.AUCTION:
-        const actionInfoArr = [];
+        const auctionInfoArr = [];
         for (const board of result.items) {
-          const actionInfo = await this.boardAuctionRepository.findOne({
+          const auctionInfo = await this.boardAuctionRepository.findOne({
             where: {
               boardIdx: board.idx,
               state: BoardVerifyType.SELLING,
             },
           });
-          board.boardAuction = actionInfo;
-          actionInfoArr.push(board);
+          board.boardAuction = auctionInfo;
+          auctionInfoArr.push(board);
         }
-        result.items = actionInfoArr;
+        result.items = auctionInfoArr;
         return result;
       default:
         return result;
@@ -288,7 +290,7 @@ export class BoardService {
           boardIdx: boardIdx,
         });
       }
-      if (await this.isActionCate(board.category)) {
+      if (await this.isAuctionCate(board.category)) {
         //게시판이 경매일 경우 해당 데이터 테이블 삭제하는 함수
         await queryRunner.manager.softDelete(BoardAuction, {
           boardIdx: boardIdx,
@@ -354,11 +356,11 @@ export class BoardService {
         );
         await queryRunner.manager.save(boardCommercial);
       }
-      if (await this.isActionCate(dto.category)) {
+      if (await this.isAuctionCate(dto.category)) {
         const auctionInfo = await queryRunner.manager.findOneBy(BoardAuction, {
           idx: dto.auctionIdx,
         });
-        const boardAcution = BoardAuction.updateForm(
+        const boardAuction = BoardAuction.updateForm(
           auctionInfo.idx,
           board.idx,
           dto.price,
@@ -372,16 +374,16 @@ export class BoardService {
           dto.birthDate,
           dto.state,
         );
-        boardAcution.extensionTime = dto.endTime;
-        boardAcution.endTime = moment(dto.endTime)
+        boardAuction.extensionTime = dto.endTime;
+        boardAuction.endTime = moment(dto.endTime)
           .add(1, 'minute')
           .format('YYYY-MM-DD HH:mm');
         if (dto.alertTime !== 'noAlert') {
-          boardAcution.alertTime = moment(dto.endTime)
+          boardAuction.alertTime = moment(dto.endTime)
             .subtract(dto.alertTime, 'minute')
             .format('YYYY-MM-DD HH:mm');
         }
-        await queryRunner.manager.save(boardAcution);
+        await queryRunner.manager.save(boardAuction);
       }
 
       const boardInfo = Board.updateFrom(
@@ -698,6 +700,7 @@ export class BoardService {
     return userDetails;
   };
   async isCommercialCate(category: string) {
+
     if (
       category === BoardVerifyType.ADOPTION ||
       category === BoardVerifyType.MARKET
@@ -707,7 +710,7 @@ export class BoardService {
       return false;
     }
   }
-  async isActionCate(category: string): Promise<boolean> {
+  async isAuctionCate(category: string): Promise<boolean> {
     if (category === BoardVerifyType.AUCTION) {
       return true;
     } else {

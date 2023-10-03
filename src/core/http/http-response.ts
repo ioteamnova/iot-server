@@ -21,6 +21,7 @@ export default class HttpResponse {
       res.setHeader('Location', params.uri);
     }
     return res
+      // .status(status.CREATED)
       .status(status.CREATED)
       .json(responseJson(status.CREATED, params ? params.body : undefined));
   }
