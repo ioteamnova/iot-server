@@ -27,7 +27,7 @@ export class AuthService {
   async login(dto: LoginUserDto): Promise<LoginResponseDto> {
     const { email, password } = dto;
     const user = await this.userRepository.findOne({
-      where: { email },
+      where: { email }, 
     });
     if (!user) {
       // 유저가 존재하지 않는 경우에는 NotFoundException 던져주는 것이 일반적이나, 로그인에서만 예외적으로 이메일, 비밀번호 중 어떤 정보가 잘못 됐는지 확인하지 못하게 하기 위하여 UnauthorizedException로 통일함.

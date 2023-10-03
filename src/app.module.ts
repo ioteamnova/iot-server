@@ -19,7 +19,7 @@ import { MypageModule } from './domains/mypage/mypage.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.prod',
+      envFilePath: process.env.NODE_ENV === 'dev' ? 'env.dev' : 'env.prod',
     }),
     //todo: 설정파일 분리
     TypeOrmModule.forRoot({

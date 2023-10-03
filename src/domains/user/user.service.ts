@@ -59,11 +59,7 @@ export class UserService {
     user.password = password;
     user.nickname = nickname;
     user.loginMethod =
-      socialType === 'KAKAO'
-        ? SocialMethodType.KAKAO
-        : socialType === 'GOOGLE'
-        ? SocialMethodType.GOOGLE
-        : SocialMethodType.APPLE;
+      socialType === 'KAKAO' ? SocialMethodType.KAKAO: socialType === 'GOOGLE' ? SocialMethodType.GOOGLE: SocialMethodType.APPLE;
 
     return await this.userRepository.save(user);
   }
@@ -231,5 +227,7 @@ export class UserService {
 
     await validatePassword(password, user.password);
     await this.userRepository.softDelete(userIdx);
+    console.log("들어왔다")
+    
   }
 }

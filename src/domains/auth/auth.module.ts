@@ -33,6 +33,6 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, JwtRefreshTokenStrategy],
-  exports: [AuthService, JwtStrategy, PassportModule, JwtRefreshTokenStrategy],
+  exports: [AuthService, JwtStrategy, PassportModule, JwtRefreshTokenStrategy], // ?: JwtStrategy, PassportModule, JwtRefreshTokenStrategy은 왜 export를 하는건지
 })
 export class AuthModule {}
