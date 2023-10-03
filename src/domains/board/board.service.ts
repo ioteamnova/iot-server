@@ -284,7 +284,7 @@ export class BoardService {
         }
         await this.replyRepository.save(boardReplys);
       }
-      if (this.isCommercialCate(board.category)) {
+      if (await this.isCommercialCate(board.category)) {
         //게시판이 분양 or 중고 마켓일 경우 해당 데이터 테이블 삭제하는 함수
         await queryRunner.manager.softDelete(BoardCommercial, {
           boardIdx: boardIdx,
@@ -342,7 +342,7 @@ export class BoardService {
         throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
       }
 
-      if (this.isCommercialCate(board.category)) {
+      if (await this.isCommercialCate(board.category)) {
         const boardCommercial = BoardCommercial.updateFrom(
           dto.boardCommercialIdx,
           boardIdx,
