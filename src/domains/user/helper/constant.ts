@@ -12,4 +12,5 @@ export enum BoardVerifyType {
   REPLY = 'reply',
   COMMENT = 'comment',
   SELLING = 'selling',
+  END = 'end',
 }

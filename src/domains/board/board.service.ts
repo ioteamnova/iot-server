@@ -23,7 +23,7 @@ import { BoardCommercialRepository } from './repositories/board-commercial.repos
 import { UserRepository } from '../user/repositories/user.repository';
 import { BoardListDto } from './dtos/board-list.dto';
 import { fileValidate } from 'src/utils/fileValitate';
-import { DataSource, QueryRunner } from 'typeorm';
+import { DataSource, Not, QueryRunner } from 'typeorm';
 import { RedisService } from '@liaoliaots/nestjs-redis';
 import { BoardAuctionRepository } from './repositories/board-auction.repository';
 import { BoardCategoryPageRequest } from './dtos/board-category-page';
@@ -127,6 +127,7 @@ export class BoardService {
   async findAllBoard(
     pageRequest: BoardCategoryPageRequest,
   ): Promise<Page<BoardListDto>> {
+
     //1. 게시글에 대한 정보를 불러온다.
     const [boards, totalCount] =
       await this.boardRepository.findAndCountByCategory(
@@ -141,7 +142,9 @@ export class BoardService {
       board.UserInfo = userDetails;
       usersInfoArr.push(board);
     }
+
     result.items = usersInfoArr;
+
     switch (pageRequest.category) {
       case BoardVerifyType.MARKET:
       case BoardVerifyType.ADOPTION:
@@ -162,10 +165,16 @@ export class BoardService {
         const auctionInfoArr = [];
         for (const board of result.items) {
           const auctionInfo = await this.boardAuctionRepository.findOne({
-            where: {
+            where: [{
               boardIdx: board.idx,
-              state: BoardVerifyType.SELLING,
+              state: BoardVerifyType.SELLING
             },
+            {
+              boardIdx: board.idx,
+              state: BoardVerifyType.END
+            },]
+            
+
           });
           board.boardAuction = auctionInfo;
           auctionInfoArr.push(board);

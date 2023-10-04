@@ -18,4 +18,6 @@ export class PetWeightPageRequest extends PageRequest {
     }
     return super.limit; // 다른 필터의 경우 기존의 limit 값 반환
   }
+
+
 }
