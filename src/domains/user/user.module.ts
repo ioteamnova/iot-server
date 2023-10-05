@@ -6,12 +6,20 @@ import { UserController } from './user.controller';
 import { TypeOrmExModule } from 'src/core/typeorm-ex.module';
 import { UserRepository } from './repositories/user.repository';
 import { EmailService } from '../email/email.service';
+import { RedisModule } from '@liaoliaots/nestjs-redis';
 
 @Module({
   imports: [
     TypeOrmExModule.forCustomRepository([UserRepository]),
     EmailModule,
     forwardRef(() => AuthModule),
+    RedisModule.forRoot({
+      readyLog: true,
+      config: {
+        host: 'localhost',
+        port: 6379,
+      },
+    }),
   ],
   controllers: [UserController],
   providers: [UserService],
