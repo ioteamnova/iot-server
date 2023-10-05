@@ -13,13 +13,13 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
     TypeOrmExModule.forCustomRepository([UserRepository]),
     EmailModule,
     forwardRef(() => AuthModule),
-    RedisModule.forRoot({
-      readyLog: true,
-      config: {
-        host: 'localhost',
-        port: 6379,
-      },
-    }),
+    // RedisModule.forRoot({
+    //   readyLog: true,
+    //   config: {
+    //     host: process.env.REDIS_HOST,
+    //     port: 6379,
+    //   },
+    // }),
   ],
   controllers: [UserController],
   providers: [UserService],

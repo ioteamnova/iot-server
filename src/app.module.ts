@@ -14,6 +14,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { BoardModule } from './domains/board/board.module';
 import { LiveStreamModule } from './domains/live_stream/live_stream.module';
 import { MypageModule } from './domains/mypage/mypage.module';
+import { RedisModule } from '@liaoliaots/nestjs-redis';
 
 @Module({
   imports: [
@@ -34,6 +35,14 @@ import { MypageModule } from './domains/mypage/mypage.module';
       logging: true,
       timezone: '+09:00',
       namingStrategy: new SnakeNamingStrategy(),
+    }),
+    RedisModule.forRoot({
+      readyLog: true,
+      config: {
+        host: process.env.REDIS_HOST,
+        port: 6379,
+        password: process.env.REDIS_PASSWORD
+      },
     }),
     UserModule,
     AuthModule,
