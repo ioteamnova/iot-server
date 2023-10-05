@@ -9,9 +9,14 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { JwtRefreshTokenStrategy } from './jwt/refresh-token.strategy';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [
+  imports: [    
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: process.env.NODE_ENV === 'dev' ? 'env.dev' : 'env.prod',
+    }),
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: process.env.JWT_SECRET,
@@ -23,13 +28,15 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
     TypeOrmExModule.forCustomRepository([UserRepository]),
     PassportModule,
     forwardRef(() => UserModule),
-    RedisModule.forRoot({
-      readyLog: true,
-      config: {
-        host: 'localhost',
-        port: 6379,
-      },
-    }),
+    // RedisModule.forRoot({
+    //   readyLog: true,
+    //   config: {
+    //     host: process.env.REDIS_HOST,
+    //     // host : 'www.reptimate.store',
+    //     port: 6379,
+    //     // password: 'foobared'
+    //   },
+    // }),
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, JwtRefreshTokenStrategy],

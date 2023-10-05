@@ -20,6 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
+
     const redis = this.redisService.getClient();
     const userInfo = await redis.get(`userInfo${payload.userIdx}`);
     let user;

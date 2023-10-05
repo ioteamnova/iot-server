@@ -25,16 +25,17 @@ import { LiveStreamRepository } from '../live_stream/repositories/live-stream.re
       UserRepository,
       LiveStreamRepository,
     ]),
-    RedisModule.forRoot({
-      readyLog: true,
-      config: {
-        host: 'localhost',
-        port: 6379,
-      },
-    }),
+    // RedisModule.forRoot({
+    //   readyLog: true,
+    //   config: {
+    //     host: process.env.REDIS_HOST,        
+    //     port: 6379,
+    //   },
+    // }),
   ],
   controllers: [Boardcontroller],
   providers: [BoardService],
   exports: [BoardService, TypeOrmExModule],
 })
 export class BoardModule {}
+ 
