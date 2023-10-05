@@ -22,12 +22,14 @@ import { FindPasswordDto } from './dtos/find-password.dto';
 import { VerifyEmailResponseDto } from './dtos/verify-email-response.dto';
 import { VerifyEmailDto } from './dtos/verify-email.dto';
 import { EmailVerifyType } from './helper/constant';
+import { RedisService } from '@liaoliaots/nestjs-redis';
 
 @Injectable()
 export class UserService {
   constructor(
     private userRepository: UserRepository,
     private emailService: EmailService,
+    private readonly redisService: RedisService,
   ) {}
   /**
    *  회원가입
@@ -225,9 +227,13 @@ export class UserService {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
     }
 
+    
+    const redis = this.redisService.getClient();
+    redis.del(`userInfo${userIdx}`);
+
+
     await validatePassword(password, user.password);
     await this.userRepository.softDelete(userIdx);
-    console.log("들어왔다")
     
   }
 }

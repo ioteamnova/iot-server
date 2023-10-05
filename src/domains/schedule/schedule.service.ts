@@ -16,6 +16,7 @@ const serviceAccount = require('../../../firebase-adminsdk.json');
 
 @Injectable()
 export class ScheduleService {
+
   private fcm: admin.messaging.Messaging;
 
   constructor(
@@ -34,6 +35,7 @@ export class ScheduleService {
    * @returns 생성된 스케줄
    */
   async create(dto: CreateScheduleDto, userIdx: number) {
+    
     const user = await this.userRepository.findByUserIdx(userIdx);
     if (!user) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);

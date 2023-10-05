@@ -82,7 +82,7 @@ export class MypageService {
         pageRequest.limit,
         pageRequest.offset,
       ]);
-      //게시판 정보 담고 리턴할 데이터
+      // 현재 존재하는 게시글에 작성된 댓글/답글만 따로 담아준다 (삭제된 게시글에 작성된 댓글/답글들은 응답에서 제외하기 위함)
       const returnData: BoardComment[] = [];
       for (const data of userActivities) {
         const boardComment = BoardComment.myPage(data);
@@ -113,7 +113,7 @@ export class MypageService {
     user: User,
     pageRequest: BoardCategoryPageRequest,
   ): Promise<Page<BoardListDto>> {
-    //1. 게시글에 대한 정보를 불러온다.
+    //1. 내가 작성한 경매게시글 데이터 및 총개수를 불러온다
     const [boards, totalCount] =
       await this.boardRepository.findAndCountByAuctionMyPage(
         pageRequest,
@@ -133,17 +133,17 @@ export class MypageService {
     }
     result.items = usersInfoArr;
 
-    const actionInfoArr = [];
+    const auctionInfoArr = [];
     for (const board of result.items) {
-      const actionInfo = await this.boardAuctionRepository.findOne({
+      const auctionInfo = await this.boardAuctionRepository.findOne({
         where: {
           boardIdx: board.idx,
         },
       });
-      board.boardAuction = actionInfo;
-      actionInfoArr.push(board);
+      board.boardAuction = auctionInfo;
+      auctionInfoArr.push(board);
     }
-    result.items = actionInfoArr;
+    result.items = auctionInfoArr;
     return result;
   }
   async findMyBidding(
