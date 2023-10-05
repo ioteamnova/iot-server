@@ -44,6 +44,11 @@ export const HttpErrorConstants = {
     message: '이메일 또는 비밀번호가 올바르지 않습니다.',
   } as HttpErrorFormat,
 
+  INVALID_TOKEN: {
+    errorCode: 'UNAUTHORIZED',
+    message: '잘못된 토큰값 입니다.',
+  } as HttpErrorFormat,
+
   CANNOT_FIND_USER: {
     errorCode: 'CANNOT_FIND_USER',
     message: '유저를 찾을 수 없습니다.',

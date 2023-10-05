@@ -3,7 +3,7 @@ import { ApiCreatedResponseTemplate } from './../../core/swagger/api-created-res
 import HttpResponse from 'src/core/http/http-response';
 import { AuthService } from './auth.service';
 import { SwaggerTag } from '../../core/swagger/swagger-tags';
-import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { SocialLoginUserDto } from './dtos/social-login-user.dto';
@@ -37,8 +37,11 @@ export class AuthController {
   })
   @ApiCreatedResponseTemplate({ type: LoginResponseDto })
   @Post()
-  async login(@Res() res, @Body() dto: LoginUserDto) {
-    const result = await this.authService.login(dto);
+  async login(@Req() req, @Res() res, @Body() dto: LoginUserDto) {
+
+    const result = await this.authService.login(
+      req.get('user-agent').toLowerCase(),
+      dto);
     return HttpResponse.created(res, { body: result });
     // return res.status(201).send(result);
   }

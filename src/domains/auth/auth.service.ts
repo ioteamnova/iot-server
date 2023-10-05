@@ -2,7 +2,7 @@ import { UserService } from './../user/user.service';
 import { validatePassword } from './../../utils/password.utils';
 import { HttpErrorConstants } from './../../core/http/http-error-objects';
 import { UserRepository } from './../user/repositories/user.repository';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { LoginUserDto } from './dtos/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import axios from 'axios';
@@ -10,6 +10,7 @@ import { SocialLoginUserDto } from './dtos/social-login-user.dto';
 import { SocialMethodType } from './helpers/constants';
 import { User } from '../user/entities/user.entity';
 import { LoginResponseDto } from './dtos/login-response.dto';
+import { detectPlatform } from 'src/utils/client-utils';
 
 @Injectable()
 export class AuthService {
@@ -20,12 +21,23 @@ export class AuthService {
     
   ) {}
 
+  private logger = new Logger('Auth');
+
   /**
    * 로그인
    * @param loginUserDto
    * @returns JwtToken
    */
-  async login(dto: LoginUserDto): Promise<LoginResponseDto> {
+  async login(
+    userAgent: string,
+    dto: LoginUserDto
+    ): Promise<LoginResponseDto> {
+    
+    // 클라이언트의 플랫폼 확인
+    const currentOS = detectPlatform(userAgent);
+    this.logger.log(`currentOS: ${currentOS}`);
+
+      
     const { email, password } = dto;
     const user = await this.userRepository.findOne({
       where: { email }, 
@@ -186,6 +198,7 @@ export class AuthService {
    * @returns 새로운 액세스 토큰
    */
   async getNewAccessToken(refreshToken: string) {
+    
     // 1. DB의 리프레시 토큰과 일치 여부 확인
     const user = await this.userRepository.findOne({
       where: {
@@ -193,7 +206,7 @@ export class AuthService {
       },
     });
     if (!user) {
-      throw new UnauthorizedException(HttpErrorConstants.CANNOT_FIND_USER);
+      throw new UnauthorizedException(HttpErrorConstants.INVALID_TOKEN);
     }
 
     // 2. 리프레시 토큰 만료기간 검증
