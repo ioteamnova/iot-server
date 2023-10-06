@@ -10,7 +10,7 @@ import { SocialLoginUserDto } from './dtos/social-login-user.dto';
 import { SocialMethodType } from './helpers/constants';
 import { User } from '../user/entities/user.entity';
 import { LoginResponseDto } from './dtos/login-response.dto';
-import { detectPlatform } from '../../utils/client-utils';
+import { detectPlatform } from './../../utils/client-utils';
 
 
 @Injectable()
