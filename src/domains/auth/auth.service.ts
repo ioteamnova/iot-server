@@ -77,7 +77,17 @@ export class AuthService {
    * @param socialLoginUserDto
    * @returns JwtToken
    */
-  async socialLogin(dto: SocialLoginUserDto): Promise<LoginResponseDto> {
+  async socialLogin(
+    userAgent: string,
+    dto: SocialLoginUserDto): Promise<LoginResponseDto> {
+
+    this.logger.log(`userAgent: ${userAgent}`);
+
+      // 클라이언트의 플랫폼 확인
+    const currentOS = detectPlatform(userAgent);
+    this.logger.log(`currentOS: ${currentOS}`);
+
+
     let user;
     switch (dto.socialType) {
       case SocialMethodType.KAKAO: {
