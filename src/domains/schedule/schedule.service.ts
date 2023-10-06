@@ -130,11 +130,14 @@ export class ScheduleService {
 
     const schedules = await this.scheduleRepository.findSchedulesByTime(
       currentTime,
+      // '16:00'
     );
     if (schedules.length === 0) {
       console.log('No schedules to send alerts.');
       return;
     }
+
+    console.log(schedules)
 
     const matchingSchedules = schedules.filter((schedule) => {
       if (
