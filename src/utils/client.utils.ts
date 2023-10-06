@@ -14,7 +14,7 @@ export function detectPlatform(userAgent: string): string{
       if (userAgent.search("okhttp") > -1){
           currentOS = "android"; 
       }
-      else if (userAgent.search("Alamofire") > -1){
+      else if (userAgent.search("alamofire") > -1){
           currentOS = "ios";
       }
       else{
