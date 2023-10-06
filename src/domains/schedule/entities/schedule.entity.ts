@@ -1,9 +1,10 @@
 import { CreateScheduleDto } from '../dtos/create-schedule.dto';
 import { User } from 'src/domains/user/entities/user.entity';
 import BaseEntity from 'src/core/entity/base.entity';
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
 import { UpdateScheduleDto } from '../dtos/update-schedule.dto';
 import { SchedulesType } from '../helper/constants';
+import { FbToken } from 'src/domains/auth/entities/fb-token.entity';
 
 @Entity()
 export class Schedule extends BaseEntity {
@@ -33,9 +34,18 @@ export class Schedule extends BaseEntity {
   @Column()
   date: string;
 
-  @ManyToOne(() => User, (user) => user.schedules)
-  @JoinColumn({ name: 'user_idx' })
-  user: User;
+  // // Schedule 엔티티와 FbToken 엔티티 간의 관계 설정
+  // @OneToMany(() => FbToken, (fbToken) => fbToken.schedule)
+  // fbToken: FbToken;
+  
+
+  // @ManyToOne(() => FbToken, (fbToken) => fbToken.schedules)
+  // @JoinColumn({ name: 'user_idx' })
+  // fbToken: FbToken;
+
+  // @ManyToOne(() => User, (user) => user.schedules)
+  // @JoinColumn({ name: 'user_idx' })
+  // user: User;
 
   static from({
     title,

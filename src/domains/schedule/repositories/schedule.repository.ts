@@ -3,6 +3,7 @@ import { PageRequest } from 'src/core/page';
 import { Repository } from 'typeorm';
 import { Schedule } from '../entities/schedule.entity';
 import { SchedulesType } from '../helper/constants';
+import { FbToken } from 'src/domains/auth/entities/fb-token.entity';
 
 @CustomRepository(Schedule)
 export class ScheduleRepository extends Repository<Schedule> {
@@ -35,11 +36,15 @@ export class ScheduleRepository extends Repository<Schedule> {
       },
     });
   }
+  
 
-  async findSchedulesByTime(time: string) {
-    return await this.createQueryBuilder('schedule')
-      .leftJoinAndSelect('schedule.user', 'user')
-      .where('schedule.alarmTime = :time', { time })
-      .getMany();
-  }
+  // async findSchedulesByTime(time: string) {
+  //   return await this.createQueryBuilder('schedule')
+  //     // .leftJoinAndSelect('schedule.user', 'user')
+  //     .leftJoinAndSelect('schedule.fbToken', 'fbToken')
+  //     .where('schedule.alarmTime = :time', { time })
+  //     .getMany();
+      
+  // }
+
 }

@@ -136,7 +136,7 @@ export class ScheduleController {
 
   @ApiOperation({
     summary: '스케줄 푸시알림 테스트',
-    description: '스케줄 푸시알림 테스트용 API. ',
+    description: '스케줄 푸시알림 테스트용 API.',
   })
   @Post('/send')
   async sendNotification(@Res() res) {

@@ -11,6 +11,7 @@ import * as admin from 'firebase-admin';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import DateUtils from 'src/utils/date-utils';
 import { SchedulesType } from './helper/constants';
+import { DataSource } from 'typeorm';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const serviceAccount = require('../../../firebase-adminsdk.json');
 
@@ -22,6 +23,7 @@ export class ScheduleService {
   constructor(
     private scheduleRepository: ScheduleRepository,
     private userRepository: UserRepository,
+    private dataSource: DataSource
   ) {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
@@ -123,26 +125,38 @@ export class ScheduleService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async checkSchedules() {
+    
     const currentTime = DateUtils.momentTime();
-    // const testTime = '19:00'; // 테스트용
+    const testTime = '16:00'; // 테스트용 시간
     const currentDay = DateUtils.momentDay();
+    const testDate = '2023-08-25' // 테스트용 날짜
     const currentDate = DateUtils.momentNowSubtractTime();
 
-    const schedules = await this.scheduleRepository.findSchedulesByTime(
-      currentTime,
-      // '16:00'
-    );
+    const queryRunner = this.dataSource.createQueryRunner();
+  
+    const getDataQuery = `
+    SELECT * FROM schedule S
+    LEFT JOIN fb_token F
+    ON S.user_idx = F.user_idx where S.alarm_time = ?
+    `;
+    //조회 데이터
+    const schedules = await queryRunner.query(getDataQuery, [
+      currentTime
+      // testTime
+    ]);
+
+    // console.log(schedules)
+
     if (schedules.length === 0) {
       console.log('No schedules to send alerts.');
       return;
     }
 
-    console.log(schedules)
-
     const matchingSchedules = schedules.filter((schedule) => {
       if (
         schedule.type === SchedulesType.CALENDAR &&
         schedule.date === currentDate
+        // schedule.date === testDate
       ) {
         return true;
       }
@@ -158,6 +172,7 @@ export class ScheduleService {
       console.log('No matchingSchedules to send alerts.');
       return;
     }
+
     /**
      * 유저의 토큰과 스케줄을 Map에 담는다.
      * 같은 유저(같은 토큰값)가 여러개의 스케줄을 갖고 있는 경우를 고려하여 Map을 사용.
@@ -165,7 +180,7 @@ export class ScheduleService {
 
     const userTokensMap = new Map();
     for (const matchingSchedule of matchingSchedules) {
-      const userToken = matchingSchedule.user.fbToken;
+      const userToken = matchingSchedule.fb_token;
 
       if (!userTokensMap.has(userToken)) {
         userTokensMap.set(userToken, []);

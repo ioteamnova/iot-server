@@ -82,8 +82,10 @@ export class AuthController {
   ])
   @UseGuards(JwtRefreshGuard)
   @Post('/token')
-  async getNewAccessToken(@Res() res, @Body() dto: RefreshTokenDto) {
-    const result = await this.authService.getNewAccessToken(dto.refreshToken);
+  async getNewAccessToken(@Req() req, @Res() res, @Body() dto: RefreshTokenDto) {
+    const result = await this.authService.getNewAccessToken(
+      req.get('user-agent').toLowerCase(),
+      dto.refreshToken);
     return HttpResponse.created(res, { body: result });
   }
 
@@ -94,8 +96,10 @@ export class AuthController {
   @ApiCreatedResponseTemplate()
   @UseAuthGuards()
   @Get('/logout')
-  async logout(@Res() res, @AuthUser() user: User) {
-    await this.authService.logout(user.idx);
+  async logout(@Req() req, @Res() res, @AuthUser() user: User) {
+    await this.authService.logout(
+      req.get('user-agent').toLowerCase(),
+      user.idx);
     return HttpResponse.ok(res);
   }
 }
