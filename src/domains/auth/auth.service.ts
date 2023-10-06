@@ -34,10 +34,11 @@ export class AuthService {
     dto: LoginUserDto
     ): Promise<LoginResponseDto> {
     
-    // 클라이언트의 플랫폼 확인
+    this.logger.log(`userAgent: ${userAgent}`);
+
+      // 클라이언트의 플랫폼 확인
     const currentOS = detectPlatform(userAgent);
     this.logger.log(`currentOS: ${currentOS}`);
-
       
     const { email, password } = dto;
     const user = await this.userRepository.findOne({
