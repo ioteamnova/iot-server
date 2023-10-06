@@ -55,8 +55,10 @@ export class AuthController {
   })
   @ApiCreatedResponseTemplate({ type: LoginResponseDto })
   @Post('/social')
-  async socialLogin(@Res() res, @Body() dto: SocialLoginUserDto) {
-    const result = await this.authService.socialLogin(dto);
+  async socialLogin(@Req() req, @Res() res, @Body() dto: SocialLoginUserDto) {
+    const result = await this.authService.socialLogin(
+      req.get('user-agent').toLowerCase(),
+      dto);
     return HttpResponse.created(res, { body: result });
   }
 
