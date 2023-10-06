@@ -65,8 +65,8 @@ export class User extends BaseEntity {
   @OneToMany(() => Pet, (pet) => pet.user)
   pets: Pet[];
 
-  @OneToMany(() => Schedule, (schedule) => schedule.user)
-  schedules: Schedule[];
+  // @OneToMany(() => Schedule, (schedule) => schedule.user)
+  // schedules: Schedule[];
 
   static from({
     email,

@@ -1,15 +1,16 @@
-import { UserModule } from './../user/user.module';
-import { AuthService } from './auth.service';
 import { forwardRef, Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
-import { UserRepository } from '../user/repositories/user.repository';
-import { TypeOrmExModule } from 'src/core/typeorm-ex.module';
+import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { TypeOrmExModule } from 'src/core/typeorm-ex.module';
+import { UserRepository } from '../user/repositories/user.repository';
+import { UserModule } from './../user/user.module';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { JwtRefreshTokenStrategy } from './jwt/refresh-token.strategy';
-import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { ConfigModule } from '@nestjs/config';
+import { FbTokenRepository } from './repositories/fb-token.repository';
+import { RefTokenRepository } from './repositories/ref-token.repository';
 
 @Module({
   imports: [    
@@ -25,7 +26,11 @@ import { ConfigModule } from '@nestjs/config';
         },
       }),
     }),
-    TypeOrmExModule.forCustomRepository([UserRepository]),
+    TypeOrmExModule.forCustomRepository([
+      UserRepository,
+      RefTokenRepository,
+      FbTokenRepository
+    ]),
     PassportModule,
     forwardRef(() => UserModule),
     // RedisModule.forRoot({
