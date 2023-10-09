@@ -133,73 +133,83 @@ export class ScheduleService {
     const currentDate = DateUtils.momentNowSubtractTime();
 
     const queryRunner = this.dataSource.createQueryRunner();
-  
-    const getDataQuery = `
-    SELECT * FROM schedule S
-    LEFT JOIN fb_token F
-    ON S.user_idx = F.user_idx where S.alarm_time = ?
-    `;
-    //조회 데이터
-    const schedules = await queryRunner.query(getDataQuery, [
-      currentTime
-      // testTime
-    ]);
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    // console.log(schedules)
+    try {
+      const getDataQuery = `
+      SELECT * FROM schedule S
+      LEFT JOIN fb_token F
+      ON S.user_idx = F.user_idx where S.alarm_time = ?
+      `;
+      //조회 데이터
+      const schedules = await queryRunner.query(getDataQuery, [
+        currentTime
+        // testTime
+      ]);
 
-    if (schedules.length === 0) {
-      console.log('No schedules to send alerts.');
-      return;
-    }
+      // console.log(schedules)
 
-    const matchingSchedules = schedules.filter((schedule) => {
-      if (
-        schedule.type === SchedulesType.CALENDAR &&
-        schedule.date === currentDate
-        // schedule.date === testDate
-      ) {
-        return true;
+      if (schedules.length === 0) {
+        console.log('No schedules to send alerts.');
+        return;
       }
 
-      if (schedule.type === SchedulesType.REPETITION) {
-        const repeatArray = schedule.repeatDay.split(',');
-        const sameDay: boolean = repeatArray[currentDay] === '1';
-        return sameDay;
-      }
-    });
+      const matchingSchedules = schedules.filter((schedule) => {
+        if (
+          schedule.type === SchedulesType.CALENDAR &&
+          schedule.date === currentDate
+          // schedule.date === testDate
+        ) {
+          return true;
+        }
 
-    if (matchingSchedules.length === 0) {
-      console.log('No matchingSchedules to send alerts.');
-      return;
-    }
-
-    /**
-     * 유저의 토큰과 스케줄을 Map에 담는다.
-     * 같은 유저(같은 토큰값)가 여러개의 스케줄을 갖고 있는 경우를 고려하여 Map을 사용.
-     * */
-
-    const userTokensMap = new Map();
-    for (const matchingSchedule of matchingSchedules) {
-      const userToken = matchingSchedule.fb_token;
-
-      if (!userTokensMap.has(userToken)) {
-        userTokensMap.set(userToken, []);
-      }
-
-      userTokensMap.get(userToken).push(matchingSchedule);
-    }
-
-    for (const [userToken, userSchedules] of userTokensMap) {
-      const notifications = userSchedules.map((schedule) => {
-        return {
-          title: schedule.title,
-          body: schedule.memo,
-        };
+        if (schedule.type === SchedulesType.REPETITION) {
+          const repeatArray = schedule.repeatDay.split(',');
+          const sameDay: boolean = repeatArray[currentDay] === '1';
+          return sameDay;
+        }
       });
 
-      await this.sendNotifications(notifications, userToken);
+      if (matchingSchedules.length === 0) {
+        console.log('No matchingSchedules to send alerts.');
+        return;
+      }
+
+      /**
+       * 유저의 토큰과 스케줄을 Map에 담는다.
+       * 같은 유저(같은 토큰값)가 여러개의 스케줄을 갖고 있는 경우를 고려하여 Map을 사용.
+       * */
+
+      const userTokensMap = new Map();
+      for (const matchingSchedule of matchingSchedules) {
+        const userToken = matchingSchedule.fb_token;
+
+        if (!userTokensMap.has(userToken)) {
+          userTokensMap.set(userToken, []);
+        }
+
+        userTokensMap.get(userToken).push(matchingSchedule);
+      }
+
+      for (const [userToken, userSchedules] of userTokensMap) {
+        const notifications = userSchedules.map((schedule) => {
+          return {
+            title: schedule.title,
+            body: schedule.memo,
+          };
+        });
+
+        await this.sendNotifications(notifications, userToken);
+      }
+      } 
+      catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw error;
+      } finally {
+        await queryRunner.release();
+      }
     }
-  }
 
   /**
    * FCM 서버로 유저의 토큰과 발송할 메세지를 전송
