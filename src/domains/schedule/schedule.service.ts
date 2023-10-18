@@ -15,6 +15,11 @@ import { DataSource } from 'typeorm';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const serviceAccount = require('../../../firebase-adminsdk.json');
 
+interface AlarmBody {
+  type: string;
+  description: string;
+}
+
 @Injectable()
 export class ScheduleService {
 
@@ -194,11 +199,18 @@ export class ScheduleService {
       }
 
       for (const [userToken, userSchedules] of userTokensMap) {
+
         const notifications = userSchedules.map((schedule) => {
-          return {
+
+          // 스케쥴 알림 바디 객체 생성
+          const scheduleAlarmBody:AlarmBody = {
             type: schedule.type,
+            description: `${schedule.memo}`,
+          };
+
+          return {
             title: schedule.title,
-            body: schedule.memo,
+            body: JSON.stringify(scheduleAlarmBody),
           };
         });
 
@@ -224,7 +236,6 @@ export class ScheduleService {
         notifications.map(async (notification) => {
           const message = {
             notification: {
-              type: notification.type,
               title: notification.title,
               body: notification.body,
             },

@@ -15,17 +15,10 @@ export class FbTokenRepository extends Repository<FbToken> {
       },
     });
 
-    console.log('firebaseToken: '+fbToken)
-    console.log('-----')
-    console.log(entity)
-    
-
     if (entity) {
-      console.log('if로 들어왔다')
       // 있으면 기존의 토큰행 업데이트
       entity.fbToken = fbToken;
     } else {
-      console.log('else로 들어왔다')
       // 없으면 토큰행 생성
       entity = this.create({
         userIdx,
