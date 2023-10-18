@@ -183,6 +183,7 @@ export class ScheduleService {
 
       const userTokensMap = new Map();
       for (const matchingSchedule of matchingSchedules) {
+        
         const userToken = matchingSchedule.fb_token;
 
         if (!userTokensMap.has(userToken)) {
@@ -195,6 +196,7 @@ export class ScheduleService {
       for (const [userToken, userSchedules] of userTokensMap) {
         const notifications = userSchedules.map((schedule) => {
           return {
+            type: schedule.type,
             title: schedule.title,
             body: schedule.memo,
           };
@@ -222,6 +224,7 @@ export class ScheduleService {
         notifications.map(async (notification) => {
           const message = {
             notification: {
+              type: notification.type,
               title: notification.title,
               body: notification.body,
             },

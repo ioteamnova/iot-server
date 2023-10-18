@@ -1,5 +1,5 @@
 import { CustomRepository } from 'src/core/decorators/typeorm-ex.decorator';
-import { Repository } from 'typeorm';
+import { Repository, Transaction } from 'typeorm';
 import { FbToken } from '../entities/fb-token.entity';
 
 @CustomRepository(FbToken)
@@ -15,10 +15,17 @@ export class FbTokenRepository extends Repository<FbToken> {
       },
     });
 
+    console.log('firebaseToken: '+fbToken)
+    console.log('-----')
+    console.log(entity)
+    
+
     if (entity) {
+      console.log('if로 들어왔다')
       // 있으면 기존의 토큰행 업데이트
       entity.fbToken = fbToken;
     } else {
+      console.log('else로 들어왔다')
       // 없으면 토큰행 생성
       entity = this.create({
         userIdx,
@@ -26,7 +33,9 @@ export class FbTokenRepository extends Repository<FbToken> {
         fbToken,
       });
     }
+    
     // todo: 암호화해서 파이어베이스 토큰 저장
     this.save(entity);
+
   }
 }

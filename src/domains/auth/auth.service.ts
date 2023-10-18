@@ -54,6 +54,7 @@ export class AuthService {
     await validatePassword(password, user.password);
 
     const firebaseToken = dto.fbToken;
+    
     await this.fbTokenRepository.createOrUpdateFbToken(user.idx, platform, firebaseToken)
     
     const accessToken = await this.generateAccessToken(user.idx, platform);
