@@ -15,6 +15,7 @@ import { BoardModule } from './domains/board/board.module';
 import { LiveStreamModule } from './domains/live_stream/live_stream.module';
 import { MypageModule } from './domains/mypage/mypage.module';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { MoffListModule } from './domains/moff_list/moff_list.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
     ScheduleModule.forRoot(),
     LiveStreamModule,
     MypageModule,
+    MoffListModule,
   ],
   controllers: [AppController],
   providers: [AppService],
