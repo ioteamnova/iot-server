@@ -361,7 +361,7 @@ export class BoardService {
           dto.variety,
           dto.pattern,
           dto.birthDate,
-          dto.state,
+          dto.state
         );
         await queryRunner.manager.save(boardCommercial);
       }
@@ -382,6 +382,7 @@ export class BoardService {
           dto.pattern,
           dto.birthDate,
           dto.state,
+          dto.streamKey
         );
         boardAuction.extensionTime = dto.endTime;
         boardAuction.endTime = moment(dto.endTime)
