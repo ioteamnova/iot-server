@@ -74,7 +74,7 @@ export class UpdateBoardDto extends PartialType(createBoardDto) {
 
   @ValidateIf((object) => object.category === 'auction')
   @ApiProperty({
-    description: '내용 *분양글만 필요, 경매 번호.',
+    description: '내용 *경매글만 필요, 경매 번호.',
     default: '65',
   })
   @IsString()
@@ -83,10 +83,19 @@ export class UpdateBoardDto extends PartialType(createBoardDto) {
 
   @ValidateIf((object) => object.category === 'auction')
   @ApiProperty({
-    description: '품종 내용 *분양글만 필요, 상태',
+    description: '품종 내용 *경매글만 필요, 상태',
     default: 'selling',
   })
   @IsString()
   @IsNotEmpty()
   state: string;
+
+  @ValidateIf((object) => object.category === 'auction')
+  @ApiProperty({
+    description: '스트림키 *경매글만 필요, 스트림키.',
+    default: '21Bu-CQfU-im7s-W7NJ-ArLV',
+  })
+  @IsString()
+  @IsNotEmpty()
+  streamKey: string;
 }
