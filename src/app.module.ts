@@ -21,7 +21,7 @@ import { MoffListModule } from './domains/moff_list/moff_list.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'dev' ? 'env.dev' : 'env.prod',
+      envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.prod',
     }),
     //todo: 설정파일 분리
     TypeOrmModule.forRoot({
