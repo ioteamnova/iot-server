@@ -54,7 +54,10 @@ export class AuthService {
     await validatePassword(password, user.password);
 
     const firebaseToken = dto.fbToken;
-    
+
+    // 인자에 해당하는 FbToken을 가지고 있는 행이 있다면 삭제한다
+    await this.fbTokenRepository.removeFbTokenIfExists(firebaseToken)
+
     await this.fbTokenRepository.createOrUpdateFbToken(user.idx, platform, firebaseToken)
     
     const accessToken = await this.generateAccessToken(user.idx, platform);
