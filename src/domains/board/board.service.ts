@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { createBoardDto } from './dtos/create-board.dto';
 import { S3FolderName, mediaUpload } from 'src/utils/s3-utils';
 import { BoardRepository } from './repositories/board.repository';
@@ -30,8 +30,9 @@ import { BoardCategoryPageRequest } from './dtos/board-category-page';
 import { LiveStreamRepository } from '../live_stream/repositories/live-stream.repository';
 import { BoardAuction } from './entities/board-auction.entity';
 import * as moment from 'moment';
-import { BoardVerifyType } from '../user/helper/constant';
+import { BoardVerifyType, BoardOrderCriteria} from '../user/helper/constant';
 import { logger } from '../../utils/logger';
+import HttpResponse from 'src/core/http/http-response';
 
 @Injectable()
 export class BoardService {
@@ -128,12 +129,24 @@ export class BoardService {
     pageRequest: BoardCategoryPageRequest,
   ): Promise<Page<BoardListDto>> {
 
-    //1. 게시글에 대한 정보를 불러온다.
+    let category = pageRequest.category
+    let orderCriteria = pageRequest.orderCriteria
+    
+    // 조회할 게시글의 카테고리가 market, adoption, auction이 아닌 경우, 가격을 기준으로 정렬을 하려고 하면 오류를 응답한다.
+    if (!['market', 'adoption', 'auction'].includes(category) && orderCriteria === BoardOrderCriteria.PRICE) {
+      throw new UnprocessableEntityException(HttpErrorConstants.PRICE_NOT_SPECIFIED);
+    }
+    
+    //1. 요청받은 카테고리의 게시글들을 불러온다.
     const [boards, totalCount] =
       await this.boardRepository.findAndCountByCategory(
         pageRequest,
-        pageRequest.category,
+        category,
+        orderCriteria
       );
+      
+      
+
     const result = new Page<BoardListDto>(totalCount, boards, pageRequest);
     //2. 게시글 작성자에 대한 정보(닉네임, 프로필 사진 주소)를 불러온다.
     const usersInfoArr = [];
@@ -147,6 +160,7 @@ export class BoardService {
 
     switch (pageRequest.category) {
       case BoardVerifyType.MARKET:
+        return result;
       case BoardVerifyType.ADOPTION:
         //3. 게시판 카테고리가 분양 or 중고 마켓이면 해당 데이터를 조회한다.
         const commercialInfoArr = [];

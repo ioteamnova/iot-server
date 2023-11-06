@@ -139,4 +139,10 @@ export const HttpErrorConstants = {
     errorCode: 'LIVESTREAMINFO_NOT_EXIST',
     message: '해당 경매 라이브 정보를 찾을 수 없습니다.',
   } as HttpErrorFormat,
+
+  PRICE_NOT_SPECIFIED: {
+    errorCode: 'PRICE_NOT_SPECIFIED',
+    message: '가격이 정의되지 않은 유형의 게시글 입니다.',
+  } as HttpErrorFormat,
+
 };
