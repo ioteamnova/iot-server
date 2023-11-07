@@ -4,17 +4,60 @@ import { Board } from '../entities/board.entity';
 import { BoardListDto } from '../dtos/board-list.dto';
 import { BoardCategoryPageRequest } from '../dtos/board-category-page';
 import { PageRequest } from 'src/core/page';
+import {
+  BoardVerifyType,
+  BoardOrderCriteria,
+} from '../../user/helper/constant';
 
 @CustomRepository(Board)
 export class BoardRepository extends Repository<Board> {
   async findAndCountByCategory(
     pageRequest: BoardCategoryPageRequest,
     category: string,
+    orderCriteria: string,
   ): Promise<[BoardListDto[], number]> {
+    let orderByField;
+
+    // 정렬기준을 DB가 이해할수 있는 필드(컬럼)네임 형태로 바꾼다
+    switch (orderCriteria) {
+      case BoardOrderCriteria.CREATED:
+        orderByField = 'board.idx';
+        break;
+
+      case BoardOrderCriteria.VIEW:
+        orderByField = 'board.view';
+        break;
+
+      // 가격 정렬은, MARKET, AUCTION, ADOPTION 게시글에 대해서만 적용한다
+      case BoardOrderCriteria.PRICE:
+        switch (category) {
+          case BoardVerifyType.MARKET:
+          case BoardVerifyType.ADOPTION:
+            orderByField = 'commercial.price';
+            break;
+          case BoardVerifyType.AUCTION:
+            orderByField = 'auction.currentPrice';
+            break;
+        }
+        break;
+    }
+
+    console.log(`orderByField: ${orderByField}`);
+
     const [boards, totalCount] = await this.createQueryBuilder('board')
       .leftJoinAndSelect('board.images', 'image')
+      .leftJoinAndSelect(
+        'board_auction',
+        'auction',
+        'board.idx = auction.boardIdx',
+      )
+      .leftJoinAndSelect(
+        'board_commercial',
+        'commercial',
+        'board.idx = commercial.boardIdx',
+      )
       .where('board.category = :category', { category })
-      .orderBy('board.idx', pageRequest.order)
+      .orderBy(orderByField, pageRequest.order)
       .take(pageRequest.limit)
       .skip(pageRequest.offset)
       .getManyAndCount();

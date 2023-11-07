@@ -112,6 +112,7 @@ export class BoardAuction extends BaseEntity {
     pattern: string,
     birthDate: string,
     state: string,
+    streamKey: string,
   ) {
     const boardAuction = new BoardAuction();
     boardAuction.idx = idx;
@@ -126,6 +127,7 @@ export class BoardAuction extends BaseEntity {
     boardAuction.pattern = pattern;
     boardAuction.birthDate = birthDate;
     boardAuction.state = state;
+    boardAuction.streamKey = streamKey;
     return boardAuction;
   }
 }

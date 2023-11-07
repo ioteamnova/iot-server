@@ -14,3 +14,15 @@ export enum BoardVerifyType {
   SELLING = 'selling',
   END = 'end',
 }
+
+// 게시판 정렬 기준
+export enum BoardOrderCriteria {
+  CREATED = 'created',
+  PRICE = 'price',
+  VIEW = 'view',
+  MARKET = 'market',
+  REPLY = 'reply',
+  COMMENT = 'comment',
+  SELLING = 'selling',
+  END = 'end',
+}

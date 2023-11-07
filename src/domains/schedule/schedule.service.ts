@@ -15,15 +15,19 @@ import { DataSource } from 'typeorm';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const serviceAccount = require('../../../firebase-adminsdk.json');
 
+interface AlarmBody {
+  type: string;
+  description: string;
+}
+
 @Injectable()
 export class ScheduleService {
-
   private fcm: admin.messaging.Messaging;
 
   constructor(
     private scheduleRepository: ScheduleRepository,
     private userRepository: UserRepository,
-    private dataSource: DataSource
+    private dataSource: DataSource,
   ) {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
@@ -37,7 +41,6 @@ export class ScheduleService {
    * @returns 생성된 스케줄
    */
   async create(dto: CreateScheduleDto, userIdx: number) {
-    
     const user = await this.userRepository.findByUserIdx(userIdx);
     if (!user) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_USER);
@@ -125,11 +128,10 @@ export class ScheduleService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async checkSchedules() {
-    
     const currentTime = DateUtils.momentTime();
     const testTime = '16:00'; // 테스트용 시간
     const currentDay = DateUtils.momentDay();
-    const testDate = '2023-08-25' // 테스트용 날짜
+    const testDate = '2023-08-25'; // 테스트용 날짜
     const currentDate = DateUtils.momentNowSubtractTime();
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -144,7 +146,7 @@ export class ScheduleService {
       `;
       //조회 데이터
       const schedules = await queryRunner.query(getDataQuery, [
-        currentTime
+        currentTime,
         // testTime
       ]);
 
@@ -194,22 +196,27 @@ export class ScheduleService {
 
       for (const [userToken, userSchedules] of userTokensMap) {
         const notifications = userSchedules.map((schedule) => {
+          // 스케쥴 알림 바디 객체 생성
+          const scheduleAlarmBody: AlarmBody = {
+            type: schedule.type,
+            description: `${schedule.memo}`,
+          };
+
           return {
             title: schedule.title,
-            body: schedule.memo,
+            body: JSON.stringify(scheduleAlarmBody),
           };
         });
 
         await this.sendNotifications(notifications, userToken);
       }
-      } 
-      catch (error) {
-        await queryRunner.rollbackTransaction();
-        throw error;
-      } finally {
-        await queryRunner.release();
-      }
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
+  }
 
   /**
    * FCM 서버로 유저의 토큰과 발송할 메세지를 전송

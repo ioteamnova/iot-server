@@ -48,6 +48,7 @@ export class PageRequest {
   @IsOptional()
   order?: 'DESC' | 'ASC';
 
+
   get offset(): number {
     return ((this.page || 1) - 1) * (this.size || 20);
   }

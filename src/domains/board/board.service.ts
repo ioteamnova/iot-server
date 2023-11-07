@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { createBoardDto } from './dtos/create-board.dto';
 import { S3FolderName, mediaUpload } from 'src/utils/s3-utils';
 import { BoardRepository } from './repositories/board.repository';
@@ -30,8 +34,9 @@ import { BoardCategoryPageRequest } from './dtos/board-category-page';
 import { LiveStreamRepository } from '../live_stream/repositories/live-stream.repository';
 import { BoardAuction } from './entities/board-auction.entity';
 import * as moment from 'moment';
-import { BoardVerifyType } from '../user/helper/constant';
+import { BoardVerifyType, BoardOrderCriteria } from '../user/helper/constant';
 import { logger } from '../../utils/logger';
+import HttpResponse from 'src/core/http/http-response';
 
 @Injectable()
 export class BoardService {
@@ -127,12 +132,27 @@ export class BoardService {
   async findAllBoard(
     pageRequest: BoardCategoryPageRequest,
   ): Promise<Page<BoardListDto>> {
-    //1. 게시글에 대한 정보를 불러온다.
+    const category = pageRequest.category;
+    const orderCriteria = pageRequest.orderCriteria;
+
+    // 조회할 게시글의 카테고리가 market, adoption, auction이 아닌 경우, 가격을 기준으로 정렬을 하려고 하면 오류를 응답한다.
+    if (
+      !['market', 'adoption', 'auction'].includes(category) &&
+      orderCriteria === BoardOrderCriteria.PRICE
+    ) {
+      throw new UnprocessableEntityException(
+        HttpErrorConstants.PRICE_NOT_SPECIFIED,
+      );
+    }
+
+    //1. 요청받은 카테고리의 게시글들을 불러온다.
     const [boards, totalCount] =
       await this.boardRepository.findAndCountByCategory(
         pageRequest,
-        pageRequest.category,
+        category,
+        orderCriteria,
       );
+
     const result = new Page<BoardListDto>(totalCount, boards, pageRequest);
     //2. 게시글 작성자에 대한 정보(닉네임, 프로필 사진 주소)를 불러온다.
     const usersInfoArr = [];
@@ -212,7 +232,13 @@ export class BoardService {
         await redis.expire(key, ttl);
       }
       const viewCnt = board.view + 1;
-      await this.boardRepository.updateViewCount(boardIdx, viewCnt);
+      board.view = viewCnt;
+      await this.boardRepository
+        .createQueryBuilder('board')
+        .update(Board)
+        .set({ view: viewCnt })
+        .where('board.idx = :boardIdx', { boardIdx: boardIdx })
+        .execute();
     }
     //3. 글 작성자에 대한 정보를 가지고 온다
     const userDetails = await this.findUserInfo(board);
@@ -381,6 +407,7 @@ export class BoardService {
           dto.pattern,
           dto.birthDate,
           dto.state,
+          dto.streamKey,
         );
         boardAuction.extensionTime = dto.endTime;
         boardAuction.endTime = moment(dto.endTime)

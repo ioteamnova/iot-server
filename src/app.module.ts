@@ -15,12 +15,13 @@ import { BoardModule } from './domains/board/board.module';
 import { LiveStreamModule } from './domains/live_stream/live_stream.module';
 import { MypageModule } from './domains/mypage/mypage.module';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
+import { MoffListModule } from './domains/moff_list/moff_list.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'dev' ? 'env.dev' : 'env.prod',
+      envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.prod',
     }),
     //todo: 설정파일 분리
     TypeOrmModule.forRoot({
@@ -41,7 +42,7 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
       config: {
         host: process.env.REDIS_HOST,
         port: 6379,
-        password: process.env.REDIS_PASSWORD
+        password: process.env.REDIS_PASSWORD,
       },
     }),
     UserModule,
@@ -53,6 +54,7 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
     ScheduleModule.forRoot(),
     LiveStreamModule,
     MypageModule,
+    MoffListModule,
   ],
   controllers: [AppController],
   providers: [AppService],

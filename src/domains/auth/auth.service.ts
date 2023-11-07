@@ -14,16 +14,14 @@ import { detectPlatform } from './../../utils/client.utils';
 import { RefTokenRepository } from './repositories/ref-token.repository';
 import { FbTokenRepository } from './repositories/fb-token.repository';
 
-
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly refTokenRepository: RefTokenRepository,    
+    private readonly refTokenRepository: RefTokenRepository,
     private readonly fbTokenRepository: FbTokenRepository,
     private jwtService: JwtService,
     private readonly userService: UserService,
-    
   ) {}
 
   private logger = new Logger('Auth');
@@ -33,18 +31,14 @@ export class AuthService {
    * @param loginUserDto
    * @returns JwtToken
    */
-  async login(
-    userAgent: string,
-    dto: LoginUserDto
-    ): Promise<LoginResponseDto> {
-
+  async login(userAgent: string, dto: LoginUserDto): Promise<LoginResponseDto> {
     // 클라이언트의 플랫폼 확인
     const platform = detectPlatform(userAgent);
     this.logger.log(`login platform: ${platform}`);
 
     const { email, password } = dto;
     const user = await this.userRepository.findOne({
-      where: { email }, 
+      where: { email },
     });
     if (!user) {
       // 유저가 존재하지 않는 경우에는 NotFoundException 던져주는 것이 일반적이나, 로그인에서만 예외적으로 이메일, 비밀번호 중 어떤 정보가 잘못 됐는지 확인하지 못하게 하기 위하여 UnauthorizedException로 통일함.
@@ -54,12 +48,24 @@ export class AuthService {
     await validatePassword(password, user.password);
 
     const firebaseToken = dto.fbToken;
-    await this.fbTokenRepository.createOrUpdateFbToken(user.idx, platform, firebaseToken)
-    
+
+    // 인자에 해당하는 FbToken을 가지고 있는 행이 있다면 삭제한다
+    await this.fbTokenRepository.removeFbTokenIfExists(firebaseToken);
+
+    await this.fbTokenRepository.createOrUpdateFbToken(
+      user.idx,
+      platform,
+      firebaseToken,
+    );
+
     const accessToken = await this.generateAccessToken(user.idx, platform);
     const refreshToken = await this.generateRefreshToken(user.idx, platform);
 
-    await this.refTokenRepository.createOrUpdateRefToken(user.idx, platform, refreshToken);
+    await this.refTokenRepository.createOrUpdateRefToken(
+      user.idx,
+      platform,
+      refreshToken,
+    );
 
     return {
       accessToken: accessToken,
@@ -70,7 +76,6 @@ export class AuthService {
     };
   }
 
-
   /**
    * 소셜 로그인
    * @param socialLoginUserDto
@@ -78,12 +83,11 @@ export class AuthService {
    */
   async socialLogin(
     userAgent: string,
-    dto: SocialLoginUserDto): Promise<LoginResponseDto> {
-
-      // 클라이언트의 플랫폼 확인
+    dto: SocialLoginUserDto,
+  ): Promise<LoginResponseDto> {
+    // 클라이언트의 플랫폼 확인
     const platform = detectPlatform(userAgent);
     this.logger.log(`socialLogin platform: ${platform}`);
-
 
     let user;
     switch (dto.socialType) {
@@ -105,12 +109,20 @@ export class AuthService {
     }
 
     const firebaseToken = dto.fbToken;
-    await this.fbTokenRepository.createOrUpdateFbToken(user.idx, platform, firebaseToken)
+    await this.fbTokenRepository.createOrUpdateFbToken(
+      user.idx,
+      platform,
+      firebaseToken,
+    );
 
     const accessToken = await this.generateAccessToken(user.idx, platform);
     const refreshToken = await this.generateRefreshToken(user.idx, platform);
-    
-    await this.refTokenRepository.createOrUpdateRefToken(user.idx, platform, refreshToken);
+
+    await this.refTokenRepository.createOrUpdateRefToken(
+      user.idx,
+      platform,
+      refreshToken,
+    );
 
     return {
       accessToken: accessToken,
@@ -182,7 +194,10 @@ export class AuthService {
     return socialUser;
   }
 
-  async generateAccessToken(userIdx: number, platform:string): Promise<string> {
+  async generateAccessToken(
+    userIdx: number,
+    platform: string,
+  ): Promise<string> {
     const payload = { userIdx: userIdx, OS: platform };
     return this.jwtService.sign(payload, {
       secret: process.env.JWT_SECRET,
@@ -190,7 +205,10 @@ export class AuthService {
     });
   }
 
-  async generateRefreshToken(userIdx: number, platform:string): Promise<string> {
+  async generateRefreshToken(
+    userIdx: number,
+    platform: string,
+  ): Promise<string> {
     const payload = { userIdx: userIdx, OS: platform };
     return this.jwtService.sign(payload, {
       secret: process.env.JWT_SECRET,
@@ -203,8 +221,7 @@ export class AuthService {
    * @param refreshToken 리프레시토큰
    * @returns 새로운 액세스 토큰
    */
-  async getNewAccessToken(userAgent:string, refToken: string) {
-    
+  async getNewAccessToken(userAgent: string, refToken: string) {
     // 클라이언트의 플랫폼 확인
     const platform = detectPlatform(userAgent);
     this.logger.log(`getNewAccessToken platform: ${platform}`);
@@ -212,7 +229,7 @@ export class AuthService {
     // 1. 요청으로 받은 리프레시 토큰이 DB에 존재하는지 확인
     const refTokenEntity = await this.refTokenRepository.findOne({
       where: {
-        refToken
+        refToken,
       },
     });
     if (!refTokenEntity) {
@@ -226,26 +243,29 @@ export class AuthService {
     }
 
     // 3. 액세스토큰 재생성
-    const accessToken = await this.generateAccessToken(refTokenEntity.userIdx, platform);
+    const accessToken = await this.generateAccessToken(
+      refTokenEntity.userIdx,
+      platform,
+    );
 
     return {
       accessToken,
     };
   }
 
-
-
   // 로그아웃시 userIdx와 플랫폼에 해당하는 refToken과 fbtoken 값을 각각의 테이블에서 null로 업데이트
-  async logout(
-    userAgent:string,
-    userIdx: number) {
-
+  async logout(userAgent: string, userIdx: number) {
     // 클라이언트의 플랫폼 확인
     const platform = detectPlatform(userAgent);
     this.logger.log(`logout platform: ${platform}`);
 
-    await this.refTokenRepository.update({userIdx, platform}, { refToken: null })
-    await this.fbTokenRepository.update({userIdx, platform}, { fbToken: null })
-    
+    await this.refTokenRepository.update(
+      { userIdx, platform },
+      { refToken: null },
+    );
+    await this.fbTokenRepository.update(
+      { userIdx, platform },
+      { fbToken: null },
+    );
   }
 }
