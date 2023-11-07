@@ -160,7 +160,6 @@ export class BoardService {
 
     switch (pageRequest.category) {
       case BoardVerifyType.MARKET:
-        return result;
       case BoardVerifyType.ADOPTION:
         //3. 게시판 카테고리가 분양 or 중고 마켓이면 해당 데이터를 조회한다.
         const commercialInfoArr = [];

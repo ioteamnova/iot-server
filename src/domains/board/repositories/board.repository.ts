@@ -32,13 +32,13 @@ export class BoardRepository extends Repository<Board> {
 
         switch(category){
           case BoardVerifyType.MARKET:
+          case BoardVerifyType.ADOPTION:
+            orderByField = 'commercial.price';
             break
           case BoardVerifyType.AUCTION:
             orderByField = 'auction.currentPrice';
             break
-          case BoardVerifyType.ADOPTION:
-            orderByField = 'commercial.price';
-            break
+
         }
         break     
     }
