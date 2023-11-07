@@ -65,7 +65,6 @@ export class Boardcontroller {
     return HttpResponse.created(res, { body: result });
   }
 
-  
   @ApiOperation({
     summary: '게시판 조회',
     description: '게시판 카테고리에 따라 최신 정보를 조회합니다.',
@@ -105,7 +104,6 @@ export class Boardcontroller {
     return HttpResponse.ok(res, board);
   }
 
-  
   @ApiOperation({
     summary: '게시글 삭제',
     description: '게시글을 삭제한다.',

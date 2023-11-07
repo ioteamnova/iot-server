@@ -61,7 +61,7 @@ export class BoardService {
       dto.userIdx = userIdx;
       const board = Board.from(dto);
       const boardInfo = await queryRunner.manager.save(board);
-      
+
       if (await this.isCommercialCate(board.category)) {
         const boardCommercial = BoardCommercial.from(
           boardInfo.idx,
@@ -127,7 +127,6 @@ export class BoardService {
   async findAllBoard(
     pageRequest: BoardCategoryPageRequest,
   ): Promise<Page<BoardListDto>> {
-
     //1. 게시글에 대한 정보를 불러온다.
     const [boards, totalCount] =
       await this.boardRepository.findAndCountByCategory(
@@ -165,16 +164,16 @@ export class BoardService {
         const auctionInfoArr = [];
         for (const board of result.items) {
           const auctionInfo = await this.boardAuctionRepository.findOne({
-            where: [{
-              boardIdx: board.idx,
-              state: BoardVerifyType.SELLING
-            },
-            {
-              boardIdx: board.idx,
-              state: BoardVerifyType.END
-            },]
-            
-
+            where: [
+              {
+                boardIdx: board.idx,
+                state: BoardVerifyType.SELLING,
+              },
+              {
+                boardIdx: board.idx,
+                state: BoardVerifyType.END,
+              },
+            ],
           });
           board.boardAuction = auctionInfo;
           auctionInfoArr.push(board);
@@ -709,7 +708,6 @@ export class BoardService {
     return userDetails;
   };
   async isCommercialCate(category: string) {
-
     if (
       category === BoardVerifyType.ADOPTION ||
       category === BoardVerifyType.MARKET
