@@ -18,6 +18,7 @@ env
 /env
 
 # build
+<<<<<<< HEAD
 dist/
 package-lock.json
 
@@ -26,3 +27,6 @@ package-lock.json
 
 #firebase-adminsdk
 firebase-adminsdk.json
+=======
+dist
+>>>>>>> ccdc50b (Feat: dist 파일 git ignore 추가)
