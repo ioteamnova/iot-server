@@ -210,6 +210,7 @@ export class BoardService {
    * @returns 게시글 관련 정보 및 미디어(이미지, 영상)
    */
   async findBoard(boardIdx: number, userIdx: string) {
+    logger.info(`User behavior data collection userIdx: , category`);
     //1. 게시글 정보를 조회한다.
     const board = await this.boardRepository.findBoadDetailByBoardIdx(boardIdx);
     if (!board) {
