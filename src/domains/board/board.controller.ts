@@ -103,8 +103,8 @@ export class Boardcontroller {
     @Param('boardIdx') boardIdx: number,
     @Query('userIdx') userIdx: string,
   ) {
-    const test = request.ip;
-    console.log('test!: ', test);
+    const clientIp = request.headers['x-real-ip'] || request.connection.remoteAddress;
+    console.log('test!: ', clientIp);
     const board = await this.boardService.findBoard(boardIdx, userIdx);
     return HttpResponse.ok(res, board);
   }
