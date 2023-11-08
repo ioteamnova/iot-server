@@ -239,6 +239,11 @@ export class BoardService {
         .set({ view: viewCnt })
         .where('board.idx = :boardIdx', { boardIdx: boardIdx })
         .execute();
+      if (userIdx !== null || userIdx !== undefined) {
+        logger.info(
+          `User behavior data collection userIdx: ${userIdx}, category: ${board.category}, boardIdx: ${board.idx}, title: ${board.title}`,
+        );
+      }
     }
     //3. 글 작성자에 대한 정보를 가지고 온다
     const userDetails = await this.findUserInfo(board);
@@ -271,9 +276,6 @@ export class BoardService {
           },
         });
         board.liveStream = liveStream;
-        logger.info(
-          `User behavior data collection userIdx: , category: ${board.category}, boardIdx: ${board.idx}, title: ${board.title}`,
-        );
         return board;
       default:
         return board;

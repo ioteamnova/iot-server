@@ -8,6 +8,7 @@ import AuthUser from 'src/core/decorators/auth-user.decorator';
 import { User } from 'src/domains/user/entities/user.entity';
 import HttpResponse from 'src/core/http/http-response';
 import { BoardService } from './board.service';
+import { Request } from 'express';
 import {
   Body,
   Controller,
@@ -17,6 +18,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   Res,
   UploadedFile,
   UseInterceptors,
@@ -97,10 +99,13 @@ export class Boardcontroller {
   @Get('/:boardIdx')
   async findBoard(
     @Res() res,
+    @Req() request: Request,
     @Param('boardIdx') boardIdx: number,
-    @Query('macAdress') macAdress: string,
+    @Query('userIdx') userIdx: string,
   ) {
-    const board = await this.boardService.findBoard(boardIdx, macAdress);
+    const test = request.ip;
+    console.log('test: ', test);
+    const board = await this.boardService.findBoard(boardIdx, userIdx);
     return HttpResponse.ok(res, board);
   }
 
@@ -291,21 +296,4 @@ export class Boardcontroller {
     );
     return HttpResponse.ok(res, board);
   }
-
-  // @Post('/redis/:test')
-  // async redisTest(@Res() res, @Param('test') test: string) {
-  //   const result = await this.boardService.redisTestSave(test);
-  //   return HttpResponse.created(res, { body: result });
-  // }
-  // @Post('/redis3232/:test')
-  // async redisTest11(@Res() res, @Param('test') test: string) {
-  //   const result = await this.boardService.redisTestGet(test);
-  //   return HttpResponse.created(res, { body: result });
-  // }
-  // @Get('/redis11/test')
-  // async redisGetTest(@Res() res) {
-  //   console.log('@@@##1');
-  //   const result = await this.boardService.redisTestGet();
-  //   return HttpResponse.created(res, { body: result });
-  // }
 }
