@@ -104,7 +104,7 @@ export class Boardcontroller {
     @Query('userIdx') userIdx: string,
   ) {
     const test = request.ip;
-    console.log('test: ', test);
+    console.log('test!: ', test);
     const board = await this.boardService.findBoard(boardIdx, userIdx);
     return HttpResponse.ok(res, board);
   }
