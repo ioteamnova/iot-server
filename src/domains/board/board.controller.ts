@@ -8,7 +8,6 @@ import AuthUser from 'src/core/decorators/auth-user.decorator';
 import { User } from 'src/domains/user/entities/user.entity';
 import HttpResponse from 'src/core/http/http-response';
 import { BoardService } from './board.service';
-import { Request } from 'express';
 import {
   Body,
   Controller,
@@ -99,16 +98,9 @@ export class Boardcontroller {
   @Get('/:boardIdx')
   async findBoard(
     @Res() res,
-    @Req() request: Request,
     @Param('boardIdx') boardIdx: number,
-    @Query('userIdx') userIdx: string,
+    @Query('userIdx') userIdx: number,
   ) {
-    const clientIp =
-      request.headers['x-real-ip'] ||
-      request.headers['x-forwarded-for'] ||
-      request.connection.remoteAddress;
-    console.log('request!: ', request);
-    console.log('clientIp!: ', clientIp);
     const board = await this.boardService.findBoard(boardIdx, userIdx);
     return HttpResponse.ok(res, board);
   }
