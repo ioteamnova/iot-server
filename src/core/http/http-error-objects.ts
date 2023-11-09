@@ -105,6 +105,11 @@ export const HttpErrorConstants = {
     message: '게시글을 찾을 수 없습니다.',
   } as HttpErrorFormat,
 
+  CANNOT_FIND_AUCTION_BOARD: {
+    errorCode: 'CANNOT_FIND_AUCTION_BOARD',
+    message: '경매 게시글을 찾을 수 없습니다.',
+  } as HttpErrorFormat,
+
   BOARD_PRIVATE: {
     errorCode: 'BOARD_PRIVATE',
     message: '해당 게시글은 비공개 상태입니다.',

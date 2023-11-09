@@ -37,6 +37,7 @@ import * as moment from 'moment';
 import { BoardVerifyType, BoardOrderCriteria } from '../user/helper/constant';
 import { logger } from '../../utils/logger';
 import HttpResponse from 'src/core/http/http-response';
+import { UpdateStreamKeyDto } from './dtos/update-stream-key.dto';
 
 @Injectable()
 export class BoardService {
@@ -451,6 +452,48 @@ export class BoardService {
       await queryRunner.release();
     }
   }
+
+
+    /**
+   * 경매게시글 스트림키 수정
+   * @param dto UpdateStreamKeyDto
+   * @returns
+   */
+    async updateStreamKey(
+      boardAuctionIdx: number,
+      dto: UpdateStreamKeyDto,
+    ) {
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        const boardAuction = await this.boardAuctionRepository.findOne({
+          where: {
+            idx: boardAuctionIdx,
+          }
+        });        
+
+        if (!boardAuction) {
+          throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_AUCTION_BOARD);
+        }
+
+        boardAuction.streamKey = dto.streamKey;
+
+        const updatedBoardAuction = await queryRunner.manager.save(boardAuction);
+
+        await queryRunner.commitTransaction();
+
+        return updatedBoardAuction.streamKey;
+
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        throw error;
+      } finally {
+        await queryRunner.release();
+      }
+    }
+
+
   /**
    * 댓글 이미지 업로드(영상x, 이미지만 1장 제한)
    * @param file 이미지 파일

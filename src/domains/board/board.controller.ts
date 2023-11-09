@@ -36,6 +36,7 @@ import { createBoardDto } from './dtos/create-board.dto';
 import Boardcomment from './entities/board-comment.entity';
 // import { StreamKeyDto } from './dtos/steam-key.dto';
 import { BoardCategoryPageRequest } from './dtos/board-category-page';
+import { UpdateStreamKeyDto } from './dtos/update-stream-key.dto';
 
 @ApiTags(SwaggerTag.BOARD)
 @ApiCommonErrorResponseTemplate()
@@ -148,6 +149,34 @@ export class Boardcontroller {
     const board = await this.boardService.updateBoard(boardIdx, dto, user);
     return HttpResponse.ok(res, board);
   }
+
+
+
+  @ApiOperation({
+    summary: '경매 게시글 스트림키 수정',
+    description: '경매 게시글의 스트림키를 수정한다.',
+  })
+  @ApiOkResponseTemplate({ type: UpdateStreamKeyDto })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_AUCTION_BOARD],
+    },
+  ])
+  @UseAuthGuards()
+  @Patch('/Streamkey/:boardAuctionIdx')
+  async updateStreamKey(
+    @Res() res,
+    @Param('boardAuctionIdx') boardAuctionIdx: number,
+    @Body() dto: UpdateStreamKeyDto,
+  ) {
+    const updatedStreamKey = await this.boardService.updateStreamKey(boardAuctionIdx, dto);
+    return HttpResponse.ok(res, updatedStreamKey);
+  }
+  
+
+
+
   @ApiOperation({
     summary: '댓글 & 답글 등록',
     description: '댓글 & 답글을 등록한다.',
