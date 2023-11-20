@@ -184,17 +184,18 @@ export class BoardService {
       case BoardVerifyType.AUCTION:
         const auctionInfoArr = [];
         for (const board of result.items) {
-          const auctionInfo = await this.boardAuctionRepository.findOne(
-            {where: {boardIdx: board.idx}}
-          );
-                  
-            board.boardAuction = auctionInfo;
-            auctionInfoArr.push(board);    
-          
+          const auctionInfo = await this.boardAuctionRepository.findOne({
+            where: { boardIdx: board.idx },
+          });
+
+          board.boardAuction = auctionInfo;
+          auctionInfoArr.push(board);
         }
 
         // 임시저장글은 목록에서 삭제한다. (!item.boardAuction가 있는 이유는, boardAuction이 null인 게시글의 state를 조회하면 'Cannot read properties of null' 오류가 발생하기 때문)
-        result.items = auctionInfoArr.filter(item => !item.boardAuction || item.boardAuction.state !== 'temp');
+        result.items = auctionInfoArr.filter(
+          (item) => !item.boardAuction || item.boardAuction.state !== 'temp',
+        );
 
         return result;
       default:
@@ -449,46 +450,42 @@ export class BoardService {
     }
   }
 
-
-    /**
+  /**
    * 경매게시글 스트림키 수정
    * @param dto UpdateStreamKeyDto
    * @returns
    */
-    async updateStreamKey(
-      boardAuctionIdx: number,
-      dto: UpdateStreamKeyDto,
-    ) {
-      const queryRunner = this.dataSource.createQueryRunner();
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
-      try {
-        const boardAuction = await this.boardAuctionRepository.findOne({
-          where: {
-            idx: boardAuctionIdx,
-          }
-        });        
+  async updateStreamKey(boardAuctionIdx: number, dto: UpdateStreamKeyDto) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const boardAuction = await this.boardAuctionRepository.findOne({
+        where: {
+          idx: boardAuctionIdx,
+        },
+      });
 
-        if (!boardAuction) {
-          throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_AUCTION_BOARD);
-        }
-
-        boardAuction.streamKey = dto.streamKey;
-
-        const updatedBoardAuction = await queryRunner.manager.save(boardAuction);
-
-        await queryRunner.commitTransaction();
-
-        return updatedBoardAuction.streamKey;
-
-      } catch (error) {
-        await queryRunner.rollbackTransaction();
-        throw error;
-      } finally {
-        await queryRunner.release();
+      if (!boardAuction) {
+        throw new NotFoundException(
+          HttpErrorConstants.CANNOT_FIND_AUCTION_BOARD,
+        );
       }
-    }
 
+      boardAuction.streamKey = dto.streamKey;
+
+      const updatedBoardAuction = await queryRunner.manager.save(boardAuction);
+
+      await queryRunner.commitTransaction();
+
+      return updatedBoardAuction.streamKey;
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
 
   /**
    * 댓글 이미지 업로드(영상x, 이미지만 1장 제한)
