@@ -196,15 +196,10 @@ export class ScheduleService {
 
       for (const [userToken, userSchedules] of userTokensMap) {
         const notifications = userSchedules.map((schedule) => {
-          // 스케쥴 알림 바디 객체 생성
-          const scheduleAlarmBody: AlarmBody = {
-            type: schedule.type,
-            description: `${schedule.memo}`,
-          };
-
+          
           return {
-            title: schedule.title,
-            body: JSON.stringify(scheduleAlarmBody),
+            title: schedule.type,
+            body: schedule.memo,
           };
         });
 
