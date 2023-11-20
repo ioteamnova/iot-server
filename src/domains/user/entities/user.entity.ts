@@ -2,9 +2,10 @@ import { Schedule } from '../../schedule/entities/schedule.entity';
 import { UpdateUserDto } from './../dtos/update-user.dto';
 import BaseEntity from 'src/core/entity/base.entity';
 import { hashPassword } from 'src/utils/password.utils';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { SocialMethodType } from 'src/domains/auth/helpers/constants';
 import { Pet } from 'src/domains/diary/entities/pet.entity';
+import { Board } from 'src/domains/board/entities/board.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -64,6 +65,10 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Pet, (pet) => pet.user)
   pets: Pet[];
+
+  @OneToOne(() => Board)
+  @JoinColumn({ name: 'idx', referencedColumnName: 'userIdx' })
+  board: Board;
 
   // @OneToMany(() => Schedule, (schedule) => schedule.user)
   // schedules: Schedule[];

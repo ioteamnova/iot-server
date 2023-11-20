@@ -8,6 +8,7 @@ export class Page<T> {
   totalPage: number;
   existsNextPage: boolean;
   items: T[];
+  result: Promise<any[]>;
 
   constructor(totalCount: number, items: T[], pageRequest: PageRequest) {
     this.pageSize = Number(pageRequest.size);
@@ -47,7 +48,6 @@ export class PageRequest {
   })
   @IsOptional()
   order?: 'DESC' | 'ASC';
-
 
   get offset(): number {
     return ((this.page || 1) - 1) * (this.size || 20);

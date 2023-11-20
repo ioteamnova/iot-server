@@ -101,6 +101,7 @@ export class BoardListDto {
     images,
     view,
     commentCnt,
+    thumbnail,
   }: {
     idx: number;
     userIdx: number;
@@ -111,6 +112,7 @@ export class BoardListDto {
     createdAt: Date;
     images: BoardImage[];
     commentCnt: number;
+    thumbnail: string;
   }) {
     const board = new BoardListDto();
     board.idx = idx;
@@ -122,6 +124,7 @@ export class BoardListDto {
     board.writeDate = createdAt;
     board.images = images;
     board.commentCnt = commentCnt;
+    board.thumbnail = thumbnail;
     return board;
   }
 }

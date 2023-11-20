@@ -36,7 +36,7 @@ import { BoardAuction } from './entities/board-auction.entity';
 import * as moment from 'moment';
 import { BoardVerifyType, BoardOrderCriteria } from '../user/helper/constant';
 import { logger } from '../../utils/logger';
-import HttpResponse from 'src/core/http/http-response';
+import { ClientRecommend } from 'src/utils/client-recommend';
 
 @Injectable()
 export class BoardService {
@@ -52,6 +52,7 @@ export class BoardService {
     private readonly redisService: RedisService,
     private boardAuctionRepository: BoardAuctionRepository,
     private liveStreamRepository: LiveStreamRepository,
+    private clientRecommend: ClientRecommend,
   ) {}
   /**
    * 게시판 다중 파일 업로드
@@ -63,10 +64,16 @@ export class BoardService {
     await queryRunner.startTransaction();
 
     try {
+      // 1. 게시글 저장
       dto.userIdx = userIdx;
+      if (dto.fileUrl[0].category === 'video') {
+        dto.thumbnail = dto.fileUrl[0].coverImgPath;
+      } else {
+        dto.thumbnail = dto.fileUrl[0].path;
+      }
       const board = Board.from(dto);
       const boardInfo = await queryRunner.manager.save(board);
-
+      // 2. 커머셜 or 경매 게시글 저장
       if (await this.isCommercialCate(board.category)) {
         const boardCommercial = BoardCommercial.from(
           boardInfo.idx,
@@ -104,6 +111,7 @@ export class BoardService {
         }
         await queryRunner.manager.save(boardAuction);
       }
+      // 3. 이미지 테이블에 s3 주소 저장
       if (dto.fileUrl) {
         const mediaInfo = [];
         for (let i = 0; i < dto.fileUrl.length; i++) {
@@ -217,7 +225,7 @@ export class BoardService {
     } else if (board.status === 'PRIVATE') {
       throw new NotFoundException(HttpErrorConstants.BOARD_PRIVATE);
     }
-    //2. 조회수 처리: 해당 맥어드레스 주소가 해당 게시글을 읽은 적이 있는지 확인
+    //2. 조회수 처리: 현재는 로그인 되어있는 유저만 카운팅 하고 있습니다. 하루에 1번 로그인된 유저 Idx는 레디스(boardview+boardIdx키)에 저장되고 조회수가 1오릅니다. 레디스는 23:59분에 초기화됩니다.
     if (userIdx !== null || userIdx !== undefined) {
       const key = `boardview${boardIdx}`;
       const redis = this.redisService.getClient();
@@ -256,9 +264,15 @@ export class BoardService {
           },
         });
         board.boardCommercial = boardCommercial;
-        logger.info(
-          `User behavior data collection userIdx: ${userIdx}, moff: ${board.boardCommercial.pattern}, category: ${board.category}, boardIdx: ${board.idx}, title: ${board.title}`,
-        );
+        if (userIdx !== null || userIdx !== undefined) {
+          this.clientRecommend.saveInterest(
+            userIdx,
+            board.boardCommercial.pattern,
+          );
+          logger.info(
+            `User behavior data collection userIdx: ${userIdx}, moff: ${board.boardCommercial.pattern}, category: ${board.category}, boardIdx: ${board.idx}, title: ${board.title}`,
+          );
+        }
         return board;
       case BoardVerifyType.AUCTION:
         //경매 보드 추가
@@ -276,9 +290,15 @@ export class BoardService {
           },
         });
         board.liveStream = liveStream;
-        logger.info(
-          `User behavior data collection userIdx: ${userIdx}, moff: ${board.boardAuction.pattern}, category: ${board.category}, boardIdx: ${board.idx}, title: ${board.title}`,
-        );
+        if (userIdx !== null || userIdx !== undefined) {
+          this.clientRecommend.saveInterest(
+            userIdx,
+            board.boardCommercial.pattern,
+          );
+          logger.info(
+            `User behavior data collection userIdx: ${userIdx}, moff: ${board.boardAuction.pattern}, category: ${board.category}, boardIdx: ${board.idx}, title: ${board.title}`,
+          );
+        }
         return board;
       default:
         return board;
@@ -372,6 +392,7 @@ export class BoardService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
+      // 1. 수정할 게시글이 존재하는지 확인
       const board = await this.boardRepository.findOne({
         where: {
           idx: boardIdx,
@@ -382,7 +403,7 @@ export class BoardService {
       if (!board) {
         throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
       }
-
+      // 2. 만약 커머셜(중고, 분양) 테이블이 존제하면 커머셜 테이블 수정
       if (await this.isCommercialCate(board.category)) {
         const boardCommercial = BoardCommercial.updateFrom(
           dto.boardCommercialIdx,
@@ -397,6 +418,7 @@ export class BoardService {
         );
         await queryRunner.manager.save(boardCommercial);
       }
+      // 2. 만약 경매 테이블이 존제하면 경매 테이블 수정
       if (await this.isAuctionCate(dto.category)) {
         const auctionInfo = await queryRunner.manager.findOneBy(BoardAuction, {
           idx: dto.auctionIdx,
@@ -416,7 +438,9 @@ export class BoardService {
           dto.state,
           dto.streamKey,
         );
+        // 경매 추가 시간 -> 마감 시간이 22:00:59에 끝난다면 22:00:00 부터 ~ 마감 시간 전까지 1명당 1분씩 마감시간이 미뤄지는 시스템
         boardAuction.extensionTime = dto.endTime;
+        // 경매 마감 시간
         boardAuction.endTime = moment(dto.endTime)
           .add(1, 'minute')
           .format('YYYY-MM-DD HH:mm');
@@ -427,13 +451,19 @@ export class BoardService {
         }
         await queryRunner.manager.save(boardAuction);
       }
-
+      // board 테이블의 thumbnail s3 이미지 주소 넣어주기
+      if (dto.fileUrl[0].category === 'video') {
+        dto.thumbnail = dto.fileUrl[0].coverImgPath;
+      } else {
+        dto.thumbnail = dto.fileUrl[0].path;
+      }
       const boardInfo = Board.updateFrom(
         user.idx,
         dto.category,
         boardIdx,
         dto.title,
         dto.description,
+        dto.thumbnail,
       );
       await queryRunner.manager.save(boardInfo);
       const returnBoard = await this.boardRepository.findOne({
@@ -727,7 +757,7 @@ export class BoardService {
     );
     return result;
   }
-
+  // 유저 정보 찾기
   findUserInfo = async (result) => {
     const userInfo = await this.userRepository.findOne({
       where: {
@@ -751,11 +781,63 @@ export class BoardService {
       return false;
     }
   }
+  // 옥션 카테고리인지 아닌지
   async isAuctionCate(category: string): Promise<boolean> {
     if (category === BoardVerifyType.AUCTION) {
       return true;
     } else {
       return false;
     }
+  }
+  // 분양 게시글 추천 해주는 항목
+  async findRecommendItem(userIdx: number): Promise<BoardListDto[]> {
+    let result = null;
+    const recommend = await this.clientRecommend.recommendCategory(userIdx);
+    const recommendItem = recommend[0].recommendItem;
+    if (recommendItem.length !== 0) {
+      const resultItem = [];
+      // 추천할 카테고리를 받은 뒤, 해당 카테고리별 추천할 개수만큼 조회함
+      for (const item of recommendItem) {
+        const result = await this.boardCommercialRepository.findRecommendItem(
+          item.category,
+          item.recommendCnt,
+        );
+        resultItem.push(result);
+      }
+      // 추천된 게시글 개수
+      const itemsCnt = resultItem.reduce(
+        (count, subArray) => count + subArray.length,
+        0,
+      );
+      //기본적인 추천 게시글의 개수는 5개인데, 추천해야 하는 카테고리에 판매중인 상품이 없거나 부족할 때에는 현재 판매중인 게시글 중, 조회수가 높은 순으로 추천합니다.
+      if (itemsCnt < 4) {
+        // 더 가져와야 하는 아이템 개수
+        const extraItemsCnt = 5 - itemsCnt;
+        const resultdata = await this.boardCommercialRepository.findExtraItems(
+          extraItemsCnt,
+        );
+        resultItem.push(resultdata);
+      }
+      // 데이터 정렬
+      result = resultItem.flatMap((group) =>
+        group.map((boardCommercial) => ({
+          boardCommercialIdx: boardCommercial.idx,
+          createdAt: boardCommercial.createdAt,
+          updatedAt: boardCommercial.updatedAt,
+          deletedAt: boardCommercial.deletedAt,
+          boardIdx: boardCommercial.boardIdx,
+          price: boardCommercial.price,
+          gender: boardCommercial.gender,
+          size: boardCommercial.size,
+          variety: boardCommercial.variety,
+          state: boardCommercial.state,
+          pattern: boardCommercial.pattern,
+          birthDate: boardCommercial.birthDate,
+          board: boardCommercial.board,
+          user: boardCommercial.user,
+        })),
+      );
+    }
+    return result;
   }
 }
