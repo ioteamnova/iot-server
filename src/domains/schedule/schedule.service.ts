@@ -199,7 +199,7 @@ export class ScheduleService {
           
           return {
             title: schedule.type,
-            body: schedule.memo,
+            body: schedule.title,
           };
         });
 
