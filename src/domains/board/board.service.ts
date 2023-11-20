@@ -450,19 +450,23 @@ export class BoardService {
         }
         await queryRunner.manager.save(boardAuction);
       }
-      // board 테이블의 thumbnail s3 이미지 주소 넣어주기
-      if (dto.fileUrl[0].category === 'video') {
-        dto.thumbnail = dto.fileUrl[0].coverImgPath;
-      } else {
-        dto.thumbnail = dto.fileUrl[0].path;
-      }
+      const firstImgData = await queryRunner.manager.findOneBy(BoardImage, {
+        idx: boardIdx,
+        mediaSequence: 0,
+      });
+      // boardImg 테이블의 첫 이미지 or 영상 커버를 썸네일로 수정
+      const thumbnailUrl =
+        firstImgData.category === 'video'
+          ? firstImgData.coverImgPath
+          : firstImgData.path;
+      // board 테이블 최종 수정
       const boardInfo = Board.updateFrom(
         user.idx,
         dto.category,
         boardIdx,
         dto.title,
         dto.description,
-        dto.thumbnail,
+        thumbnailUrl,
       );
       await queryRunner.manager.save(boardInfo);
       const returnBoard = await this.boardRepository.findOne({

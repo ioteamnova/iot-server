@@ -36,11 +36,8 @@ import { createBoardDto } from './dtos/create-board.dto';
 import Boardcomment from './entities/board-comment.entity';
 // import { StreamKeyDto } from './dtos/steam-key.dto';
 import { BoardCategoryPageRequest } from './dtos/board-category-page';
-<<<<<<< HEAD
 import { UpdateStreamKeyDto } from './dtos/update-stream-key.dto';
-=======
 import { ApiOkArrayResponseTemplate } from 'src/core/swagger/api-ok-pagination-response-array';
->>>>>>> master
 
 @ApiTags(SwaggerTag.BOARD)
 @ApiCommonErrorResponseTemplate()
@@ -151,8 +148,6 @@ export class Boardcontroller {
     return HttpResponse.ok(res, board);
   }
 
-
-
   @ApiOperation({
     summary: '경매 게시글 스트림키 수정',
     description: '경매 게시글의 스트림키를 수정한다.',
@@ -171,12 +166,12 @@ export class Boardcontroller {
     @Param('boardAuctionIdx') boardAuctionIdx: number,
     @Body() dto: UpdateStreamKeyDto,
   ) {
-    const updatedStreamKey = await this.boardService.updateStreamKey(boardAuctionIdx, dto);
+    const updatedStreamKey = await this.boardService.updateStreamKey(
+      boardAuctionIdx,
+      dto,
+    );
     return HttpResponse.ok(res, updatedStreamKey);
   }
-  
-
-
 
   @ApiOperation({
     summary: '댓글 & 답글 등록',
