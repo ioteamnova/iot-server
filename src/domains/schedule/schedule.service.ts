@@ -223,6 +223,10 @@ export class ScheduleService {
       const responses = await Promise.all(
         notifications.map(async (notification) => {
           const message = {
+            notification: {
+              title: notification.title,
+              body: notification.body,
+            },
             data: {
               title: notification.title,
               body: notification.body,
