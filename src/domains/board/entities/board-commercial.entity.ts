@@ -1,5 +1,8 @@
 import BaseEntity from 'src/core/entity/base.entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Board } from './board.entity';
+import { User } from 'src/domains/user/entities/user.entity';
+
 @Entity()
 export class BoardCommercial extends BaseEntity {
   @Column()
@@ -31,6 +34,11 @@ export class BoardCommercial extends BaseEntity {
     length: 40,
   })
   birthDate: string;
+
+  // 일대일 관계 설정
+  @OneToOne(() => Board)
+  @JoinColumn({ name: 'board_idx', referencedColumnName: 'idx' }) // idx와 postIdx를 일치시킴
+  board: Board;
 
   static from(
     boardIdx: number,

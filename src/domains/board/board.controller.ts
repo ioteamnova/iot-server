@@ -36,7 +36,11 @@ import { createBoardDto } from './dtos/create-board.dto';
 import Boardcomment from './entities/board-comment.entity';
 // import { StreamKeyDto } from './dtos/steam-key.dto';
 import { BoardCategoryPageRequest } from './dtos/board-category-page';
+<<<<<<< HEAD
 import { UpdateStreamKeyDto } from './dtos/update-stream-key.dto';
+=======
+import { ApiOkArrayResponseTemplate } from 'src/core/swagger/api-ok-pagination-response-array';
+>>>>>>> master
 
 @ApiTags(SwaggerTag.BOARD)
 @ApiCommonErrorResponseTemplate()
@@ -90,10 +94,7 @@ export class Boardcontroller {
   @ApiErrorResponseTemplate([
     {
       status: StatusCodes.NOT_FOUND,
-      errorFormatList: [
-        HttpErrorConstants.CANNOT_FIND_PET,
-        HttpErrorConstants.CANNOT_FIND_DIARY,
-      ],
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_BOARD],
     },
   ])
   @Get('/:boardIdx')
@@ -319,6 +320,24 @@ export class Boardcontroller {
       boardIdx,
       user.idx,
     );
+    return HttpResponse.ok(res, board);
+  }
+  @ApiOperation({
+    summary: '분양 게시글 맞춤 추천',
+    description:
+      '사용자 관심도에 따라, 5개의 게시글을 추천을 합니다. 추천할 항목이 없으면 null을 반환합니다',
+  })
+  @ApiErrorResponseTemplate([
+    {
+      status: StatusCodes.NOT_FOUND,
+      errorFormatList: [HttpErrorConstants.CANNOT_FIND_BOARD],
+    },
+  ])
+  @ApiOkArrayResponseTemplate({ type: BoardListDto })
+  @UseAuthGuards()
+  @Get('/adoption/recommend/user')
+  async findRecommendItem(@Res() res, @AuthUser() user: User) {
+    const board = await this.boardService.findRecommendItem(user.idx);
     return HttpResponse.ok(res, board);
   }
 }

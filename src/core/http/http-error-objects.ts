@@ -149,5 +149,4 @@ export const HttpErrorConstants = {
     errorCode: 'PRICE_NOT_SPECIFIED',
     message: '가격이 정의되지 않은 유형의 게시글 입니다.',
   } as HttpErrorFormat,
-
 };

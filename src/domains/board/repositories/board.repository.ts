@@ -42,20 +42,13 @@ export class BoardRepository extends Repository<Board> {
         break;
     }
 
-    console.log(`orderByField: ${orderByField}`);
-
     const [boards, totalCount] = await this.createQueryBuilder('board')
-      .leftJoinAndSelect('board.images', 'image')
       .leftJoinAndSelect(
         'board_auction',
         'auction',
         'board.idx = auction.boardIdx',
       )
-      .leftJoinAndSelect(
-        'board_commercial',
-        'commercial',
-        'board.idx = commercial.boardIdx',
-      )
+      .leftJoinAndSelect('board.boardCommercial', 'boardCommercial')
       .where('board.category = :category', { category })
       .orderBy(orderByField, pageRequest.order)
       .take(pageRequest.limit)
@@ -65,11 +58,6 @@ export class BoardRepository extends Repository<Board> {
     const boardListDtoArr: BoardListDto[] = await boards.map((board) => {
       const boardListDto = BoardListDto.from(board);
       return boardListDto;
-    });
-    boardListDtoArr.forEach((boardListDto) => {
-      boardListDto.images = boardListDto.images.filter(
-        (image) => image.mediaSequence === 0,
-      );
     });
     return [boardListDtoArr, totalCount];
   }

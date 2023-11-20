@@ -5,6 +5,8 @@ import { BoardImage } from './board-image.entity';
 import { UpdateBoardDto } from '../dtos/update-board.dto';
 import { Bookmark } from './board-bookmark.entity';
 import { ChatConversation } from 'src/domains/mypage/entities/chat-conversation.entity';
+import { BoardCommercial } from './board-commercial.entity';
+import { User } from 'src/domains/user/entities/user.entity';
 
 @Entity()
 export class Board extends BaseEntity {
@@ -38,6 +40,10 @@ export class Board extends BaseEntity {
   @OneToMany(() => BoardImage, (image) => image.board)
   images: BoardImage[];
 
+  @OneToOne(() => User)
+  @JoinColumn({ name: 'user_idx', referencedColumnName: 'idx' }) // idx와 postIdx를 일치시킴
+  user: User;
+
   // 일대일 관계 설정
   @OneToOne(() => Bookmark)
   @JoinColumn({ name: 'idx', referencedColumnName: 'postIdx' }) // idx와 postIdx를 일치시킴
@@ -47,22 +53,29 @@ export class Board extends BaseEntity {
   @JoinColumn({ name: 'idx', referencedColumnName: 'roomIdx' }) // idx와 postIdx를 일치시킴
   chatConversation: ChatConversation;
 
+  @OneToOne(() => BoardCommercial)
+  @JoinColumn({ name: 'idx', referencedColumnName: 'boardIdx' }) // postIdx와 idx를 일치시킴
+  boardCommercial: BoardCommercial;
+
   static from({
     userIdx,
     title,
     category,
     description,
+    thumbnail,
   }: {
     userIdx: number;
     title: string;
     category: string;
     description: string;
+    thumbnail: string;
   }) {
     const board = new Board();
     board.userIdx = userIdx;
     board.title = title;
     board.category = category;
     board.description = description;
+    board.thumbnail = thumbnail;
     return board;
   }
   static updateFrom(
@@ -71,6 +84,7 @@ export class Board extends BaseEntity {
     idx: number,
     title: string,
     description: string,
+    thumbnail: string,
   ) {
     const board = new Board();
     board.idx = idx;
@@ -78,6 +92,7 @@ export class Board extends BaseEntity {
     board.title = title;
     board.category = category;
     board.description = description;
+    board.thumbnail = thumbnail;
     return board;
   }
   updateFromDto(dto: UpdateBoardDto) {

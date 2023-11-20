@@ -51,6 +51,12 @@ export class createBoardDto {
   @IsNotEmpty()
   price: number;
 
+  @ApiProperty({
+    description: '썸네일',
+    default: '썸네일은 fileUrl의 0번째 사진이 들어갑니다.',
+  })
+  thumbnail: string;
+
   @ValidateIf(
     (object) => object.category === 'adoption' || object.category === 'auction',
   )
