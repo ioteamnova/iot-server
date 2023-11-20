@@ -222,16 +222,19 @@ export class ScheduleService {
     try {
       const responses = await Promise.all(
         notifications.map(async (notification) => {
-          const message = {
-            notification: {
-              title: notification.title,
-              body: notification.body,
-            },
+          const message
+          :admin.messaging.Message
+          = {
+            // notification: {
+            //   title: notification.title,
+            //   body: notification.body,
+            // },
             data: {
               title: notification.title,
               body: notification.body,
             },
-            tokens: [token],
+            // tokens: [token],
+            token: token,
             android: {
               data: {},
             },
@@ -241,7 +244,9 @@ export class ScheduleService {
               },
             },
           };
-          return this.fcm.sendEachForMulticast(message);
+          // return this.fcm.sendEachForMulticast(message);
+          return this.fcm.send(message);
+
         }),
       );
       console.log('Successfully sent messages:', responses);
