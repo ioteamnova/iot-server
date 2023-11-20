@@ -36,11 +36,8 @@ import { createBoardDto } from './dtos/create-board.dto';
 import Boardcomment from './entities/board-comment.entity';
 // import { StreamKeyDto } from './dtos/steam-key.dto';
 import { BoardCategoryPageRequest } from './dtos/board-category-page';
-<<<<<<< HEAD
 import { UpdateStreamKeyDto } from './dtos/update-stream-key.dto';
-=======
 import { ApiOkArrayResponseTemplate } from 'src/core/swagger/api-ok-pagination-response-array';
->>>>>>> master
 
 @ApiTags(SwaggerTag.BOARD)
 @ApiCommonErrorResponseTemplate()
