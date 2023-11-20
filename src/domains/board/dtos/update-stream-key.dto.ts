@@ -3,7 +3,6 @@ import { createBoardDto } from './create-board.dto';
 import { IsNotEmpty, IsString, ValidateIf } from 'class-validator';
 
 export class UpdateStreamKeyDto {
-
   // @ValidateIf((object) => object.category === 'auction')
   // @ApiProperty({
   //   description: '내용 *경매글만 필요, 경매 번호.',
@@ -13,8 +12,6 @@ export class UpdateStreamKeyDto {
   // @IsNotEmpty()
   // auctionIdx: number;
 
-
-  
   @ValidateIf((object) => object.category === 'auction')
   @ApiProperty({
     description: '스트림키 *경매글만 필요, 스트림키.',
