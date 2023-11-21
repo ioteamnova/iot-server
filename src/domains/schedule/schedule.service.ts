@@ -229,7 +229,7 @@ export class ScheduleService {
       tokens: [tokens],
     };
     
-    this.fcm.sendMulticast(message)
+    this.fcm.sendEachForMulticast(message)
       .then((response) => {
 
         if (response.failureCount > 0) {
