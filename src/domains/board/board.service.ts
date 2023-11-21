@@ -268,9 +268,6 @@ export class BoardService {
             userIdx,
             board.boardCommercial.pattern,
           );
-          logger.info(
-            `User behavior data collection userIdx: ${userIdx}, moff: ${board.boardCommercial.pattern}, category: ${board.category}, boardIdx: ${board.idx}, title: ${board.title}`,
-          );
         }
         return board;
       case BoardVerifyType.AUCTION:
@@ -292,10 +289,7 @@ export class BoardService {
         if (userIdx !== null || userIdx !== undefined) {
           this.clientRecommend.saveInterest(
             userIdx,
-            board.boardCommercial.pattern,
-          );
-          logger.info(
-            `User behavior data collection userIdx: ${userIdx}, moff: ${board.boardAuction.pattern}, category: ${board.category}, boardIdx: ${board.idx}, title: ${board.title}`,
+            board.boardAuction.pattern,
           );
         }
         return board;
