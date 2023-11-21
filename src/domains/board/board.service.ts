@@ -268,9 +268,6 @@ export class BoardService {
             userIdx,
             board.boardCommercial.pattern,
           );
-          logger.info(
-            `User behavior data collection userIdx: ${userIdx}, moff: ${board.boardCommercial.pattern}, category: ${board.category}, boardIdx: ${board.idx}, title: ${board.title}`,
-          );
         }
         return board;
       case BoardVerifyType.AUCTION:
@@ -292,10 +289,7 @@ export class BoardService {
         if (userIdx !== null || userIdx !== undefined) {
           this.clientRecommend.saveInterest(
             userIdx,
-            board.boardCommercial.pattern,
-          );
-          logger.info(
-            `User behavior data collection userIdx: ${userIdx}, moff: ${board.boardAuction.pattern}, category: ${board.category}, boardIdx: ${board.idx}, title: ${board.title}`,
+            board.boardAuction.pattern,
           );
         }
         return board;
@@ -451,14 +445,19 @@ export class BoardService {
         await queryRunner.manager.save(boardAuction);
       }
       const firstImgData = await queryRunner.manager.findOneBy(BoardImage, {
-        idx: boardIdx,
+        boardIdx: boardIdx,
         mediaSequence: 0,
       });
+      console.log('firstImgData: ', firstImgData);
       // boardImg 테이블의 첫 이미지 or 영상 커버를 썸네일로 수정
+      if (firstImgData !== null) {
+      }
       const thumbnailUrl =
-        firstImgData.category === 'video'
-          ? firstImgData.coverImgPath
-          : firstImgData.path;
+        firstImgData !== null
+          ? firstImgData.category === 'video'
+            ? firstImgData.coverImgPath
+            : firstImgData.path
+          : null;
       // board 테이블 최종 수정
       const boardInfo = Board.updateFrom(
         user.idx,
