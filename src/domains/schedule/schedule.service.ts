@@ -204,6 +204,7 @@ export class ScheduleService {
         });
 
         await this.sendNotifications(notifications, userToken);
+        
       }
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -218,12 +219,11 @@ export class ScheduleService {
    * @param notifications 사용자가 입력한 스케줄 제목, 내용
    * @param token 사용자 디바이스 FCM 토큰
    */
-  async sendNotifications(notifications, token) {
+  async sendNotifications(notifications, tokens) {
     try {
       const responses = await Promise.all(
         notifications.map(async (notification) => {
           const message
-          :admin.messaging.Message
           = {
             // notification: {
             //   title: notification.title,
@@ -233,19 +233,19 @@ export class ScheduleService {
               title: notification.title,
               body: notification.body,
             },
+            tokens: [tokens],
             // tokens: [token],
-            token: token,
-            android: {
-              data: {},
-            },
-            apns: {
-              payload: {
-                aps: {},
-              },
-            },
+            // android: {
+            //   data: {},
+            // },
+            // apns: {
+            //   payload: {
+            //     aps: {},
+            //   },
+            // },
           };
-          // return this.fcm.sendEachForMulticast(message);
-          return this.fcm.send(message);
+          return this.fcm.sendEachForMulticast(message);
+          // return this.fcm.send(message);
 
         }),
       );
