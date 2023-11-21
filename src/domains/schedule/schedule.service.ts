@@ -226,7 +226,7 @@ export class ScheduleService {
           title: notifications.title,
           body: notifications.body,
         },
-      tokens: tokens,
+      tokens: [tokens],
     };
     
     this.fcm.sendMulticast(message)
@@ -249,7 +249,7 @@ export class ScheduleService {
         console.log(`Successfully sent messages(response):`+response);
         console.log(`Successfully sent messages(responses0):`+response.responses);
         console.log(`Successfully sent messages(successCount):`+response.successCount);
-        
+
       });
 
     // try {
