@@ -248,6 +248,10 @@ export class ScheduleService {
           // // return this.fcm.send(message);
 
           let message = {
+            notification: {
+              title: notification.title,
+              body: notification.body,
+            },
             data: {
               title: notification.title,
               body: notification.body,
