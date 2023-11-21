@@ -204,7 +204,7 @@ export class ScheduleService {
         });
 
         await this.sendNotifications(notifications, userToken);
-        
+
       }
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -220,38 +220,71 @@ export class ScheduleService {
    * @param token 사용자 디바이스 FCM 토큰
    */
   async sendNotifications(notifications, tokens) {
-    try {
-      const responses = await Promise.all(
-        notifications.map(async (notification) => {
-          const message
-          = {
-            // notification: {
-            //   title: notification.title,
-            //   body: notification.body,
-            // },
-            data: {
-              title: notification.title,
-              body: notification.body,
-            },
-            tokens: [tokens],
-            // tokens: [token],
-            // android: {
-            //   data: {},
-            // },
-            // apns: {
-            //   payload: {
-            //     aps: {},
-            //   },
-            // },
-          };
-          return this.fcm.sendEachForMulticast(message);
-          // return this.fcm.send(message);
 
-        }),
-      );
-      console.log('Successfully sent messages:', responses);
-    } catch (error) {
-      console.log('Error sending messages:', error);
-    }
+    const message = {
+        data: {
+          title: notifications.title,
+          body: notifications.body,
+        },
+      tokens: tokens,
+    };
+    
+    this.fcm.sendMulticast(message)
+      .then((response) => {
+
+        if (response.failureCount > 0) {
+          const failedTokens = [];
+          response.responses.forEach((resp, idx) => {
+            if (!resp.success) {
+              failedTokens.push(tokens[idx]);
+            }
+          });
+          console.log('List of tokens that caused failures: ' + failedTokens);
+        } else{
+          console.log(`else - Successfully sent messages(response):`+response);
+          console.log(`else - Successfully sent messages(responses0):`+response.responses);
+          console.log(`else - Successfully sent messages(successCount):`+response.successCount);
+        }
+
+        console.log(`Successfully sent messages(response):`+response);
+        console.log(`Successfully sent messages(responses0):`+response.responses);
+        console.log(`Successfully sent messages(successCount):`+response.successCount);
+        
+      });
+
+    // try {
+
+    //   const responses = await Promise.all(
+    //     notifications.map(async (notification) => {
+    //       const message
+    //       = {
+    //         // notification: {
+    //         //   title: notification.title,
+    //         //   body: notification.body,
+    //         // },
+    //         data: {
+    //           title: notification.title,
+    //           body: notification.body,
+    //         },
+    //         tokens: [tokens],
+    //         // tokens: [token],
+    //         // android: {
+    //         //   data: {},
+    //         // },
+    //         // apns: {
+    //         //   payload: {
+    //         //     aps: {},
+    //         //   },
+    //         // },
+    //       };
+    //       return this.fcm.sendEachForMulticast(message);
+    //       // return this.fcm.send(message);
+
+    //     }),
+    //   );
+    //   console.log('Successfully sent messages:', responses);
+    // } catch (error) {
+    //   console.log('Error sending messages:', error);
+    // }
   }
 }
