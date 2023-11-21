@@ -445,14 +445,19 @@ export class BoardService {
         await queryRunner.manager.save(boardAuction);
       }
       const firstImgData = await queryRunner.manager.findOneBy(BoardImage, {
-        idx: boardIdx,
+        boardIdx: boardIdx,
         mediaSequence: 0,
       });
+      console.log('firstImgData: ', firstImgData);
       // boardImg 테이블의 첫 이미지 or 영상 커버를 썸네일로 수정
+      if (firstImgData !== null) {
+      }
       const thumbnailUrl =
-        firstImgData.category === 'video'
-          ? firstImgData.coverImgPath
-          : firstImgData.path;
+        firstImgData !== null
+          ? firstImgData.category === 'video'
+            ? firstImgData.coverImgPath
+            : firstImgData.path
+          : null;
       // board 테이블 최종 수정
       const boardInfo = Board.updateFrom(
         user.idx,
