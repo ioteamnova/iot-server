@@ -223,58 +223,29 @@ export class ScheduleService {
     try {
       const responses = await Promise.all(
         notifications.map(async (notification) => {
-          // const message
-          // = {
-          //   // notification: {
-          //   //   title: notification.title,
-          //   //   body: notification.body,
-          //   // },
-          //   data: {
-          //     title: notification.title,
-          //     body: notification.body,
-          //   },
-          //   tokens: [tokens],
-          //   // tokens: [token],
-          //   // android: {
-          //   //   data: {},
-          //   // },
-          //   // apns: {
-          //   //   payload: {
-          //   //     aps: {},
-          //   //   },
-          //   // },
-          // };
-          // return this.fcm.sendEachForMulticast(message);
-          // // return this.fcm.send(message);
-
-          let message = {
+          const message
+          = {
             notification: {
               title: notification.title,
               body: notification.body,
             },
-            data: {
-              title: notification.title,
-              body: notification.body,
+            tokens: [tokens],
+            android: {
+              data: {},
             },
-            token: tokens,
+            apns: {
+              payload: {
+                aps: {},
+              },
+            },
+          };
+          return this.fcm.sendEachForMulticast(message);
           }
-        
-          admin
-            .messaging()
-            .send(message)
-            .then(function (response) {
-              console.log('Successfully sent message: : ', response)
-            })
-            .catch(function (err) {
-              console.log('Error Sending message!!! : ', err)
-            })
-
-        }
         ),
       );
-      // console.log('Successfully sent messages:', responses);
+      console.log('Successfully sent messages:', responses);
     } catch (error) {
-      // console.log('Error sending messages:', error);
+      console.log('Error sending messages:', error);
     }
   }
 }
