@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { MoffListRepository } from './repositories/moff-list.repository';
+import { MorphListRepository } from './repositories/morph-list.repository';
 
 @Injectable()
-export class MoffListService {
-  constructor(private moffListRepository: MoffListRepository) {}
+export class MorphListService {
+  constructor(private morphListRepository: MorphListRepository) {}
 
   /**
    *  모프 정보 리스트
    * @param dto 모프 종류 리스트
    * @returns
    */
-  async getMoffInfo() {
-    const result = await this.moffListRepository.find({
+  async getMorphInfo() {
+    const result = await this.morphListRepository.find({
       select: {
         category: true,
         name: true,

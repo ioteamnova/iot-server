@@ -7,6 +7,7 @@ import { Bookmark } from './board-bookmark.entity';
 import { ChatConversation } from 'src/domains/mypage/entities/chat-conversation.entity';
 import { BoardCommercial } from './board-commercial.entity';
 import { User } from 'src/domains/user/entities/user.entity';
+import { BoardAuction } from './board-auction.entity';
 
 @Entity()
 export class Board extends BaseEntity {
@@ -56,6 +57,10 @@ export class Board extends BaseEntity {
   @OneToOne(() => BoardCommercial)
   @JoinColumn({ name: 'idx', referencedColumnName: 'boardIdx' }) // postIdx와 idx를 일치시킴
   boardCommercial: BoardCommercial;
+
+  boardAuction: BoardAuction;
+
+  keywords: string;
 
   static from({
     userIdx,

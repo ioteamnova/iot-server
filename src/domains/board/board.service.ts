@@ -27,7 +27,7 @@ import { BoardCommercialRepository } from './repositories/board-commercial.repos
 import { UserRepository } from '../user/repositories/user.repository';
 import { BoardListDto } from './dtos/board-list.dto';
 import { fileValidate } from 'src/utils/fileValitate';
-import { DataSource, Not, QueryRunner } from 'typeorm';
+import { DataSource, QueryRunner } from 'typeorm';
 import { RedisService } from '@liaoliaots/nestjs-redis';
 import { BoardAuctionRepository } from './repositories/board-auction.repository';
 import { BoardCategoryPageRequest } from './dtos/board-category-page';
@@ -35,10 +35,9 @@ import { LiveStreamRepository } from '../live_stream/repositories/live-stream.re
 import { BoardAuction } from './entities/board-auction.entity';
 import * as moment from 'moment';
 import { BoardVerifyType, BoardOrderCriteria } from '../user/helper/constant';
-import { logger } from '../../utils/logger';
-import HttpResponse from 'src/core/http/http-response';
 import { UpdateStreamKeyDto } from './dtos/update-stream-key.dto';
 import { ClientRecommend } from 'src/utils/client-recommend';
+import { BoardElasticSearch } from './providers/elastic-search';
 
 @Injectable()
 export class BoardService {
@@ -55,6 +54,7 @@ export class BoardService {
     private boardAuctionRepository: BoardAuctionRepository,
     private liveStreamRepository: LiveStreamRepository,
     private clientRecommend: ClientRecommend,
+    private boardElasticSearch: BoardElasticSearch,
   ) {}
   /**
    * 게시판 다중 파일 업로드
@@ -87,6 +87,7 @@ export class BoardService {
           dto.birthDate,
         );
         await queryRunner.manager.save(boardCommercial);
+        boardInfo.boardCommercial = boardCommercial;
       }
       if (await this.isAuctionCate(dto.category)) {
         const boardAuction = BoardAuction.from(
@@ -106,12 +107,14 @@ export class BoardService {
         boardAuction.endTime = moment(dto.endTime)
           .add(1, 'minute')
           .format('YYYY-MM-DD HH:mm');
+
         if (dto.alertTime !== 'noAlert') {
           boardAuction.alertTime = moment(dto.endTime)
             .subtract(dto.alertTime, 'minute')
             .format('YYYY-MM-DD HH:mm');
         }
         await queryRunner.manager.save(boardAuction);
+        boardInfo.boardAuction = boardAuction;
       }
       // 3. 이미지 테이블에 s3 주소 저장
       if (dto.fileUrl) {
@@ -124,6 +127,12 @@ export class BoardService {
         }
         await queryRunner.manager.save(BoardImage, mediaInfo); // Create an instance of BoardImage entity class
       }
+      // 4. 엘라스틱 서치에 데이터 추가
+      this.boardElasticSearch.insertBoard(
+        boardInfo,
+        boardInfo.boardCommercial,
+        boardInfo.boardAuction,
+      );
       await queryRunner.commitTransaction();
       return boardInfo;
     } catch (error) {
@@ -357,6 +366,7 @@ export class BoardService {
         }
       }
       await queryRunner.manager.softDelete(Board, boardIdx);
+      await this.boardElasticSearch.deleteBoard(boardIdx);
       await queryRunner.commitTransaction();
     } catch (error) {
       await queryRunner.rollbackTransaction();
@@ -385,6 +395,8 @@ export class BoardService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
+      let boardCommercial;
+      let boardAuction;
       // 1. 수정할 게시글이 존재하는지 확인
       const board = await this.boardRepository.findOne({
         where: {
@@ -398,7 +410,7 @@ export class BoardService {
       }
       // 2. 만약 커머셜(중고, 분양) 테이블이 존제하면 커머셜 테이블 수정
       if (await this.isCommercialCate(board.category)) {
-        const boardCommercial = BoardCommercial.updateFrom(
+        boardCommercial = BoardCommercial.updateFrom(
           dto.boardCommercialIdx,
           boardIdx,
           dto.gender,
@@ -411,12 +423,12 @@ export class BoardService {
         );
         await queryRunner.manager.save(boardCommercial);
       }
-      // 2. 만약 경매 테이블이 존제하면 경매 테이블 수정
+      // 3. 만약 경매 테이블이 존제하면 경매 테이블 수정
       if (await this.isAuctionCate(dto.category)) {
         const auctionInfo = await queryRunner.manager.findOneBy(BoardAuction, {
           idx: dto.auctionIdx,
         });
-        const boardAuction = BoardAuction.updateForm(
+        boardAuction = BoardAuction.updateForm(
           auctionInfo.idx,
           board.idx,
           dto.price,
@@ -448,8 +460,7 @@ export class BoardService {
         boardIdx: boardIdx,
         mediaSequence: 0,
       });
-      console.log('firstImgData: ', firstImgData);
-      // boardImg 테이블의 첫 이미지 or 영상 커버를 썸네일로 수정
+      // 4.boardImg 테이블의 첫 이미지 or 영상 커버를 썸네일로 수정
       if (firstImgData !== null) {
       }
       const thumbnailUrl =
@@ -458,7 +469,7 @@ export class BoardService {
             ? firstImgData.coverImgPath
             : firstImgData.path
           : null;
-      // board 테이블 최종 수정
+      // 5.board 테이블 최종 수정
       const boardInfo = Board.updateFrom(
         user.idx,
         dto.category,
@@ -474,6 +485,13 @@ export class BoardService {
         },
         relations: ['images'],
       });
+      // 6.엘라스틱 서치에서 수정
+      await this.boardElasticSearch.updateBoard(
+        boardIdx,
+        boardInfo,
+        boardCommercial,
+        boardAuction,
+      );
       await queryRunner.commitTransaction();
       return returnBoard;
     } catch (error) {
@@ -879,5 +897,11 @@ export class BoardService {
       );
     }
     return result;
+  }
+  async searchTotal(keyword: string) {
+    return this.boardElasticSearch.searchTotal(keyword);
+  }
+  async searchCategory(keyword: string, pageRequest: BoardCategoryPageRequest) {
+    return this.boardElasticSearch.searchCategory(keyword, pageRequest);
   }
 }

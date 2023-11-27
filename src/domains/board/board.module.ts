@@ -13,7 +13,8 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { BoardAuctionRepository } from './repositories/board-auction.repository';
 import { LiveStreamRepository } from '../live_stream/repositories/live-stream.repository';
 import { ClientRecommend } from '../../utils/client-recommend';
-
+import { BoardElasticSearch } from './providers/elastic-search';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
 @Module({
   imports: [
     TypeOrmExModule.forCustomRepository([
@@ -27,16 +28,12 @@ import { ClientRecommend } from '../../utils/client-recommend';
       UserRepository,
       LiveStreamRepository,
     ]),
-    // RedisModule.forRoot({
-    //   readyLog: true,
-    //   config: {
-    //     host: process.env.REDIS_HOST,
-    //     port: 6379,
-    //   },
-    // }),
+    ElasticsearchModule.register({
+      node: process.env.ELASICSEARCH_HOST, // Elasticsearch 서버 주소
+    }),
   ],
   controllers: [Boardcontroller],
-  providers: [BoardService, ClientRecommend],
+  providers: [BoardService, ClientRecommend, BoardElasticSearch],
   exports: [BoardService, TypeOrmExModule],
 })
 export class BoardModule {}

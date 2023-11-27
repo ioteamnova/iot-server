@@ -17,7 +17,6 @@ import {
   Patch,
   Post,
   Query,
-  Req,
   Res,
   UploadedFile,
   UseInterceptors,
@@ -334,5 +333,31 @@ export class Boardcontroller {
   async findRecommendItem(@Res() res, @AuthUser() user: User) {
     const board = await this.boardService.findRecommendItem(user.idx);
     return HttpResponse.ok(res, board);
+  }
+  @ApiOperation({
+    summary: '통합 검색',
+    description:
+      'adoption, auction, market, ask, free 게시판 중 최대 5개까지 조회합니다.',
+  })
+  @ApiOkPaginationResponseTemplate({ type: BoardListDto })
+  @Get('/search/total/:keyword')
+  async searchTotal(@Res() res, @Param('keyword') keyword: string) {
+    const result = await this.boardService.searchTotal(keyword);
+    return HttpResponse.ok(res, result);
+  }
+  @ApiOperation({
+    summary: '특정 게시판 더보기 조회',
+    description:
+      'adoption, auction, market, ask, free 중에서 한 카테고리 키워드 검색',
+  })
+  @ApiOkPaginationResponseTemplate({ type: BoardListDto })
+  @Get('/search/category/:keyword')
+  async searchCategory(
+    @Res() res,
+    @Param('keyword') keyword: string,
+    @Query() pageRequest: BoardCategoryPageRequest,
+  ) {
+    const result = await this.boardService.searchCategory(keyword, pageRequest);
+    return HttpResponse.ok(res, result);
   }
 }

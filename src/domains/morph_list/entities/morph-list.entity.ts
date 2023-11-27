@@ -2,7 +2,7 @@ import BaseEntity from 'src/core/entity/base.entity';
 import { Column, Entity } from 'typeorm';
 
 @Entity()
-export class MoffList extends BaseEntity {
+export class MorphList extends BaseEntity {
   @Column({
     nullable: false,
     length: 150,
@@ -19,5 +19,5 @@ export class MoffList extends BaseEntity {
     nullable: false,
     length: 150,
   })
-  moff_recommend: string;
+  morph_recommend: string;
 }
