@@ -48,7 +48,10 @@ export class BoardRepository extends Repository<Board> {
         'auction',
         'board.idx = auction.boardIdx',
       )
-      .leftJoinAndSelect('board.boardCommercial', 'boardCommercial')
+      .leftJoinAndSelect(
+        'board_commercial',
+        'commercial',
+        'board.idx = commercial.boardIdx')
       .where('board.category = :category', { category })
       .orderBy(orderByField, pageRequest.order)
       .take(pageRequest.limit)
