@@ -199,7 +199,7 @@ export class ScheduleService {
         const notifications = userSchedules.map((schedule) => {
           
           return {
-            title: schedule.type,
+            title: '스케쥴링',
             body: schedule.title,
           };
         });
