@@ -28,7 +28,6 @@ import { PetWeightPageRequest } from './dtos/pet-weight-page';
 import { PetListDto } from './dtos/pet-list.dto';
 import { UserRepository } from '../user/repositories/user.repository';
 
-
 @Injectable()
 export class DiaryService {
   constructor(
@@ -151,7 +150,6 @@ export class DiaryService {
     dto: CreateDiaryDto,
     files: Array<Express.Multer.File>,
   ) {
-
     // 펫 존재여부 확인
     const pet = await this.petRepository.findByPetIdx(petIdx);
     if (!pet) {
@@ -167,14 +165,13 @@ export class DiaryService {
       const images = await this.uploadDiaryImages(files, diary.idx);
       diary.images = images;
     }
-    
-    return diary
+
+    return diary;
 
     // return {
     //   ...diary,
     //   images: diary.images,
     // };
-    
   }
 
   /**
@@ -360,7 +357,7 @@ export class DiaryService {
     }
     const [weights, totalCount] =
       await this.petWeightRepository.findAndCountByPetIdx(petIdx, pageRequest);
-      
+
     const items = weights.map((weight, index) => {
       const prevWeight = weights[index + 1]?.weight;
       const weightChange = prevWeight ? weight.weight - prevWeight : 0;

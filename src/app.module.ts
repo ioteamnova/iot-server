@@ -15,7 +15,8 @@ import { BoardModule } from './domains/board/board.module';
 import { LiveStreamModule } from './domains/live_stream/live_stream.module';
 import { MypageModule } from './domains/mypage/mypage.module';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
-import { MoffListModule } from './domains/moff_list/moff_list.module';
+import { MorphListModule } from './domains/morph_list/morph_list.module';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
 
 @Module({
   imports: [
@@ -45,6 +46,9 @@ import { MoffListModule } from './domains/moff_list/moff_list.module';
         password: process.env.REDIS_PASSWORD,
       },
     }),
+    ElasticsearchModule.register({
+      node: process.env.ELASICSEARCH_HOST, // Elasticsearch 서버 주소
+    }),
     UserModule,
     AuthModule,
     DiaryModule,
@@ -54,7 +58,7 @@ import { MoffListModule } from './domains/moff_list/moff_list.module';
     ScheduleModule.forRoot(),
     LiveStreamModule,
     MypageModule,
-    MoffListModule,
+    MorphListModule,
   ],
   controllers: [AppController],
   providers: [AppService],

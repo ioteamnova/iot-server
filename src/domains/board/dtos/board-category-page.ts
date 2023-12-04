@@ -25,7 +25,7 @@ export class BoardCategoryPageRequest extends PageRequest {
 
   @ApiProperty({
     description:
-      '로그인 되어 있으면, 로그인된 유저 idx 넣어주세요. 로그인 되어있지 않으면 안넣으시면 됩니다.',
+      '로그인 되어 있으면, 로그인된 유저 idx 넣어주세요. 로그인 되어있지 않으면 안넣으시면 됩니다. *검색은 안넣으셔도 됩니다!!',
     required: true,
     default: 65,
   })

@@ -77,7 +77,6 @@ export class UpdateBoardDto extends PartialType(createBoardDto) {
     description: '내용 *경매글만 필요, 경매 번호.',
     default: '65',
   })
-  @IsString()
   @IsNotEmpty()
   auctionIdx: number;
 
