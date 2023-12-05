@@ -210,11 +210,6 @@ export class BoardService {
           auctionInfoArr.push(board);
         }
 
-        // 임시저장글은 목록에서 삭제한다. (!item.boardAuction가 있는 이유는, boardAuction이 null인 게시글의 state를 조회하면 'Cannot read properties of null' 오류가 발생하기 때문)
-        result.items = auctionInfoArr.filter(
-          (item) => !item.boardAuction || item.boardAuction.state !== 'temp',
-        );
-
         return result;
       default:
         return result;
