@@ -223,13 +223,15 @@ export class BoardService {
   async findBoard(boardIdx: number, userIdx: number) {
     //1. 게시글 정보를 조회한다.
     const board = await this.boardRepository.findBoadDetailByBoardIdx(boardIdx);
+    
     if (!board) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
     } else if (board.status === 'PRIVATE') {
       throw new NotFoundException(HttpErrorConstants.BOARD_PRIVATE);
     }
-    //2. 조회수 처리: 현재는 로그인 되어있는 유저만 카운팅 하고 있습니다. 하루에 1번 로그인된 유저 Idx는 레디스(boardview+boardIdx키)에 저장되고 조회수가 1오릅니다. 레디스는 23:59분에 초기화됩니다.
+    //2. 로그인한 유저의 경우 처리
     if (userIdx !== null || userIdx !== undefined) {
+      // 2-1. 조회수 처리: 현재는 로그인 되어있는 유저만 카운팅 하고 있습니다. 하루에 1번 로그인된 유저 Idx는 레디스(boardview+boardIdx키)에 저장되고 조회수가 1오릅니다. 레디스는 23:59분에 초기화됩니다.
       const key = `boardview${boardIdx}`;
       const redis = this.redisService.getClient();
       const setMembers = await redis.smembers(key); // Redis에서 Set의 모든 멤버 가져오기const boardCommercial = new BoardCommercial();
@@ -251,8 +253,18 @@ export class BoardService {
           .set({ view: viewCnt })
           .where('board.idx = :boardIdx', { boardIdx: boardIdx })
           .execute();
+
+      }
+
+      // 2-2. 북마크 여부 확인
+      const bookmark = await this.boardBookmarkRepository.findBookmark(userIdx, boardIdx);
+      if(bookmark){
+        board.hasBookmarked = true;
+      }else{
+        board.hasBookmarked = false;
       }
     }
+
     //3. 글 작성자에 대한 정보를 가지고 온다
     const userDetails = await this.findUserInfo(board);
     board.UserInfo = userDetails;

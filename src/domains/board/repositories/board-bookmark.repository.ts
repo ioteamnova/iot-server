@@ -20,4 +20,16 @@ export class BoardBookmarkRepository extends Repository<Bookmark> {
       .getManyAndCount();
     return [boards, totalCount];
   }
+
+  async findBookmark(
+    userIdx: number,
+    boardIdx: number,
+  ): Promise<Bookmark> {
+    const result = await this.createQueryBuilder('bookmark')
+    .where('bookmark.user_idx = :userIdx', { userIdx })
+    .andWhere('bookmark.post_idx = :boardIdx', { boardIdx })
+    .getOne();
+    return result;
+  }
+
 }
