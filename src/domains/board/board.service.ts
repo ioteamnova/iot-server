@@ -265,6 +265,10 @@ export class BoardService {
       }
     }
 
+    // 해당 게시글의 북마크 총개수를 확인해서 담아준다
+    const bookmarkCounts = await this.boardBookmarkRepository.countBookmarks(boardIdx);
+    board.bookmarkCounts = bookmarkCounts;
+
     //3. 글 작성자에 대한 정보를 가지고 온다
     const userDetails = await this.findUserInfo(board);
     board.UserInfo = userDetails;

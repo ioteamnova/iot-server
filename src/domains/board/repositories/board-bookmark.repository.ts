@@ -32,4 +32,12 @@ export class BoardBookmarkRepository extends Repository<Bookmark> {
     return result;
   }
 
+  async countBookmarks(boardIdx: number): Promise<number> {
+    const count = await this.createQueryBuilder('bookmark')
+      .where('bookmark.post_idx = :boardIdx', { boardIdx })
+      .getCount();
+  
+    return count;
+  }
+
 }
