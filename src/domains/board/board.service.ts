@@ -813,7 +813,7 @@ export class BoardService {
   async boardBookmarkRemove(boardIdx: number, userIdx: number) {
     const bookmarkCheck = await this.boardBookmarkRepository.findOne({
       where: {
-        category: 'board',
+        // category: 'board',
         postIdx: boardIdx,
         userIdx: userIdx,
       },
