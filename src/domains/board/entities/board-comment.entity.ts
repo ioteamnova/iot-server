@@ -27,6 +27,8 @@ export default class BoardComment extends BaseEntity {
 
   category: string;
 
+  boardCategory: string;
+
   static from({
     boardIdx,
     description,

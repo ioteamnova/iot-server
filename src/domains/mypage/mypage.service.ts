@@ -93,6 +93,7 @@ export class MypageService {
         });
         if (board !== null) {
           boardComment.title = board.title;
+          boardComment.boardCategory = board.category;
           returnData.push(boardComment);
         }
       }
