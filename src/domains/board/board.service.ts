@@ -68,11 +68,16 @@ export class BoardService {
     try {
       // 1. 게시글 저장
       dto.userIdx = userIdx;
-      if (dto.fileUrl[0].category === 'video') {
-        dto.thumbnail = dto.fileUrl[0].coverImgPath;
-      } else {
-        dto.thumbnail = dto.fileUrl[0].path;
+      if(dto.fileUrl.length !== 0){
+        if (dto.fileUrl[0].category === 'video') {
+          dto.thumbnail = dto.fileUrl[0].coverImgPath;
+        } else {
+          dto.thumbnail = dto.fileUrl[0].path;
+        }
+      } else{
+        dto.thumbnail = null;
       }
+
       const board = Board.from(dto);
       const boardInfo = await queryRunner.manager.save(board);
       // 2. 커머셜 or 경매 게시글 저장
