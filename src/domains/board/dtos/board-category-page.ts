@@ -26,8 +26,10 @@ export class BoardCategoryPageRequest extends PageRequest {
     | 'ask'
     | 'market'
     | 'adoption'
+    | 'auction'
     | 'auctionOngoing'
-    | 'auctionEnd';
+    | 'auctionEnd'
+    ;
 
   @ApiProperty({
     description:
