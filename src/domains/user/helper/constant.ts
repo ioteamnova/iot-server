@@ -5,7 +5,8 @@ export enum EmailVerifyType {
 }
 // 게시판 관련
 export enum BoardVerifyType {
-  AUCTIONGOING = 'auctionOngoing',
+  AUCTION = 'auction',
+  AUCTIONSELLING = 'auctionSelling',
   AUCTIONEND = 'auctionEnd',
   ADOPTION = 'adoption',
   FREE = 'free',

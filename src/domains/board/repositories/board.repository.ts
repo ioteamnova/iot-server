@@ -53,7 +53,9 @@ export class BoardRepository extends Repository<Board> {
         'commercial',
         'board.idx = commercial.boardIdx')
       .where('board.category = :category', { category })
-      .andWhere(category === 'auction' ? 'auction.state <> :state' : '1=1', { state: 'temp' })
+      .andWhere(category === 'auction' ? 'auction.state <> :state' : '1=1', {
+        state: 'temp',
+      })
       .orderBy(orderByField, pageRequest.order)
       .take(pageRequest.limit)
       .skip(pageRequest.offset)

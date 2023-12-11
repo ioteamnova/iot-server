@@ -79,6 +79,17 @@ export class Boardcontroller {
   }
 
   @ApiOperation({
+    summary: '경매 게시판 조회',
+    description: '경매 게시판을 상태 따라 최신 정보를 조회합니다.',
+  })
+  @ApiOkPaginationResponseTemplate({ type: BoardListDto })
+  @Get('/auction')
+  async getAuction(@Res() res, @Query() pageRequest: BoardCategoryPageRequest) {
+    const boards = await this.boardService.findAuction(pageRequest);
+    return HttpResponse.ok(res, boards);
+  }
+
+  @ApiOperation({
     summary: '게시판 상세조회',
     description: '게시판을 상세 조회 기능입니다.',
   })

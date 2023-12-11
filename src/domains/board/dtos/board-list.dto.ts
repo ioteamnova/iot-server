@@ -86,8 +86,8 @@ export class BoardListDto {
   boardCommercial: BoardCommercial;
   boardAuction: BoardAuction;
   liveStream: LiveStream;
-  hasBookmarked: Boolean;
-  bookmarkCounts:number;
+  hasBookmarked: boolean;
+  bookmarkCounts: number;
   UserInfo: { idx: number; nickname: string; profilePath: string };
 
   status: string;

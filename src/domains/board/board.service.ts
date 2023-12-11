@@ -148,7 +148,7 @@ export class BoardService {
     }
   }
   /**
-   * 게시판 조회
+   * 게시판 조회  - 자유, 질문, 마켓, 분양 게시글 조회.
    * @param userIdx 유저인덱스
    * @param pageRequest 페이징객체
    * @returns 게시판 목록
@@ -161,7 +161,7 @@ export class BoardService {
 
     // 조회할 게시글의 카테고리가 market, adoption, auction이 아닌 경우, 가격을 기준으로 정렬을 하려고 하면 오류를 응답한다.
     if (
-      !['market', 'adoption', 'auction'].includes(category) &&
+      !['market', 'adoption'].includes(category) &&
       orderCriteria === BoardOrderCriteria.PRICE
     ) {
       throw new UnprocessableEntityException(
@@ -176,7 +176,6 @@ export class BoardService {
         category,
         orderCriteria,
       );
-
     const result = new Page<BoardListDto>(totalCount, boards, pageRequest);
     //2. 게시글 작성자에 대한 정보(닉네임, 프로필 사진 주소)를 불러온다.
     const usersInfoArr = [];
@@ -204,24 +203,35 @@ export class BoardService {
         }
         result.items = commercialInfoArr;
         return result;
-      case BoardVerifyType.AUCTIONGOING:
-        const auctionInfoArr = [];
-        for (const board of result.items) {
-          const auctionInfo = await this.boardAuctionRepository.findOne({
-            where: { boardIdx: board.idx },
-          });
-
-          board.boardAuction = auctionInfo;
-          auctionInfoArr.push(board);
-        }
-
-        return result;
       default:
         return result;
     }
   }
   /**
-   * 게시글 상세 조회
+   * 경매 게시판 조회 - 경매 게시판은 판매 상태를 기준으로 조회하기 때문에 따로 분리함
+   * @param userIdx 유저인덱스
+   * @param pageRequest 페이징객체
+   * @returns 게시판 목록
+   */
+  async findAuction(
+    pageRequest: BoardCategoryPageRequest,
+  ): Promise<Page<BoardListDto>> {
+    let state = '';
+    if (pageRequest.category.includes('auctionSelling')) {
+      state = 'selling';
+    } else {
+      state = 'end';
+    }
+
+    //경매 게시글들을 보드+유저를 조인해서 불러온다.
+    const [auction, totalCount] =
+      await this.boardAuctionRepository.findAndCountByState(pageRequest, state);
+    const result = new Page<BoardListDto>(totalCount, auction, pageRequest);
+    return result;
+  }
+
+  /**
+   * 게시글 상세 조회 - 하나의 엔드 포인트로 모든 게시글을 조회합니다.
    * @param BoardIdx 게시판 인덱스
    * @returns 게시글 관련 정보 및 미디어(이미지, 영상)
    */
@@ -299,7 +309,7 @@ export class BoardService {
           );
         }
         return board;
-      case BoardVerifyType.AUCTIONGOING:
+      case BoardVerifyType.AUCTION:
         //경매 보드 추가
         const boardAuction = await this.boardAuctionRepository.findOne({
           where: {
@@ -861,7 +871,7 @@ export class BoardService {
   }
   // 옥션 카테고리인지 아닌지
   async isAuctionCate(category: string): Promise<boolean> {
-    if (category === BoardVerifyType.AUCTIONGOING) {
+    if (category === BoardVerifyType.AUCTION) {
       return true;
     } else {
       return false;

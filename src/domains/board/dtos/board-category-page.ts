@@ -18,7 +18,15 @@ export class BoardCategoryPageRequest extends PageRequest {
         - 중고거래\n
         - 분양\n
         - 경매`,
-    enum: ['free', 'ask', 'market', 'adoption', 'auction'],
+    enum: [
+      'free',
+      'ask',
+      'market',
+      'adoption',
+      'auction',
+      'auctionSelling',
+      'auctionEnd',
+    ],
     default: 'free',
   })
   category:
@@ -26,7 +34,8 @@ export class BoardCategoryPageRequest extends PageRequest {
     | 'ask'
     | 'market'
     | 'adoption'
-    | 'auctionOngoing'
+    | 'adoption'
+    | 'auctionSelling'
     | 'auctionEnd';
 
   @ApiProperty({
