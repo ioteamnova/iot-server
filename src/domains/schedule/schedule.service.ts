@@ -126,96 +126,6 @@ export class ScheduleService {
     await this.scheduleRepository.softDelete(scheduleIdx);
   }
 
-<<<<<<< HEAD
-  @Cron(CronExpression.EVERY_MINUTE)
-  async checkSchedules() {
-    const currentTime = DateUtils.momentTime();
-    const testTime = '16:00'; // 테스트용 시간
-    const currentDay = DateUtils.momentDay();
-    const testDate = '2023-08-25'; // 테스트용 날짜
-    const currentDate = DateUtils.momentNowSubtractTime();
-
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      const getDataQuery = `
-      SELECT * FROM schedule S
-      LEFT JOIN fb_token F
-      ON S.user_idx = F.user_idx where S.alarm_time = ?
-      `;
-      //조회 데이터
-      const schedules = await queryRunner.query(getDataQuery, [
-        currentTime,
-        // testTime
-      ]);
-
-      // console.log(schedules)
-
-      if (schedules.length === 0) {
-        console.log('No schedules to send alerts.');
-        return;
-      }
-
-      const matchingSchedules = schedules.filter((schedule) => {
-        if (
-          schedule.type === SchedulesType.CALENDAR &&
-          schedule.date === currentDate
-          // schedule.date === testDate
-        ) {
-          return true;
-        }
-
-        if (schedule.type === SchedulesType.REPETITION) {
-          // const repeatArray = schedule.repeatDay.split(',');
-          const repeatArray = schedule.repeat_day.split(',');
-          const sameDay: boolean = repeatArray[currentDay] === '1';
-          return sameDay;
-        }
-      });
-
-      if (matchingSchedules.length === 0) {
-        console.log('No matchingSchedules to send alerts.');
-        return;
-      }
-
-      /**
-       * 유저의 토큰과 스케줄을 Map에 담는다.
-       * 같은 유저(같은 토큰값)가 여러개의 스케줄을 갖고 있는 경우를 고려하여 Map을 사용.
-       * */
-
-      const userTokensMap = new Map();
-      for (const matchingSchedule of matchingSchedules) {
-        const userToken = matchingSchedule.fb_token;
-
-        if (!userTokensMap.has(userToken)) {
-          userTokensMap.set(userToken, []);
-        }
-
-        userTokensMap.get(userToken).push(matchingSchedule);
-      }
-
-      for (const [userToken, userSchedules] of userTokensMap) {
-        const notifications = userSchedules.map((schedule) => {
-          
-          return {
-            title: '스케쥴링',
-            body: schedule.title,
-          };
-        });
-
-        await this.sendNotifications(notifications, userToken);
-        
-      }
-    } catch (error) {
-      await queryRunner.rollbackTransaction();
-      throw error;
-    } finally {
-      await queryRunner.release();
-    }
-  }
-=======
   // @Cron(CronExpression.EVERY_MINUTE)
   // async checkSchedules() {
   //   const currentTime = DateUtils.momentTime();
@@ -307,7 +217,6 @@ export class ScheduleService {
   //     await queryRunner.release();
   //   }
   // }
->>>>>>> d0989e38ffda4d2ea19dad9b2c998719ff588b48
 
   /**
    * FCM 서버로 유저의 토큰과 발송할 메세지를 전송
