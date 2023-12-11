@@ -68,13 +68,13 @@ export class BoardService {
     try {
       // 1. 게시글 저장
       dto.userIdx = userIdx;
-      if(dto.fileUrl.length !== 0){
+      if (dto.fileUrl.length !== 0) {
         if (dto.fileUrl[0].category === 'video') {
           dto.thumbnail = dto.fileUrl[0].coverImgPath;
         } else {
           dto.thumbnail = dto.fileUrl[0].path;
         }
-      } else{
+      } else {
         dto.thumbnail = null;
       }
 
@@ -204,7 +204,7 @@ export class BoardService {
         }
         result.items = commercialInfoArr;
         return result;
-      case BoardVerifyType.AUCTION:
+      case BoardVerifyType.AUCTIONGOING:
         const auctionInfoArr = [];
         for (const board of result.items) {
           const auctionInfo = await this.boardAuctionRepository.findOne({
@@ -228,7 +228,7 @@ export class BoardService {
   async findBoard(boardIdx: number, userIdx: number) {
     //1. 게시글 정보를 조회한다.
     const board = await this.boardRepository.findBoadDetailByBoardIdx(boardIdx);
-    
+
     if (!board) {
       throw new NotFoundException(HttpErrorConstants.CANNOT_FIND_BOARD);
     } else if (board.status === 'PRIVATE') {
@@ -258,20 +258,24 @@ export class BoardService {
           .set({ view: viewCnt })
           .where('board.idx = :boardIdx', { boardIdx: boardIdx })
           .execute();
-
       }
 
       // 2-2. 북마크 여부 확인
-      const bookmark = await this.boardBookmarkRepository.findBookmark(userIdx, boardIdx);
-      if(bookmark){
+      const bookmark = await this.boardBookmarkRepository.findBookmark(
+        userIdx,
+        boardIdx,
+      );
+      if (bookmark) {
         board.hasBookmarked = true;
-      }else{
+      } else {
         board.hasBookmarked = false;
       }
     }
 
     // 해당 게시글의 북마크 총개수를 확인해서 담아준다
-    const bookmarkCounts = await this.boardBookmarkRepository.countBookmarks(boardIdx);
+    const bookmarkCounts = await this.boardBookmarkRepository.countBookmarks(
+      boardIdx,
+    );
     board.bookmarkCounts = bookmarkCounts;
 
     //3. 글 작성자에 대한 정보를 가지고 온다
@@ -295,7 +299,7 @@ export class BoardService {
           );
         }
         return board;
-      case BoardVerifyType.AUCTION:
+      case BoardVerifyType.AUCTIONGOING:
         //경매 보드 추가
         const boardAuction = await this.boardAuctionRepository.findOne({
           where: {
@@ -857,7 +861,7 @@ export class BoardService {
   }
   // 옥션 카테고리인지 아닌지
   async isAuctionCate(category: string): Promise<boolean> {
-    if (category === BoardVerifyType.AUCTION) {
+    if (category === BoardVerifyType.AUCTIONGOING) {
       return true;
     } else {
       return false;
