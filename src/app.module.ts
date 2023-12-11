@@ -55,7 +55,7 @@ import { ElasticsearchModule } from '@nestjs/elasticsearch';
     BoardModule,
     SchedulerModule, // 스케줄 모듈과 혼동 주의
     IotPersonalModule,
-    ScheduleModule.forRoot(),
+    // ScheduleModule.forRoot(),
     LiveStreamModule,
     MypageModule,
     MorphListModule,
