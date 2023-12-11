@@ -73,11 +73,7 @@ export class Boardcontroller {
   })
   @ApiOkPaginationResponseTemplate({ type: BoardListDto })
   @Get('')
-  async getBoard(
-    @Res() res,
-    @Query() pageRequest: BoardCategoryPageRequest,
-    // @Query('category') category: BoardCategoryPageRequest,
-  ) {
+  async getBoard(@Res() res, @Query() pageRequest: BoardCategoryPageRequest) {
     const boards = await this.boardService.findAllBoard(pageRequest);
     return HttpResponse.ok(res, boards);
   }

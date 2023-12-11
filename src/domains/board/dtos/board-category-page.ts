@@ -21,7 +21,13 @@ export class BoardCategoryPageRequest extends PageRequest {
     enum: ['free', 'ask', 'market', 'adoption', 'auction'],
     default: 'free',
   })
-  category: 'free' | 'ask' | 'market' | 'adoption' | 'auction';
+  category:
+    | 'free'
+    | 'ask'
+    | 'market'
+    | 'adoption'
+    | 'auctionOngoing'
+    | 'auctionEnd';
 
   @ApiProperty({
     description:
