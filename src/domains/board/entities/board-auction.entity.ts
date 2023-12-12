@@ -1,5 +1,6 @@
 import BaseEntity from 'src/core/entity/base.entity';
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Board } from './board.entity';
 
 @Entity()
 export class BoardAuction extends BaseEntity {
@@ -71,6 +72,11 @@ export class BoardAuction extends BaseEntity {
     length: 150,
   })
   streamKey: string;
+
+  // 일대일 관계 설정
+  @OneToOne(() => Board)
+  @JoinColumn({ name: 'board_idx', referencedColumnName: 'idx' }) // idx와 postIdx를 일치시킴
+  board: Board;
 
   static from(
     boardIdx: number,

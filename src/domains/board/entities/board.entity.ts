@@ -58,6 +58,8 @@ export class Board extends BaseEntity {
   @JoinColumn({ name: 'idx', referencedColumnName: 'boardIdx' }) // postIdx와 idx를 일치시킴
   boardCommercial: BoardCommercial;
 
+  @OneToOne(() => BoardAuction)
+  @JoinColumn({ name: 'idx', referencedColumnName: 'boardIdx' }) // postIdx와 idx를 일치시킴
   boardAuction: BoardAuction;
 
   keywords: string;

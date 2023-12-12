@@ -227,8 +227,7 @@ export class ScheduleService {
     try {
       const responses = await Promise.all(
         notifications.map(async (notification) => {
-          const message
-          = {
+          const message = {
             notification: {
               title: notification.title,
               body: notification.body,
@@ -244,8 +243,7 @@ export class ScheduleService {
             },
           };
           return this.fcm.sendEachForMulticast(message);
-          }
-        ),
+        }),
       );
       console.log('Successfully sent messages:', responses);
     } catch (error) {
