@@ -11,8 +11,8 @@ permissions: # pemission 설정 destination 파일에 owner,group,mode를 지정
     owner: ubuntu
     group: ubuntu
     mode: 755
-# hooks:
-#   AfterInstall:
-#     - location: scripts/after-deploy.sh
-#       timeout: 300
-#       runas: ubuntu
+hooks:
+  AfterInstall:
+    - location: scripts/after-deploy.sh
+      timeout: 300
+      runas: ubuntu

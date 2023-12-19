@@ -1,7 +1,9 @@
-#!/bin/bash
-REPOSITORY=/home/ubuntu/iot-server/build
+# nvm 설정을 로드합니다.
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
-cd $REPOSITORY
+# Node.js 버전을 사용합니다.
+nvm use 19.8.1
 
-sudo /usr/bin/npm i
-sudo /usr/bin/pm2 reload main
+/home/ubuntu/.nvm/versions/node/v19.8.1/bin/pm2 restart main
