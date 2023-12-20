@@ -12,12 +12,15 @@ import { ChatConversationRepository } from './repositories/chat-conversation.rep
 import { ChatConversation } from './entities/chat-conversation.entity';
 import { Bookmark } from '../board/entities/board-bookmark.entity';
 import { BoardBookmarkRepository } from '../board/repositories/board-bookmark.repository';
+import { ValueAnalyzerRepository } from './repositories/value-analyzer.repository';
+import { ValueAnalyzer } from './entities/value-analyzer.entity';
 @Injectable()
 export class MypageService {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   constructor(
     private boardRepository: BoardRepository,
     private boardCommercialRepository: BoardCommercialRepository,
+    private valueAnalyzerRepository: ValueAnalyzerRepository,
     private boardAuctionRepository: BoardAuctionRepository,
     private chatConversationRepository: ChatConversationRepository,
     private boardBookmarkRepository: BoardBookmarkRepository,
@@ -171,4 +174,21 @@ export class MypageService {
     const result = new Page<Bookmark>(totalCount, datas, pageRequest);
     return result;
   }
+
+  async getSavedValueAnalysisResult(
+    user: User
+  ): Promise<ValueAnalyzer[]> {
+
+    const userIdx = user.idx;
+
+    console.log(userIdx)
+
+    const result = this.valueAnalyzerRepository.find({
+      where:{userIdx}
+    })
+
+    return result;
+
+  }
+
 }

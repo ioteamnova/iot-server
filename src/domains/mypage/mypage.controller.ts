@@ -140,4 +140,21 @@ export class Mypagecontroller {
     );
     return HttpResponse.ok(res, result);
   }
+
+  @ApiOperation({
+    summary: '저장한 가치판단 결과들 조회',
+    description:
+      '해당 계정으로 저장한 가치판단 결과들을 모두 불러옵니다.',
+  })
+  @UseAuthGuards()
+  @Get('/savedValueAnalysisResult')
+  async getSavedValueAnalysisResult(
+    @Res() res,
+    @AuthUser() user: User
+  ) {
+    const result = await this.mypageService.getSavedValueAnalysisResult(
+      user
+    );
+    return HttpResponse.ok(res, result);
+  }
 }

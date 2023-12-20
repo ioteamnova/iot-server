@@ -10,6 +10,7 @@ import { BoardCommentRepository } from '../board/repositories/board-comment.repo
 import { BoardReplyRepository } from '../board/repositories/board-reply.repository';
 import { ChatConversationRepository } from './repositories/chat-conversation.repository';
 import { BoardBookmarkRepository } from '../board/repositories/board-bookmark.repository';
+import { ValueAnalyzerRepository } from './repositories/value-analyzer.repository';
 @Module({
   imports: [
     TypeOrmExModule.forCustomRepository([
@@ -19,6 +20,7 @@ import { BoardBookmarkRepository } from '../board/repositories/board-bookmark.re
       BoardReplyRepository,
       ChatConversationRepository,
       BoardBookmarkRepository,
+      ValueAnalyzerRepository
     ]),
     // RedisModule.forRoot({
     //   readyLog: true,
