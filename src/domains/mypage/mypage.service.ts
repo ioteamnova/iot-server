@@ -175,7 +175,7 @@ export class MypageService {
     return result;
   }
 
-  async getSavedValueAnalysisResult(
+  async getValueAnalysisResultsList(
     user: User
   ): Promise<ValueAnalyzer[]> {
 
@@ -184,7 +184,23 @@ export class MypageService {
     console.log(userIdx)
 
     const result = this.valueAnalyzerRepository.find({
-      where:{userIdx}
+      where:{userIdx},
+      select: ["idx", "petName", "totalScore", "topImg"]
+    })
+
+    return result;
+
+  }
+
+  async getValueAnalysisResultDetail(
+    user: User,
+    idx: number
+  ): Promise<ValueAnalyzer> {
+
+    const result = this.valueAnalyzerRepository.findOne({
+      where: {
+        idx
+    },
     })
 
     return result;

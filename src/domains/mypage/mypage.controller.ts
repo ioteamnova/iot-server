@@ -1,4 +1,4 @@
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiCommonErrorResponseTemplate } from 'src/core/swagger/api-error-common-response';
 import { SwaggerTag } from 'src/core/swagger/swagger-tags';
 import UseAuthGuards from '../auth/auth-guards/use-auth';
@@ -12,6 +12,8 @@ import { User } from 'src/domains/user/entities/user.entity';
 import HttpResponse from 'src/core/http/http-response';
 import { BoardCategoryPageRequest } from '../board/dtos/board-category-page';
 import { PageRequest } from 'src/core/page';
+import { BoardDetailDto } from '../board/dtos/board-detail-dto';
+import { ValueAnalyzer } from './entities/value-analyzer.entity';
 
 @ApiTags(SwaggerTag.MYPAGE)
 @ApiCommonErrorResponseTemplate()
@@ -142,19 +144,43 @@ export class Mypagecontroller {
   }
 
   @ApiOperation({
-    summary: '저장한 가치판단 결과들 조회',
+    summary: '가치판단 결과들의 리스트 조회',
     description:
-      '해당 계정으로 저장한 가치판단 결과들을 모두 불러옵니다.',
+      '해당 계정으로 저장한 가치판단 결과들의 리스트를 모두 불러옵니다.',
   })
   @UseAuthGuards()
-  @Get('/savedValueAnalysisResult')
-  async getSavedValueAnalysisResult(
+  @Get('/valueAnalysisResultsList')
+  async getValueAnalysisResultsList(
     @Res() res,
     @AuthUser() user: User
   ) {
-    const result = await this.mypageService.getSavedValueAnalysisResult(
+    const result = await this.mypageService.getValueAnalysisResultsList(
       user
     );
     return HttpResponse.ok(res, result);
   }
+
+
+  @ApiOperation({
+    summary: '가치판단 결과 상세보기',
+    description:
+      '특정 idx의 가치판단 결과의 모든 데이터를 불러옵니다.',
+  })
+  @UseAuthGuards()
+  @Get('/valueAnalysisResultDetail:idx')
+  async getValueAnalysisResultDetail(
+    @Res() res,
+    @AuthUser() user: User,
+    @Param('idx') idx: number,
+  ) {
+    const result = await this.mypageService.getValueAnalysisResultDetail(
+      user,
+      idx
+    );
+    return HttpResponse.ok(res, result);
+  }
+
+
+  
+
 }
