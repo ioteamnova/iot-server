@@ -30,14 +30,15 @@ async function bootstrap() {
   // setNestApp(app);
 
   // pm2로 실행했는지에 따른 분기처리
-  // if(process.send){
+  if(process.send){
     app.listen(3000, () => {
       process.send("ready");
-      console.log(`application is listening on port ${3000}`);
+      console.log(`pm2로 실행: O`);
     });
-  // } else{
-  //   await app.listen(3000);
-  // }
+  } else{
+    await app.listen(3000);
+    console.log(`pm2로 실행: X`);
+  }
 }
 
 bootstrap();
