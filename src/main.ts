@@ -31,10 +31,26 @@ async function bootstrap() {
 
   // pm2로 실행했는지에 따른 분기처리
   if(process.send){
+    
     app.listen(3000, () => {
       process.send("ready");
       console.log(`pm2로 실행: O`);
+      
     });
+
+    // SIGINT 핸들러 등록
+    process.on('SIGINT', async () => {
+    try {
+      console.log('Closing server...');
+      await app.close();
+      console.log('Server closed');
+      process.exit(0);
+    } catch (e) {
+      console.error('Error closing server:', e);
+      process.exit(1);
+    }
+  });
+    
   } else{
     await app.listen(3000);
     console.log(`pm2로 실행: X`);
