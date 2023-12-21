@@ -53,8 +53,8 @@ async function bootstrap() {
   // });
     
   // } else{
-    await app.listen(3000);
-    console.log(`pm2로 실행: X`);
+    // await app.listen(3000);
+    // console.log(`pm2로 실행: X`);
   // }
 }
 
