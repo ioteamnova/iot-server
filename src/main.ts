@@ -29,36 +29,13 @@ async function bootstrap() {
 
   // setNestApp(app);
 
-  // // pm2로 실행했는지에 따른 분기처리
-  // if(process.send){
   await app.listen(3000);
 
-  process.send("ready");
-  console.log(`pm2로 실행: O`);
-
-  // app.listen(3000, () => {
-  //   process.send("ready");
-  //   console.log(`pm2로 실행: O`);
-  // });
-
-
-  //   // SIGINT 시그널이 전달되면 app.close명령어로 프로세스가 새로운 요청을 받는 것을 거절하고 기존 연결은 유지하게 처리
-  //   process.on('SIGINT', async () => {
-  //   try {
-  //     console.log('Closing server...');
-  //     await app.close();
-  //     console.log('Server closed');
-  //     process.exit(0);
-  //   } catch (e) {
-  //     console.error('Error closing server:', e);
-  //     process.exit(1);
-  //   }
-  // });
-    
-  // } else{
-    // await app.listen(3000);
-    // console.log(`pm2로 실행: X`);
-  // }
+  // 어플리케이션이 클라이언트의 요청처리가 가능한 상태가 되었을때 pm2에 ready신호를 보내기 (process.send 함수는 pm2로 실행되었을 경우에만 존재하여 분기처리를 했다)
+  if(process.send){
+    process.send("ready");
+    console.log(`pm2로 실행되었습니다.`);
+  }
 }
 
 bootstrap();
