@@ -31,12 +31,15 @@ async function bootstrap() {
 
   // // pm2로 실행했는지에 따른 분기처리
   // if(process.send){
+  await app.listen(3000);
 
-    app.listen(3000, () => {
-      process.send("ready");
-      console.log(`pm2로 실행: O`);
-      
-    });
+  process.send("ready");
+  console.log(`pm2로 실행: O`);
+
+  // app.listen(3000, () => {
+  //   process.send("ready");
+  //   console.log(`pm2로 실행: O`);
+  // });
 
 
   //   // SIGINT 시그널이 전달되면 app.close명령어로 프로세스가 새로운 요청을 받는 것을 거절하고 기존 연결은 유지하게 처리
