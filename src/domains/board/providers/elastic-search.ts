@@ -34,7 +34,7 @@ export class BoardElasticSearch {
     }
     board.keywords = JSON.stringify(keywords);
     await this.elasticsearchService.index({
-      index: 'board',
+      index: 'nori_board',
       id: board.idx.toString(),
       body: board,
     });
@@ -42,7 +42,7 @@ export class BoardElasticSearch {
   async boardSearch(boardIdx: number) {
     try {
       const response = await this.elasticsearchService.get({
-        index: 'board',
+        index: 'nori_board',
         id: boardIdx.toString(),
       });
       console.log('response: ', response);
@@ -62,7 +62,7 @@ export class BoardElasticSearch {
     const results = {};
     for (const category of categories) {
       const result = await this.elasticsearchService.search({
-        index: 'board',
+        index: 'nori_board', // 'board'에서 'nori_board'로 변경
         body: {
           query: {
             bool: {
@@ -90,7 +90,6 @@ export class BoardElasticSearch {
           ],
         },
       });
-
       results[category] = result.hits.hits;
     }
     return results;
@@ -102,7 +101,7 @@ export class BoardElasticSearch {
   ): Promise<any> {
     console.log(keyword);
     const result = await this.elasticsearchService.search({
-      index: 'board',
+      index: 'nori_board',
       body: {
         query: {
           bool: {
@@ -136,7 +135,7 @@ export class BoardElasticSearch {
   async deleteBoard(boardIdx: number): Promise<any> {
     try {
       const response = await this.elasticsearchService.delete({
-        index: 'board',
+        index: 'nori_board',
         id: boardIdx.toString(),
       });
 
