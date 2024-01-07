@@ -73,8 +73,12 @@ export class Boardcontroller {
   })
   @ApiOkPaginationResponseTemplate({ type: BoardListDto })
   @Get('')
-  async getBoard(@Res() res, @Query() pageRequest: BoardCategoryPageRequest) {
-    const boards = await this.boardService.findAllBoard(pageRequest);
+  async getBoard(
+    @Res() res,
+    @Query() pageRequest: BoardCategoryPageRequest,
+    @Query('userIdx') userIdx: number,
+  ) {
+    const boards = await this.boardService.findAllBoard(pageRequest, userIdx);
     return HttpResponse.ok(res, boards);
   }
 
@@ -84,7 +88,11 @@ export class Boardcontroller {
   })
   @ApiOkPaginationResponseTemplate({ type: BoardListDto })
   @Get('/auction')
-  async getAuction(@Res() res, @Query() pageRequest: BoardCategoryPageRequest) {
+  async getAuction(
+    @Res() res,
+    @Query() pageRequest: BoardCategoryPageRequest,
+    @Query('userIdx') userIdx: number,
+  ) {
     const boards = await this.boardService.findAuction(pageRequest);
     return HttpResponse.ok(res, boards);
   }

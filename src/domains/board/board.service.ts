@@ -155,6 +155,7 @@ export class BoardService {
    */
   async findAllBoard(
     pageRequest: BoardCategoryPageRequest,
+    userIdx: number,
   ): Promise<Page<BoardListDto>> {
     const category = pageRequest.category;
     const orderCriteria = pageRequest.orderCriteria;
@@ -175,6 +176,7 @@ export class BoardService {
         pageRequest,
         category,
         orderCriteria,
+        userIdx,
       );
     const result = new Page<BoardListDto>(totalCount, boards, pageRequest);
     //2. 게시글 작성자에 대한 정보(닉네임, 프로필 사진 주소)를 불러온다.
@@ -187,10 +189,27 @@ export class BoardService {
 
     result.items = usersInfoArr;
 
+    // 3. 북마크 여부 확인
+    const bookmarkInfoArr = [];
+    for (const board of result.items) {
+      const bookmark = await this.boardBookmarkRepository.findBookmarkfromList(
+        userIdx,
+        board,
+      );
+      if (bookmark) {
+        board.hasBookmarked = true;
+      } else {
+        board.hasBookmarked = false;
+      }
+      bookmarkInfoArr.push(board);
+    }
+
+    result.items = bookmarkInfoArr;
+
     switch (pageRequest.category) {
       case BoardVerifyType.MARKET:
       case BoardVerifyType.ADOPTION:
-        //3. 게시판 카테고리가 분양 or 중고 마켓이면 해당 데이터를 조회한다.
+        //4. 게시판 카테고리가 분양 or 중고 마켓이면 해당 데이터를 조회한다.
         const commercialInfoArr = [];
         for (const board of result.items) {
           const commercialInfo = await this.boardCommercialRepository.findOne({
