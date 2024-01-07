@@ -93,7 +93,7 @@ export class Boardcontroller {
     @Query() pageRequest: BoardCategoryPageRequest,
     @Query('userIdx') userIdx: number,
   ) {
-    const boards = await this.boardService.findAuction(pageRequest);
+    const boards = await this.boardService.findAuction(pageRequest, userIdx);
     return HttpResponse.ok(res, boards);
   }
 

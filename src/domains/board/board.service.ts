@@ -234,6 +234,7 @@ export class BoardService {
    */
   async findAuction(
     pageRequest: BoardCategoryPageRequest,
+    userIdx: number,
   ): Promise<Page<BoardListDto>> {
     let state = '';
     if (pageRequest.category.includes('auctionSelling')) {
@@ -246,6 +247,22 @@ export class BoardService {
     const [auction, totalCount] =
       await this.boardAuctionRepository.findAndCountByState(pageRequest, state);
     const result = new Page<BoardListDto>(totalCount, auction, pageRequest);
+    // 3. 북마크 여부 확인(리스트)
+    const bookmarkInfoArr = [];
+    for (const board of result.items) {
+      const bookmark = await this.boardBookmarkRepository.findBookmarkfromList(
+        userIdx,
+        board,
+      );
+      if (bookmark) {
+        board.hasBookmarked = true;
+      } else {
+        board.hasBookmarked = false;
+      }
+      bookmarkInfoArr.push(board);
+    }
+
+    result.items = bookmarkInfoArr;
     return result;
   }
 
