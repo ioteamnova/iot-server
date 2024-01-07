@@ -1,6 +1,6 @@
 export enum SwaggerTag {
   // 유저 관련
-  AUTH = 'Auth: 인증@@',
+  AUTH = 'Auth: 인증',
   USER = 'User: 유저',
   DIARY = 'Diary: 다이어리',
   BOARD = 'BOARD: 게시판',
