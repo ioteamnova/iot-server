@@ -15,8 +15,11 @@ export class BoardRepository extends Repository<Board> {
     pageRequest: BoardCategoryPageRequest,
     category: string,
     orderCriteria: string,
+    userIdx: number,
   ): Promise<[BoardListDto[], number]> {
     let orderByField;
+
+    console.log(userIdx);
 
     // 정렬기준을 DB가 이해할수 있는 필드(컬럼)네임 형태로 바꾼다
     switch (orderCriteria) {
@@ -51,7 +54,8 @@ export class BoardRepository extends Repository<Board> {
       .leftJoinAndSelect(
         'board_commercial',
         'commercial',
-        'board.idx = commercial.boardIdx')
+        'board.idx = commercial.boardIdx',
+      )
       .where('board.category = :category', { category })
       .andWhere(category === 'auction' ? 'auction.state <> :state' : '1=1', {
         state: 'temp',
@@ -59,6 +63,7 @@ export class BoardRepository extends Repository<Board> {
       .orderBy(orderByField, pageRequest.order)
       .take(pageRequest.limit)
       .skip(pageRequest.offset)
+      .setParameters({ userIdx: userIdx })
       .getManyAndCount();
 
     const boardListDtoArr: BoardListDto[] = await boards.map((board) => {
