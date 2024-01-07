@@ -45,6 +45,7 @@ jobs:
           echo NODE_MAILER_PASSWORD=${{ secrets.PROD_NODE_MAILER_PASSWORD }} >> .env.prod
           echo JWT_SECRET=${{ secrets.PROD_JWT_SECRET }} >> .env.prod
           echo FILE_CONVERTER_IP=${{ secrets.PROD_FILE_CONVERTER_IP }} >> .env.prod
+          echo ELASICSEARCH_HOST=${{ secrets.PROD_ELASICSEARCH_HOST }} >> .env.prod
       - name: create-json
         id: create-json
         uses: jsdaniell/create-json@1.1.2
