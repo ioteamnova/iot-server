@@ -189,7 +189,7 @@ export class BoardService {
 
     result.items = usersInfoArr;
 
-    // 3. 북마크 여부 확인
+    // 3. 북마크 여부 확인(리스트)
     const bookmarkInfoArr = [];
     for (const board of result.items) {
       const bookmark = await this.boardBookmarkRepository.findBookmarkfromList(
