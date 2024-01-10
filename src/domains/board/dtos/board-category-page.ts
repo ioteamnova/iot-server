@@ -25,6 +25,7 @@ export class BoardCategoryPageRequest extends PageRequest {
       'adoption',
       'auction',
       'auctionSelling',
+      'auctionTemp',
       'auctionEnd',
     ],
     default: 'free',
@@ -36,6 +37,7 @@ export class BoardCategoryPageRequest extends PageRequest {
     | 'adoption'
     | 'adoption'
     | 'auctionSelling'
+    | 'auctionTemp'
     | 'auctionEnd';
 
   @ApiProperty({

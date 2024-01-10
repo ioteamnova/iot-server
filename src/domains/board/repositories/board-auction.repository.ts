@@ -28,4 +28,29 @@ export class BoardAuctionRepository extends Repository<BoardAuction> {
     });
     return [auctionListDtoArr, totalCount];
   }
+
+  async findMypageAuction(
+    pageRequest: BoardCategoryPageRequest,
+    userIdx: number,
+    state: string,
+  ): Promise<[BoardListDto[], number]> {
+    const [auctions, totalCount] = await this.createQueryBuilder('boardAuction')
+      .leftJoinAndSelect('boardAuction.board', 'board')
+      .leftJoinAndSelect('board.user', 'user')
+      .where('boardAuction.state = :state', { state })
+      .andWhere('board.userIdx = :userIdx', { userIdx })
+      .orderBy('boardAuction.idx', pageRequest.order)
+      .take(pageRequest.limit)
+      .skip(pageRequest.offset)
+      .getManyAndCount();
+
+    const auctionListDtoArr: BoardListDto[] = await auctions.map((auction) => {
+      const boardListDto = BoardListDto.from(auction.board);
+      boardListDto.UserInfo = auction.board.user;
+      auction.board = null;
+      boardListDto.boardAuction = auction;
+      return boardListDto;
+    });
+    return [auctionListDtoArr, totalCount];
+  }
 }

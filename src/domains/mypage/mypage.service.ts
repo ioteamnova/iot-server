@@ -117,11 +117,21 @@ export class MypageService {
     user: User,
     pageRequest: BoardCategoryPageRequest,
   ): Promise<Page<BoardListDto>> {
+    let state = '';
+    if (pageRequest.category.includes('auctionSelling')) {
+      state = 'selling';
+    } else if (pageRequest.category.includes('auctionTemp')) {
+      state = 'temp';
+    } else {
+      state = 'end';
+    }
+
     //1. 내가 작성한 경매게시글 데이터 및 총개수를 불러온다
     const [boards, totalCount] =
-      await this.boardRepository.findAndCountByAuctionMyPage(
+      await this.boardAuctionRepository.findMypageAuction(
         pageRequest,
         user.idx,
+        state,
       );
     const result = new Page<BoardListDto>(totalCount, boards, pageRequest);
     //2. 게시글 작성자에 대한 정보(닉네임, 프로필 사진 주소)를 불러온다.
@@ -175,36 +185,29 @@ export class MypageService {
     return result;
   }
 
-  async getValueAnalysisResultsList(
-    user: User
-  ): Promise<ValueAnalyzer[]> {
-
+  async getValueAnalysisResultsList(user: User): Promise<ValueAnalyzer[]> {
     const userIdx = user.idx;
 
-    console.log(userIdx)
+    console.log(userIdx);
 
     const result = this.valueAnalyzerRepository.find({
-      where:{userIdx},
-      select: ["idx", "petName", "totalScore", "topImg"]
-    })
+      where: { userIdx },
+      select: ['idx', 'petName', 'totalScore', 'topImg'],
+    });
 
     return result;
-
   }
 
   async getValueAnalysisResultDetail(
     user: User,
-    idx: number
+    idx: number,
   ): Promise<ValueAnalyzer> {
-
     const result = this.valueAnalyzerRepository.findOne({
       where: {
-        idx
-    },
-    })
+        idx,
+      },
+    });
 
     return result;
-
   }
-
 }

@@ -7,6 +7,7 @@ export enum EmailVerifyType {
 export enum BoardVerifyType {
   AUCTION = 'auction',
   AUCTIONSELLING = 'auctionSelling',
+  AUCTIONTEMP = 'auctionTemp',
   AUCTIONEND = 'auctionEnd',
   ADOPTION = 'adoption',
   FREE = 'free',
