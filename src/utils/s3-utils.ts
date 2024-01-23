@@ -24,7 +24,7 @@ export const asyncUploadToS3 = async (
   //이미지 리사이징 (sharp라이브러리)
   const resizedFile = await sharp(file, { failOnError: false })
     .resize({ width: 500 }) // 원본 비율 유지하면서 width의 크기만 500으로 지정 후 리사이징
-    .toBuffer();
+    .toBuffer(); // 버퍼 세팅
 
   const bucket = process.env.AWS_BUCKET_NAME;
   const s3 = new S3({
