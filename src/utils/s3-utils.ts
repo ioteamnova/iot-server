@@ -4,7 +4,7 @@ import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
 import { logger } from './logger';
 import DateUtils from './date-utils';
 import * as uuid from 'uuid';
-import * as sharp from 'sharp';
+import sharp from 'sharp';
 
 export const s3 = new S3({
   accessKeyId: process.env.AWS_ACECSS_KEY_ID,
@@ -21,6 +21,11 @@ export const asyncUploadToS3 = async (
     fileKey = fileKey.replace(`.${originalExtension}`, '.jpeg'); // 확장자 변경
     //file = await convertToJPEG(file);
   }
+  //이미지 리사이징 (sharp라이브러리)
+  const resizedFile = await sharp(file, { failOnError: false })
+    .resize({ width: 500 }) // 원본 비율 유지하면서 width의 크기만 500으로 지정 후 리사이징
+    .toBuffer();
+
   const bucket = process.env.AWS_BUCKET_NAME;
   const s3 = new S3({
     accessKeyId: process.env.AWS_ACECSS_KEY_ID,
@@ -32,7 +37,7 @@ export const asyncUploadToS3 = async (
       {
         Bucket: bucket,
         Key: fileKey,
-        Body: file,
+        Body: resizedFile,
       },
       async function (err, data) {
         console.log(err);
