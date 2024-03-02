@@ -14,7 +14,7 @@ export class UpdateStreamKeyDto {
 
   @ValidateIf((object) => object.category === 'auction')
   @ApiProperty({
-    description: '스트림키 *경매글만 필요, 스트림키.',
+    description: '스트림키 * 경매글만 필요, 스트림키.',
     default: '21Bu-CQfU-im7s-W7NJ-ArLV',
   })
   @IsString()
